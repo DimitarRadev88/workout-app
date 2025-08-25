@@ -1,8 +1,10 @@
 package com.dimitarrradev.demo.user;
 
+import com.dimitarrradev.demo.controller.model.UserRegisterBindingModel;
 import com.dimitarrradev.demo.role.Role;
 import com.dimitarrradev.demo.role.RoleService;
 import com.dimitarrradev.demo.role.RoleType;
+import com.dimitarrradev.demo.user.dto.RegisteredUserIdAndUsernameModel;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ public class UserService {
     }
 
     @Transactional
-    public void addUser(String username, String password) {
+    public void addFirstUser(String username, String password) {
         if (userDao.existsUserByUsername(username)) {
             throw new IllegalArgumentException("Username is already in use");
         }
@@ -41,5 +43,26 @@ public class UserService {
 
     public long getUserCount() {
         return userDao.count();
+    }
+
+    @Transactional
+    public RegisteredUserIdAndUsernameModel doRegister(UserRegisterBindingModel userRegisterBindingModel) {
+        if (userDao.existsUserByUsername(userRegisterBindingModel.username())) {
+            throw new IllegalArgumentException("Username is already in use");
+        }
+
+        if (userDao.existsUserByEmail(userRegisterBindingModel.email())) {
+            throw new IllegalArgumentException("Email is already in use");
+        }
+
+        User user = new User();
+        user.setUsername(userRegisterBindingModel.username());
+        user.setEmail(userRegisterBindingModel.email());
+        user.setPassword(passwordEncoder.encode(userRegisterBindingModel.password()));
+        user.setRoles(new ArrayList<>(List.of(roleService.getRoleByType(RoleType.USER))));
+
+        User saved = userDao.save(user);
+
+        return new RegisteredUserIdAndUsernameModel(saved.getId(), saved.getUsername());
     }
 }

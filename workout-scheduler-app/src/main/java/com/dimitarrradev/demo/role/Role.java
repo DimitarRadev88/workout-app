@@ -12,7 +12,7 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column
+    @Column(unique = true)
     @Enumerated(EnumType.STRING)
     private RoleType roleType;
     @ManyToMany(mappedBy = "roles")

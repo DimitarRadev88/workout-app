@@ -21,4 +21,8 @@ public class RoleService {
     public void addRole(Role role) {
         roleDao.save(role);
     }
+
+    public Role getRoleByType(RoleType roleType) {
+        return roleDao.getRolesByRoleType(roleType);
+    }
 }

@@ -29,7 +29,7 @@ public class ConsoleRunner implements CommandLineRunner {
         }
 
         if (userService.getUserCount() <= 0L) {
-            userService.addUser("user", "password");
+            userService.addFirstUser("user", "password");
         }
 
     }
