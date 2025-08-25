@@ -1,5 +1,5 @@
 package com.dimitarrradev.demo.role;
 
-public enum RoleName {
+public enum RoleType {
     USER, ADMIN
 }

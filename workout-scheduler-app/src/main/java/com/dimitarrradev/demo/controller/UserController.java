@@ -1,4 +1,4 @@
-package com.dimitarrradev.controller;
+package com.dimitarrradev.demo.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,9 +11,9 @@ public class UserController {
         return "blank";
     }
 
-    @GetMapping("/home")
+    @GetMapping("/register")
     public String getHomePage() {
-        return "blank";
+        return "register";
     }
 
 }

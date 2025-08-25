@@ -1,12 +1,15 @@
-package com.dimitarrradev.demo.config;
+package com.dimitarrradev.demo.userDetails;
 
+import com.dimitarrradev.demo.role.Role;
 import com.dimitarrradev.demo.user.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class WorkoutSchedulerUserDetails implements UserDetails {
     private User user;
@@ -17,20 +20,30 @@ public class WorkoutSchedulerUserDetails implements UserDetails {
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        if (user == null) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        if (user != null) {
+            List<Role> roles = user.getRoles();
+
+            roles.forEach(
+                    role -> authorities.add(
+                            new SimpleGrantedAuthority(
+                                    "ROLE_" + role.getRoleType().name()
+                            )
+                    )
+            );
 
         }
-        return List.of();
+        return authorities;
     }
 
     @Override
     public String getPassword() {
-        return "";
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return user.getUsername();
     }
 }

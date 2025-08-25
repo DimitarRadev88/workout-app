@@ -1,4 +1,4 @@
-package com.dimitarrradev.demo;
+package com.dimitarrradev.demo.controller;
 
 import org.springframework.stereotype.Controller;
 
