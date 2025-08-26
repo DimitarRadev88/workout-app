@@ -1,6 +1,6 @@
-package com.dimitarrradev.demo.user;
+package com.dimitarrradev.workoutScheduler.user;
 
-import com.dimitarrradev.demo.role.Role;
+import com.dimitarrradev.workoutScheduler.role.Role;
 import jakarta.persistence.*;
 
 import java.util.List;

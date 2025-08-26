@@ -1,4 +1,4 @@
-package com.dimitarrradev.demo.controller;
+package com.dimitarrradev.workoutScheduler.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

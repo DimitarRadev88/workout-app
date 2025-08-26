@@ -1,4 +1,4 @@
-package com.dimitarrradev.demo.controller.model;
+package com.dimitarrradev.workoutScheduler.web.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;

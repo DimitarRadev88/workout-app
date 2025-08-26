@@ -1,6 +1,6 @@
-package com.dimitarrradev.demo.config;
+package com.dimitarrradev.workoutScheduler.config;
 
-import com.dimitarrradev.demo.userDetails.WorkoutSchedulerUserDetailsService;
+import com.dimitarrradev.workoutScheduler.userDetails.WorkoutSchedulerUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

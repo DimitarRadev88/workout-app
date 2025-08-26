@@ -1,8 +1,7 @@
-package com.dimitarrradev.demo;
+package com.dimitarrradev.workoutScheduler;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 @SpringBootApplication()
 public class DemoApplication {

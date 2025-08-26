@@ -1,10 +1,9 @@
-package com.dimitarrradev.demo.user;
+package com.dimitarrradev.workoutScheduler.user;
 
-import com.dimitarrradev.demo.controller.model.UserRegisterBindingModel;
-import com.dimitarrradev.demo.role.Role;
-import com.dimitarrradev.demo.role.RoleService;
-import com.dimitarrradev.demo.role.RoleType;
-import com.dimitarrradev.demo.user.dto.RegisteredUserIdAndUsernameModel;
+import com.dimitarrradev.workoutScheduler.role.Role;
+import com.dimitarrradev.workoutScheduler.role.RoleService;
+import com.dimitarrradev.workoutScheduler.role.RoleType;
+import com.dimitarrradev.workoutScheduler.web.model.UserRegisterBindingModel;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,7 @@ public class UserService {
     }
 
     @Transactional
-    public RegisteredUserIdAndUsernameModel doRegister(UserRegisterBindingModel userRegisterBindingModel) {
+    public String doRegister(UserRegisterBindingModel userRegisterBindingModel) {
         if (userDao.existsUserByUsername(userRegisterBindingModel.username())) {
             throw new IllegalArgumentException("Username is already in use");
         }
@@ -63,6 +62,6 @@ public class UserService {
 
         User saved = userDao.save(user);
 
-        return new RegisteredUserIdAndUsernameModel(saved.getId(), saved.getUsername());
+        return saved.getUsername();
     }
 }

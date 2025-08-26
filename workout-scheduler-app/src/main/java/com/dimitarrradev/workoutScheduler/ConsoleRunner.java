@@ -1,9 +1,9 @@
-package com.dimitarrradev.demo;
+package com.dimitarrradev.workoutScheduler;
 
-import com.dimitarrradev.demo.role.Role;
-import com.dimitarrradev.demo.role.RoleService;
-import com.dimitarrradev.demo.role.RoleType;
-import com.dimitarrradev.demo.user.UserService;
+import com.dimitarrradev.workoutScheduler.role.Role;
+import com.dimitarrradev.workoutScheduler.role.RoleService;
+import com.dimitarrradev.workoutScheduler.role.RoleType;
+import com.dimitarrradev.workoutScheduler.user.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

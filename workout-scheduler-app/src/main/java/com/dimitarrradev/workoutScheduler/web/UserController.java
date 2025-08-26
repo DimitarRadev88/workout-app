@@ -1,8 +1,8 @@
-package com.dimitarrradev.demo.controller;
+package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.demo.controller.model.UserLoginBindingModel;
-import com.dimitarrradev.demo.controller.model.UserRegisterBindingModel;
-import com.dimitarrradev.demo.user.UserService;
+import com.dimitarrradev.workoutScheduler.user.UserService;
+import com.dimitarrradev.workoutScheduler.web.model.UserLoginBindingModel;
+import com.dimitarrradev.workoutScheduler.web.model.UserRegisterBindingModel;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,16 +25,18 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public ModelAndView getLoginPage(ModelAndView modelAndView) {
-        modelAndView.getModel().put("userLogin", new UserLoginBindingModel(null, null));
-        modelAndView.setViewName("login");
-        return modelAndView;
+    public String getLoginPage(Model model) {
+        if (!model.containsAttribute("userLogin")) {
+            model.addAttribute("userLogin", new UserLoginBindingModel(null, null));
+        }
+
+        return "login";
     }
 
     @GetMapping("/register")
     public String getHomePage(Model model) {
         if (!model.containsAttribute("userRegister")) {
-            model.addAttribute("userRegister", new UserRegisterBindingModel("", "", "", ""));
+            model.addAttribute("userRegister", new UserRegisterBindingModel(null, null, null, null));
         }
 
         return "register";
@@ -47,7 +49,8 @@ public class UserController {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userRegister", bindingResult);
             modelAndView.setViewName("redirect:/users/register");
         } else {
-            userService.doRegister(userRegister);
+            String username = userService.doRegister(userRegister);
+            redirectAttributes.addFlashAttribute("userLogin", new UserLoginBindingModel(username, null));
             modelAndView.setViewName("redirect:/users/login");
         }
 

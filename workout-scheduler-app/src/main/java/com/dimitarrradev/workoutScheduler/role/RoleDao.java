@@ -1,4 +1,4 @@
-package com.dimitarrradev.demo.role;
+package com.dimitarrradev.workoutScheduler.role;
 
 import jakarta.annotation.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;

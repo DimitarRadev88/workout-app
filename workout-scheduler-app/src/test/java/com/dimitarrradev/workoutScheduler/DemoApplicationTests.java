@@ -1,4 +1,4 @@
-package com.dimitarrradev.demo;
+package com.dimitarrradev.workoutScheduler;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

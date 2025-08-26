@@ -1,7 +1,7 @@
-package com.dimitarrradev.demo.userDetails;
+package com.dimitarrradev.workoutScheduler.userDetails;
 
-import com.dimitarrradev.demo.role.Role;
-import com.dimitarrradev.demo.user.User;
+import com.dimitarrradev.workoutScheduler.role.Role;
+import com.dimitarrradev.workoutScheduler.user.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

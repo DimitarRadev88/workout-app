@@ -1,8 +1,7 @@
-package com.dimitarrradev.demo.role;
+package com.dimitarrradev.workoutScheduler.role;
 
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 
 @Service
