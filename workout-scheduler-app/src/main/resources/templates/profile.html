@@ -146,16 +146,16 @@
                                             <p class="text-primary m-0 fw-bold">Personal Information</p>
                                         </div>
                                         <div class="card-body">
-                                            <form th:action="@{/users/profile}" th:object="${userProfile}" th:method="@{post}">
+                                            <form th:action="@{/users/profile-account-edit}" th:object="${profileAccountEdit}" method="post">
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <p th:text="*{username}">Username</p>
+                                                            <p th:field="*{username}">Username</p>
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <p th:text="*{email}">user@mail.com</p>
+                                                            <p th:field="*{email}">user@mail.com</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -163,28 +163,29 @@
                                                     <div class="col">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="first_name"><strong>First Name</strong></label>
-                                                            <input class="form-control" type="text" id="first_name" th:value="*{firstName}" placeholder="First Name" name="first_name">
+                                                            <input class="form-control" type="text" id="first_name" th:field="*{firstName}" placeholder="First Name" name="first_name">
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="last_name"><strong>Last Name</strong></label>
-                                                            <input class="form-control" type="text" id="last_name" th:value="*{lastName}" placeholder="Last Name" name="last_name">
+                                                            <input class="form-control" type="text" id="last_name" th:field="*{lastName}" placeholder="Last Name" name="last_name">
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row" style="display: none;">
+                                                <div class="row" id="change_password_row" style="display: none;">
                                                     <div class="col">
+                                                            <input class="form-control" type="text" id="is_changing_password" style="display: none" th:field="*{isChangingPassword}" name="is_changing_password">
                                                         <div class="mb-3"><label class="form-label" for="old_password"><strong>Old Password</strong></label>
-                                                            <input class="form-control" type="text" id="old_password" placeholder="**********" name="old_password"></div>
+                                                            <input class="form-control" type="text" id="old_password" th:field="*{oldPassword}" placeholder="**********" name="old_password"></div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3"><label class="form-label" for="new_password"><strong>New Password</strong></label>
-                                                            <input class="form-control" type="text" id="new_password" placeholder="**********" name="new_password">
+                                                            <input class="form-control" type="text" id="new_password"  th:field="*{newPassword}" placeholder="**********" name="new_password">
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">Change Password</button></div>
+                                                <div class="mb-3"><button class="btn btn-primary btn-sm" id="change_password_button" type="button">Change Password</button></div>
                                                 <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Save Settings</button></div>
                                             </form>
                                         </div>
@@ -194,23 +195,23 @@
                                             <p class="text-primary m-0 fw-bold">Training Information</p>
                                         </div>
                                         <div class="card-body">
-                                            <form th:action="@{/users/profile}" th:object="${userProfile}" method="post">
+                                            <form th:action="@{/users/profile-info-edit}" th:object="${profileInfoEdit}" method="post">
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="weight"><strong>Weight</strong></label>
-                                                            <input class="form-control" type="text" id="weight" th:value="*{weight}" placeholder="104" name="weight"></div>
+                                                            <input class="form-control" type="text" id="weight" th:field="*{weight}" placeholder="123" name="weight"></div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="height"><strong>Height</strong></label>
-                                                            <input class="form-control" type="text" id="height" th:value="*{height}" placeholder="183" name="height"></div>
+                                                            <input class="form-control" type="text" id="height" th:field="*{height}" placeholder="123" name="height"></div>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3"><label class="form-label" for="gym"><strong>Gym</strong></label>
-                                                            <input class="form-control" type="text" id="gym" th:value="*{gym}" placeholder="Gold's gym" name="gym">
+                                                            <input class="form-control" type="text" id="gym" th:field="*{gym}" placeholder="My Gym" name="gym">
                                                         </div>
                                                     </div>
                                                     <div class="col">
@@ -218,7 +219,7 @@
                                                             <label class="form-label" for="training_style"><strong>Training Style</strong></label>
                                                             <select class="form-select" id="training_style" th:field="*{trainingStyle}" name="training_style">
                                                                 <option th:each="trainingStyleEnum : ${T(com.dimitarrradev.workoutScheduler.training.TrainingStyle).values()}"
-                                                                        th:value="${trainingStyleEnum.getName()}" th:text="${trainingStyleEnum.getName()}"></option>
+                                                                        th:value="${trainingStyleEnum}" th:text="${trainingStyleEnum.getName()}"></option>
                                                             </select></div>
                                                     </div>
                                                 </div>
@@ -241,6 +242,7 @@
     </div>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
     <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
 </body>
 
 </html>

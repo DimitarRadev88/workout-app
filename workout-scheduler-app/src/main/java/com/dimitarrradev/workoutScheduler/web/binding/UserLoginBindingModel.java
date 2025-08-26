@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.web.model;
+package com.dimitarrradev.workoutScheduler.web.binding;
 
 public record UserLoginBindingModel(
     String username,

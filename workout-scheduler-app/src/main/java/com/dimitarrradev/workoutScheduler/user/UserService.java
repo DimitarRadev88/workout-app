@@ -5,7 +5,7 @@ import com.dimitarrradev.workoutScheduler.role.RoleService;
 import com.dimitarrradev.workoutScheduler.role.RoleType;
 import com.dimitarrradev.workoutScheduler.training.TrainingStyle;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileViewModel;
-import com.dimitarrradev.workoutScheduler.web.model.UserRegisterBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

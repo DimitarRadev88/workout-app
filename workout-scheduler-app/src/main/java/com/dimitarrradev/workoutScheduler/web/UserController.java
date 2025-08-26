@@ -2,11 +2,12 @@ package com.dimitarrradev.workoutScheduler.web;
 
 import com.dimitarrradev.workoutScheduler.user.UserService;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileViewModel;
-import com.dimitarrradev.workoutScheduler.web.model.UserLoginBindingModel;
-import com.dimitarrradev.workoutScheduler.web.model.UserRegisterBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserLoginBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.security.Principal;
 
 @Controller
 @RequestMapping("/users")
@@ -64,12 +63,42 @@ public class UserController {
 
     @GetMapping("/profile")
     public String getProfilePage(Model model, Authentication authentication) {
-        String name = authentication.getName();
-        UserProfileViewModel userProfile = userService.getUserProfileView(name);
+        if (!model.containsAttribute("profileInfoEdit") || !model.containsAttribute("profileAccountEdit")) {
+            UserProfileViewModel userProfile = userService.getUserProfileView(authentication.getName());
 
-        model.addAttribute("userProfile", userProfile);
+            UserProfileAccountEditBindingModel profileAccountEdit = new UserProfileAccountEditBindingModel(
+                    userProfile.username(),
+                    userProfile.email(),
+                    userProfile.firstName(),
+                    userProfile.lastName(),
+                    false,
+                    null,
+                    null
+            );
 
+            UserProfileInfoEditBindingModel profileInfoEdit = new UserProfileInfoEditBindingModel(
+                    userProfile.weight(),
+                    userProfile.height(),
+                    userProfile.gym(),
+                    userProfile.trainingStyle()
+            );
+
+            model.addAttribute("profileAccountEdit", profileAccountEdit);
+            model.addAttribute("profileInfoEdit", profileInfoEdit);
+        }
         return "profile";
+    }
+
+    @PostMapping("/profile-account-edit")
+    public String postProfileAccountEdit(@Valid @ModelAttribute("profileAccountEdit") UserProfileAccountEditBindingModel profileAccountEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+
+        return "redirect:/users/profile";
+    }
+
+    @PostMapping("/profile-info-edit")
+    public String postProfileInfoEdit(@Valid @ModelAttribute("profileInfoEdit") UserProfileInfoEditBindingModel profileInfoEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+
+        return "redirect:/users/profile";
     }
 
 }
