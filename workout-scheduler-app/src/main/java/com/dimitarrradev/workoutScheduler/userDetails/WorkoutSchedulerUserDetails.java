@@ -46,4 +46,5 @@ public class WorkoutSchedulerUserDetails implements UserDetails {
     public String getUsername() {
         return user.getUsername();
     }
+
 }

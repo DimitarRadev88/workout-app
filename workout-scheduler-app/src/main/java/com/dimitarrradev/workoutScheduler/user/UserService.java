@@ -3,6 +3,8 @@ package com.dimitarrradev.workoutScheduler.user;
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.RoleService;
 import com.dimitarrradev.workoutScheduler.role.RoleType;
+import com.dimitarrradev.workoutScheduler.training.TrainingStyle;
+import com.dimitarrradev.workoutScheduler.user.dto.UserProfileViewModel;
 import com.dimitarrradev.workoutScheduler.web.model.UserRegisterBindingModel;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -63,5 +65,20 @@ public class UserService {
         User saved = userDao.save(user);
 
         return saved.getUsername();
+    }
+
+    public UserProfileViewModel getUserProfileView(String name) {
+        User user = userDao.findUserByUsername(name);
+        UserProfileViewModel result = new UserProfileViewModel(
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getWeight(),
+                user.getHeight(),
+                user.getGym(),
+                user.getTrainingStyle() != null ? user.getTrainingStyle() : TrainingStyle.CARDIO
+        );
+        return result;
     }
 }

@@ -1,9 +1,12 @@
 package com.dimitarrradev.workoutScheduler.web;
 
 import com.dimitarrradev.workoutScheduler.user.UserService;
+import com.dimitarrradev.workoutScheduler.user.dto.UserProfileViewModel;
 import com.dimitarrradev.workoutScheduler.web.model.UserLoginBindingModel;
 import com.dimitarrradev.workoutScheduler.web.model.UserRegisterBindingModel;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/users")
@@ -55,6 +60,16 @@ public class UserController {
         }
 
         return modelAndView;
+    }
+
+    @GetMapping("/profile")
+    public String getProfilePage(Model model, Authentication authentication) {
+        String name = authentication.getName();
+        UserProfileViewModel userProfile = userService.getUserProfileView(name);
+
+        model.addAttribute("userProfile", userProfile);
+
+        return "profile";
     }
 
 }

@@ -1,6 +1,7 @@
 package com.dimitarrradev.workoutScheduler.user;
 
 import com.dimitarrradev.workoutScheduler.role.Role;
+import com.dimitarrradev.workoutScheduler.training.TrainingStyle;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -28,6 +29,11 @@ public class User {
     private Integer height;
     @Basic
     private Integer bmi;
+    @Basic
+    private String gym;
+    @Basic
+    @Enumerated(EnumType.STRING)
+    private TrainingStyle trainingStyle;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles" ,
             joinColumns = @JoinColumn(name = "user_id"),
@@ -105,6 +111,22 @@ public class User {
 
     public void setBmi(Integer bmi) {
         this.bmi = bmi;
+    }
+
+    public String getGym() {
+        return gym;
+    }
+
+    public void setGym(String gym) {
+        this.gym = gym;
+    }
+
+    public TrainingStyle getTrainingStyle() {
+        return trainingStyle;
+    }
+
+    public void setTrainingStyle(TrainingStyle trainingStyle) {
+        this.trainingStyle = trainingStyle;
     }
 
     public List<Role> getRoles() {
