@@ -147,46 +147,38 @@
                                         </div>
                                         <div class="card-body">
                                             <form th:action="@{/users/profile-account-edit}" th:object="${profileAccountEdit}" method="post">
-                                                //TODO display errors
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <p th:field="*{username}">Username</p>
+                                                            <p th:text="*{username}">Username</p>
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <p th:field="*{email}">user@mail.com</p>
+                                                            <p th:text="*{email}">user@mail.com</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="first_name"><strong>First Name</strong></label>
+                                                            <label class="form-label" th:unless="${#fields.hasErrors('firstName')}" for="first_name"><strong>First Name</strong></label>
+                                                            <div th:each="error: ${#fields.errors('firstName')}">
+                                                                <label class="form-label text-danger" th:text="${error}" for="first_name"><strong>First Name</strong></label>
+                                                            </div>
                                                             <input class="form-control" type="text" id="first_name" th:field="*{firstName}" placeholder="First Name" name="first_name">
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="last_name"><strong>Last Name</strong></label>
+                                                            <label class="form-label" th:unless="${#fields.hasErrors('lastName')}" for="last_name"><strong>Last Name</strong></label>
+                                                            <div th:each="error: ${#fields.errors('lastName')}">
+                                                                <label class="form-label text-danger" th:text="${error}" for="last_name"><strong>Last Name</strong></label>
+                                                            </div>
                                                             <input class="form-control" type="text" id="last_name" th:field="*{lastName}" placeholder="Last Name" name="last_name">
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row" id="change_password_row" style="display: none;">
-                                                    <div class="col">
-                                                            <input class="form-control" type="text" id="is_changing_password" style="display: none" th:field="*{isChangingPassword}" name="is_changing_password">
-                                                        <div class="mb-3"><label class="form-label" for="old_password"><strong>Old Password</strong></label>
-                                                            <input class="form-control" type="text" id="old_password" th:field="*{oldPassword}" placeholder="**********" name="old_password"></div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="mb-3"><label class="form-label" for="new_password"><strong>New Password</strong></label>
-                                                            <input class="form-control" type="text" id="new_password"  th:field="*{newPassword}" placeholder="**********" name="new_password">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3"><button class="btn btn-primary btn-sm" id="change_password_button" type="button">Change Password</button></div>
                                                 <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Save Settings</button></div>
                                             </form>
                                         </div>
@@ -197,35 +189,82 @@
                                         </div>
                                         <div class="card-body">
                                             <form th:action="@{/users/profile-info-edit}" th:object="${profileInfoEdit}" method="post">
-                                                //TODO display errors
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="weight"><strong>Weight</strong></label>
-                                                            <input class="form-control" type="text" id="weight" th:field="*{weight}" placeholder="123" name="weight"></div>
+                                                            <label class="form-label" th:unless="${#fields.hasErrors('weight')}" for="weight"><strong>Weight</strong></label>
+                                                            <div th:each="error: ${#fields.errors('weight')}">
+                                                                <label class="form-label text-danger" th:text="${error}" for="weight"></label>
+                                                            </div>
+                                                            <input class="form-control" type="number" id="weight" th:field="*{weight}" value="75" name="weight"></div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="height"><strong>Height</strong></label>
-                                                            <input class="form-control" type="text" id="height" th:field="*{height}" placeholder="123" name="height"></div>
+                                                            <label class="form-label" th:unless="${#fields.hasErrors('height')}" for="height"><strong>Height</strong></label>
+                                                            <div th:each="error: ${#fields.errors('height')}">
+                                                                <label class="form-label text-danger" th:text="${error}" for="height"></label>
+                                                            </div>
+                                                            <input class="form-control" type="number" id="height" th:field="*{height}" value="170" name="height"></div>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col">
-                                                        <div class="mb-3"><label class="form-label" for="gym"><strong>Gym</strong></label>
+                                                        <div class="mb-3">
+                                                            <label class="form-label" th:unless="${#fields.hasErrors('gym')}" for="gym"><strong>Gym</strong></label>
+                                                            <div th:each="error: ${#fields.errors('gym')}">
+                                                                <label class="form-label text-danger" th:text="${error}" for="gym"></label>
+                                                            </div>
                                                             <input class="form-control" type="text" id="gym" th:field="*{gym}" placeholder="My Gym" name="gym">
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="training_style"><strong>Training Style</strong></label>
+                                                            <label class="form-label" th:unless="${#fields.hasErrors('trainingStyle')}" for="training_style"><strong>Training Style</strong></label>
+                                                            <div th:each="error: ${#fields.errors('trainingStyle')}">
+                                                                <label class="form-label text-danger" th:text="${error}" for="training_style"></label>
+                                                            </div>
                                                             <select class="form-select" id="training_style" th:field="*{trainingStyle}" name="training_style">
                                                                 <option th:each="trainingStyleEnum : ${T(com.dimitarrradev.workoutScheduler.training.TrainingStyle).values()}"
                                                                         th:value="${trainingStyleEnum}" th:text="${trainingStyleEnum.getName()}"></option>
-                                                            </select></div>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Save&nbsp;Settings</button></div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="card shadow mb-3">
+                                        <div th:object="${passwordChange}" class="card-header py-3">
+                                            <p th:unless="${#fields.hasErrors('oldPassword') || #fields.hasErrors('newPassword')}" class="text-primary m-0 fw-bold">Password Change</p>
+                                            <div class="row">
+                                                <div th:each="error: ${#fields.errors('oldPassword')}">
+                                                    <label class="form-label text-danger" th:text="${error}" for="old_password"><strong>Last Name</strong></label>
+                                                </div>
+                                                <div th:if="${!#fields.hasErrors('oldPassword')}" th:each="error: ${#fields.errors('newPassword')}">
+                                                    <label class="form-label text-danger" th:text="${error}" for="new_password"><strong>Last Name</strong></label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3"><button class="btn btn-primary btn-sm" id="change_password_button" type="button">Change Password</button></div>
+                                        </div>
+                                        <div style="display: none;" id="password_change" class="card-body">
+                                            <form th:action="@{/users/profile-password-change}" th:object="${passwordChange}" method="post">
+
+                                                <div class="row" id="change_password_row">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="old_password"><strong>Old Password</strong></label>
+                                                        <input class="form-control" type="password" id="old_password" th:field="*{oldPassword}" placeholder="**********" name="old_password">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="new_password"><strong>New Password</strong></label>
+                                                        <input class="form-control" type="password" id="new_password"  th:field="*{newPassword}" placeholder="**********" name="new_password">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="confirm_password"><strong>Confirm Password</strong></label>
+                                                        <input class="form-control" type="password" id="confirm_password"  th:field="*{confirmPassword}" placeholder="**********" name="confirm_password">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Save Settings</button></div>
                                             </form>
                                         </div>
                                     </div>

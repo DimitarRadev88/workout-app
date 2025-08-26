@@ -20,7 +20,7 @@ public class WorkoutSchedulerUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDao.findUserByUsername(username);
+        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
         if (user == null) {
             throw new UsernameNotFoundException(username);
         }

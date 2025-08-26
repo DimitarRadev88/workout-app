@@ -1,11 +1,9 @@
 package com.dimitarrradev.workoutScheduler.web;
 
 import com.dimitarrradev.workoutScheduler.user.UserService;
-import com.dimitarrradev.workoutScheduler.user.dto.UserProfileViewModel;
-import com.dimitarrradev.workoutScheduler.web.binding.UserLoginBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
+import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
+import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
+import com.dimitarrradev.workoutScheduler.web.binding.*;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -63,18 +61,25 @@ public class UserController {
 
     @GetMapping("/profile")
     public String getProfilePage(Model model, Authentication authentication) {
-        if (!model.containsAttribute("profileInfoEdit") || !model.containsAttribute("profileAccountEdit")) {
-            UserProfileViewModel userProfile = userService.getUserProfileView(authentication.getName());
+        if (!model.containsAttribute("profileAccountEdit")) {
+            UserProfileAccountViewModel userProfile = userService.getUserProfileAccountView(authentication.getName());
 
             UserProfileAccountEditBindingModel profileAccountEdit = new UserProfileAccountEditBindingModel(
                     userProfile.username(),
                     userProfile.email(),
                     userProfile.firstName(),
                     userProfile.lastName(),
-                    false,
+                    Boolean.FALSE,
                     null,
                     null
             );
+
+            model.addAttribute("profileAccountEdit", profileAccountEdit);
+
+        }
+
+        if (!model.containsAttribute("profileInfoEdit")) {
+            UserProfileInfoViewModel userProfile = userService.getUserProfileInfoView(authentication.getName());
 
             UserProfileInfoEditBindingModel profileInfoEdit = new UserProfileInfoEditBindingModel(
                     userProfile.weight(),
@@ -83,31 +88,69 @@ public class UserController {
                     userProfile.trainingStyle()
             );
 
-            model.addAttribute("profileAccountEdit", profileAccountEdit);
             model.addAttribute("profileInfoEdit", profileInfoEdit);
         }
+
+        if (!model.containsAttribute("passwordChange")) {
+            UserProfilePasswordChangeBindingModel passwordChange = new UserProfilePasswordChangeBindingModel(
+                    null,
+                    null,
+                    null
+            );
+
+            model.addAttribute("passwordChange", passwordChange);
+        }
+
         return "profile";
     }
 
     @PostMapping("/profile-account-edit")
-    public String postProfileAccountEdit(@Valid @ModelAttribute("profileAccountEdit") UserProfileAccountEditBindingModel profileAccountEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String postProfileAccountEdit(Authentication authentication, @Valid @ModelAttribute("profileAccountEdit") UserProfileAccountEditBindingModel profileAccountEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
+            if (profileAccountEdit.isChangingPassword()) {
+                profileAccountEdit = new UserProfileAccountEditBindingModel(
+                        profileAccountEdit.username(),
+                        profileAccountEdit.email(),
+                        profileAccountEdit.firstName(),
+                        profileAccountEdit.lastName(),
+                        Boolean.FALSE,
+                        null,
+                        null
+                );
+            }
             redirectAttributes.addFlashAttribute("profileAccountEdit", profileAccountEdit);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.profileAccountEdit", bindingResult);
         } else {
-            userService.doAccountEdit(profileAccountEdit);
+            userService.doAccountEdit(authentication.getName(), profileAccountEdit);
+        }
+
+        return "redirect:/users/profile";
+    }
+
+    @PostMapping("/profile-password-change")
+    public String postProfileChangePassword(Authentication authentication, @Valid @ModelAttribute("passwordChange") UserProfilePasswordChangeBindingModel passwordChange, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            passwordChange = new UserProfilePasswordChangeBindingModel(
+                    null,
+                    null,
+                    null
+            );
+            redirectAttributes.addFlashAttribute("passwordChange", passwordChange);
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.passwordChange", bindingResult);
+        } else {
+            userService.doPasswordChange(authentication.getName(), passwordChange);
         }
 
         return "redirect:/users/profile";
     }
 
     @PostMapping("/profile-info-edit")
-    public String postProfileInfoEdit(@Valid @ModelAttribute("profileInfoEdit") UserProfileInfoEditBindingModel profileInfoEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String postProfileInfoEdit(Authentication authentication, @Valid @ModelAttribute("profileInfoEdit") UserProfileInfoEditBindingModel profileInfoEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("profileAccountEdit", profileInfoEdit);
+            redirectAttributes.addFlashAttribute("profileInfoEdit", profileInfoEdit);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.profileInfoEdit", bindingResult);
         } else {
-            userService.doInfoEdit(profileInfoEdit);
+            userService.doInfoEdit(authentication.getName(), profileInfoEdit);
         }
         return "redirect:/users/profile";
     }

@@ -4,12 +4,15 @@ import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.RoleService;
 import com.dimitarrradev.workoutScheduler.role.RoleType;
 import com.dimitarrradev.workoutScheduler.training.TrainingStyle;
-import com.dimitarrradev.workoutScheduler.user.dto.UserProfileViewModel;
+import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
+import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserProfilePasswordChangeBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -70,13 +73,20 @@ public class UserService {
         return saved.getUsername();
     }
 
-    public UserProfileViewModel getUserProfileView(String name) {
-        User user = userDao.findUserByUsername(name);
-        UserProfileViewModel result = new UserProfileViewModel(
+    public UserProfileAccountViewModel getUserProfileAccountView(String username) {
+        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        UserProfileAccountViewModel result = new UserProfileAccountViewModel(
                 user.getUsername(),
                 user.getEmail(),
                 user.getFirstName(),
-                user.getLastName(),
+                user.getLastName()
+        );
+        return result;
+    }
+
+    public UserProfileInfoViewModel getUserProfileInfoView(String username) {
+        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        UserProfileInfoViewModel result = new UserProfileInfoViewModel(
                 user.getWeight(),
                 user.getHeight(),
                 user.getGym(),
@@ -85,11 +95,38 @@ public class UserService {
         return result;
     }
 
-    public void doAccountEdit(UserProfileAccountEditBindingModel profileAccountEdit) {
-        //TODO
+    public void doPasswordChange(String username, @Valid UserProfilePasswordChangeBindingModel profilePasswordChange) {
+        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+
+        if (!passwordEncoder.matches(profilePasswordChange.oldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Old password is incorrect");
+        } else if (!passwordEncoder.matches(profilePasswordChange.newPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("New password is cannot be the same as the old password");
+        } else {
+            user.setPassword(passwordEncoder.encode(profilePasswordChange.newPassword()));
+        }
+
+        userDao.save(user);
     }
 
-    public void doInfoEdit(UserProfileInfoEditBindingModel profileInfoEdit) {
-        //TODO
+    public void doInfoEdit(String username, UserProfileInfoEditBindingModel profileInfoEdit) {
+        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+
+        user.setWeight(profileInfoEdit.weight());
+        user.setHeight(profileInfoEdit.height());
+        user.setGym(profileInfoEdit.gym());
+        user.setTrainingStyle(profileInfoEdit.trainingStyle());
+
+        userDao.save(user);
+    }
+
+
+    public void doAccountEdit(String username, UserProfileAccountEditBindingModel profileAccountEdit) {
+        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+
+        user.setFirstName(profileAccountEdit.firstName());
+        user.setLastName(profileAccountEdit.lastName());
+
+        userDao.save(user);
     }
 }
