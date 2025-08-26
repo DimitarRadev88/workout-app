@@ -5,8 +5,11 @@ import com.dimitarrradev.workoutScheduler.role.RoleService;
 import com.dimitarrradev.workoutScheduler.role.RoleType;
 import com.dimitarrradev.workoutScheduler.training.TrainingStyle;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileViewModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -80,5 +83,13 @@ public class UserService {
                 user.getTrainingStyle() != null ? user.getTrainingStyle() : TrainingStyle.CARDIO
         );
         return result;
+    }
+
+    public void doAccountEdit(UserProfileAccountEditBindingModel profileAccountEdit) {
+        //TODO
+    }
+
+    public void doInfoEdit(UserProfileInfoEditBindingModel profileInfoEdit) {
+        //TODO
     }
 }

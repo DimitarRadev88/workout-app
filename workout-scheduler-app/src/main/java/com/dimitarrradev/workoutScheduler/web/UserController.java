@@ -91,13 +91,24 @@ public class UserController {
 
     @PostMapping("/profile-account-edit")
     public String postProfileAccountEdit(@Valid @ModelAttribute("profileAccountEdit") UserProfileAccountEditBindingModel profileAccountEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("profileAccountEdit", profileAccountEdit);
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.profileAccountEdit", bindingResult);
+        } else {
+            userService.doAccountEdit(profileAccountEdit);
+        }
 
         return "redirect:/users/profile";
     }
 
     @PostMapping("/profile-info-edit")
     public String postProfileInfoEdit(@Valid @ModelAttribute("profileInfoEdit") UserProfileInfoEditBindingModel profileInfoEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("profileAccountEdit", profileInfoEdit);
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.profileInfoEdit", bindingResult);
+        } else {
+            userService.doInfoEdit(profileInfoEdit);
+        }
         return "redirect:/users/profile";
     }
 
