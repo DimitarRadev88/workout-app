@@ -2,41 +2,33 @@ package com.dimitarrradev.workoutScheduler.workout;
 
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.program.Program;
+import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import com.dimitarrradev.workoutScheduler.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.List;
 
 @Entity
 @Table(name = "workouts")
 public class Workout {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Basic
     private LocalDate date;
-    @ElementCollection
-    @CollectionTable(name = "exercise_min_reps", joinColumns = @JoinColumn(name = "workout_id"))
-    @MapKeyColumn(name = "exercise_id")
-    @Column(name = "exercise_target_min_reps")
-    private Map<Exercise, Integer> exerciseMinRepsMap;
-    @ElementCollection
-    @CollectionTable(name = "exercise_max_reps", joinColumns = @JoinColumn(name = "workout_id"))
-    @MapKeyColumn(name = "exercise_id")
-    @Column(name = "exercise_target_max_reps")
-    private Map<Exercise, Integer> exerciseMaxRepsMap;
-    @ElementCollection
-    @CollectionTable(name = "exercise_rest", joinColumns = @JoinColumn(name = "workout_id"))
-    @MapKeyColumn(name = "exercise_id")
-    @Column(name = "exercise_target_rest")
-    private Map<Exercise, Integer> exerciseRestMap;
+    @OneToMany
+    @MapKeyJoinColumn(name = "exercise_id")
+    @JoinColumn(name = "set_id")
+    @JoinTable(
+            name = "workouts_exercises",
+            joinColumns = @JoinColumn(name = "workout_id")
+    )
+    private Map<Exercise, TrainingSet> exerciseTrainingSets;
     @ManyToOne
     private Program program;
-    @ManyToMany(mappedBy = "workouts")
-    private List<User> users;
+    @ManyToOne
+    private User user;
 
     public Long getId() {
         return id;
@@ -54,36 +46,27 @@ public class Workout {
         this.date = date;
     }
 
-    public Map<Exercise, Integer> getExerciseMinRepsMap() {
-        return exerciseMinRepsMap;
+    public Map<Exercise, TrainingSet> getExerciseTrainingSets() {
+        return exerciseTrainingSets;
     }
 
-    public void setExerciseMinRepsMap(Map<Exercise, Integer> exerciseMinRepsMap) {
-        this.exerciseMinRepsMap = exerciseMinRepsMap;
+    public void setExerciseTrainingSets(Map<Exercise, TrainingSet> exerciseTrainingSets) {
+        this.exerciseTrainingSets = exerciseTrainingSets;
     }
 
-    public Map<Exercise, Integer> getExerciseMaxRepsMap() {
-        return exerciseMaxRepsMap;
+    public Program getProgram() {
+        return program;
     }
 
-    public void setExerciseMaxRepsMap(Map<Exercise, Integer> exerciseMaxRepsMap) {
-        this.exerciseMaxRepsMap = exerciseMaxRepsMap;
+    public void setProgram(Program program) {
+        this.program = program;
     }
 
-    public Map<Exercise, Integer> getExerciseRestMap() {
-        return exerciseRestMap;
+    public User getUser() {
+        return user;
     }
 
-    public void setExerciseRestMap(Map<Exercise, Integer> exerciseRestMap) {
-        this.exerciseRestMap = exerciseRestMap;
+    public void setUser(User user) {
+        this.user = user;
     }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
-
 }

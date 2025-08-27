@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 @Resource
-public interface RoleDao extends JpaRepository<Role, Integer> {
+public interface RoleDao extends JpaRepository<Role, Long> {
 
     List<Role> getRolesBy();
 
