@@ -24,12 +24,12 @@ public class SecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.
                 authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/users/login", "/users/register", "/resources/**", "/css/**", "/img/**", "/js/**", "/images/**", "/bootstrap/**").permitAll()
+                        .requestMatchers("/users/login", "/users/register", "/resources/**", "/css/**", "/img/**", "/js/**", "/images/**", "/bootstrap/**").permitAll()
                         .anyRequest().authenticated())
                 .userDetailsService(userDetailsService)
                 .formLogin(login -> login
                         .loginPage("/users/login")
-                        .defaultSuccessUrl("/home", true)
+                        .defaultSuccessUrl("/", true)
                         .permitAll()
                 );
 

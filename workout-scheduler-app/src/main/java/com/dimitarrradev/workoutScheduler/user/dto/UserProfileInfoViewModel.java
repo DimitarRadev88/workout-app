@@ -1,7 +1,7 @@
 package com.dimitarrradev.workoutScheduler.user.dto;
 
 
-import com.dimitarrradev.workoutScheduler.training.TrainingStyle;
+import com.dimitarrradev.workoutScheduler.training.enums.TrainingStyle;
 
 public record UserProfileInfoViewModel(
         Integer weight,

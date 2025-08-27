@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.training;
+package com.dimitarrradev.workoutScheduler.training.enums;
 
 public enum TrainingStyle {
     WEIGHTLIFTING("Weightlifting"),

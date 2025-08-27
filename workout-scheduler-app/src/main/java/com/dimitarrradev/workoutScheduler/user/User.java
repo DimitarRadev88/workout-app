@@ -1,7 +1,7 @@
 package com.dimitarrradev.workoutScheduler.user;
 
 import com.dimitarrradev.workoutScheduler.role.Role;
-import com.dimitarrradev.workoutScheduler.training.TrainingStyle;
+import com.dimitarrradev.workoutScheduler.training.enums.TrainingStyle;
 import jakarta.persistence.*;
 
 import java.util.List;
