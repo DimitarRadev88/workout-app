@@ -1,6 +1,6 @@
-package com.dimitarrradev.workoutScheduler.training;
+package com.dimitarrradev.workoutScheduler.exercise;
 
-import com.dimitarrradev.workoutScheduler.training.enums.TargetBodyPart;
+import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import jakarta.persistence.*;
 
 @Entity
@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class Exercise {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;

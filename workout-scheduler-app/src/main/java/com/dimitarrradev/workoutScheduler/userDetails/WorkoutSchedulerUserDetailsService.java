@@ -1,7 +1,7 @@
 package com.dimitarrradev.workoutScheduler.userDetails;
 
 import com.dimitarrradev.workoutScheduler.user.User;
-import com.dimitarrradev.workoutScheduler.user.UserDao;
+import com.dimitarrradev.workoutScheduler.user.dao.UserDao;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

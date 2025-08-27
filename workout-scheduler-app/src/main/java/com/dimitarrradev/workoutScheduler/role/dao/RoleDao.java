@@ -1,5 +1,7 @@
-package com.dimitarrradev.workoutScheduler.role;
+package com.dimitarrradev.workoutScheduler.role.dao;
 
+import com.dimitarrradev.workoutScheduler.role.Role;
+import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
 import jakarta.annotation.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
 

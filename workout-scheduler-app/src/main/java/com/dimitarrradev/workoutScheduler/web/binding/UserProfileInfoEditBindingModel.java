@@ -1,6 +1,6 @@
 package com.dimitarrradev.workoutScheduler.web.binding;
 
-import com.dimitarrradev.workoutScheduler.training.enums.TrainingStyle;
+import com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle;
 import jakarta.validation.constraints.*;
 
 public record UserProfileInfoEditBindingModel(

@@ -1,6 +1,6 @@
 package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.workoutScheduler.user.UserService;
+import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
 import com.dimitarrradev.workoutScheduler.web.binding.*;

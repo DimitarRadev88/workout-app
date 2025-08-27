@@ -224,7 +224,7 @@
                                                                 <label class="form-label text-danger" th:text="${error}" for="training_style"></label>
                                                             </div>
                                                             <select class="form-select" id="training_style" th:field="*{trainingStyle}" name="training_style">
-                                                                <option th:each="trainingStyleEnum : ${T(com.dimitarrradev.workoutScheduler.training.TrainingStyle).values()}"
+                                                                <option th:each="trainingStyleEnum : ${T(com.dimitarrradev.workoutScheduler.workout.TrainingStyle).values()}"
                                                                         th:value="${trainingStyleEnum}" th:text="${trainingStyleEnum.getName()}"></option>
                                                             </select>
                                                         </div>

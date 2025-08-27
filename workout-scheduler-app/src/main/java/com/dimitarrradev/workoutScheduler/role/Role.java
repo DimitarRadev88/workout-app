@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.role;
 
+import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
 import com.dimitarrradev.workoutScheduler.user.User;
 import jakarta.persistence.*;
 

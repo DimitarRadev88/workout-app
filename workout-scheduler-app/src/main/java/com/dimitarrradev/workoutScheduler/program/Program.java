@@ -1,8 +1,11 @@
-package com.dimitarrradev.workoutScheduler.training;
+package com.dimitarrradev.workoutScheduler.program;
 
-import com.dimitarrradev.workoutScheduler.training.enums.ProgramGoal;
+import com.dimitarrradev.workoutScheduler.program.enums.ProgramGoal;
+import com.dimitarrradev.workoutScheduler.user.User;
+import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -10,19 +13,23 @@ import java.util.List;
 public class Program {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true, nullable = false)
     private String title;
     @Column(unique = true, nullable = false)
     private Integer duration;
+    @Column(nullable = false)
+    private LocalDate startDate;
     @Column(nullable = false, name = "program_goal")
     @Enumerated(EnumType.STRING)
     private ProgramGoal programGoal;
     @Column(nullable = false, name = "workouts_per_week")
     private Integer workoutsPerWeek;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany
     private List<Workout> workouts;
+    @ManyToMany(mappedBy = "programs")
+    private List<User> users;
 
     public Long getId() {
         return id;
@@ -48,6 +55,14 @@ public class Program {
         this.duration = duration;
     }
 
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
     public ProgramGoal getProgramGoal() {
         return programGoal;
     }
@@ -71,4 +86,13 @@ public class Program {
     public void setWorkouts(List<Workout> workouts) {
         this.workouts = workouts;
     }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
 }

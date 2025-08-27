@@ -1,7 +1,10 @@
 package com.dimitarrradev.workoutScheduler.user;
 
+import com.dimitarrradev.workoutScheduler.exercise.Exercise;
+import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.role.Role;
-import com.dimitarrradev.workoutScheduler.training.enums.TrainingStyle;
+import com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle;
+import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -34,20 +37,24 @@ public class User {
     @Basic
     @Enumerated(EnumType.STRING)
     private TrainingStyle trainingStyle;
+    @ManyToMany
+    @JoinTable(name = "users_workouts",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "workout_id")
+    )
+    private List<Workout> workouts;
+    @ManyToMany
+    @JoinTable(name = "users_programs",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "program_id")
+    )
+    private List<Program> programs;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles" ,
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles;
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
 
     public Long getId() {
         return id;
@@ -71,6 +78,14 @@ public class User {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -127,6 +142,22 @@ public class User {
 
     public void setTrainingStyle(TrainingStyle trainingStyle) {
         this.trainingStyle = trainingStyle;
+    }
+
+    public List<Workout> getWorkouts() {
+        return workouts;
+    }
+
+    public void setWorkouts(List<Workout> workouts) {
+        this.workouts = workouts;
+    }
+
+    public List<Program> getPrograms() {
+        return programs;
+    }
+
+    public void setPrograms(List<Program> programs) {
+        this.programs = programs;
     }
 
     public List<Role> getRoles() {

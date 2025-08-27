@@ -1,6 +1,6 @@
-package com.dimitarrradev.workoutScheduler.training.dao;
+package com.dimitarrradev.workoutScheduler.workout.dao;
 
-import com.dimitarrradev.workoutScheduler.training.Workout;
+import com.dimitarrradev.workoutScheduler.workout.Workout;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.training.enums;
+package com.dimitarrradev.workoutScheduler.exercise.enums;
 
 public enum TargetBodyPart {
     CHEST,

@@ -1,5 +1,8 @@
-package com.dimitarrradev.workoutScheduler.role;
+package com.dimitarrradev.workoutScheduler.role.service;
 
+import com.dimitarrradev.workoutScheduler.role.Role;
+import com.dimitarrradev.workoutScheduler.role.dao.RoleDao;
+import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

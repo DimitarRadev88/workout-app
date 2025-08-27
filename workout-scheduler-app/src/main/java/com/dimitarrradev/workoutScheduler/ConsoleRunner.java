@@ -1,21 +1,14 @@
 package com.dimitarrradev.workoutScheduler;
 
 import com.dimitarrradev.workoutScheduler.role.Role;
-import com.dimitarrradev.workoutScheduler.role.RoleService;
-import com.dimitarrradev.workoutScheduler.role.RoleType;
-import com.dimitarrradev.workoutScheduler.training.Exercise;
-import com.dimitarrradev.workoutScheduler.training.Program;
-import com.dimitarrradev.workoutScheduler.training.Workout;
-import com.dimitarrradev.workoutScheduler.training.dao.ProgramDao;
-import com.dimitarrradev.workoutScheduler.training.dao.WorkoutDao;
-import com.dimitarrradev.workoutScheduler.user.UserDao;
-import com.dimitarrradev.workoutScheduler.user.UserService;
+import com.dimitarrradev.workoutScheduler.role.service.RoleService;
+import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
+import com.dimitarrradev.workoutScheduler.program.dao.ProgramDao;
+import com.dimitarrradev.workoutScheduler.workout.dao.WorkoutDao;
+import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class ConsoleRunner implements CommandLineRunner {

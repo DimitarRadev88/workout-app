@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.training.enums;
+package com.dimitarrradev.workoutScheduler.program.enums;
 
 public enum ProgramGoal {
     STRENGTH,
