@@ -102,12 +102,11 @@ public class UserService {
 
         if (!passwordEncoder.matches(profilePasswordChange.oldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Old password is incorrect");
-        } else if (!passwordEncoder.matches(profilePasswordChange.newPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("New password is cannot be the same as the old password");
-        } else {
-            user.setPassword(passwordEncoder.encode(profilePasswordChange.newPassword()));
+        } else if (passwordEncoder.matches(profilePasswordChange.newPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("New password cannot be the same as the old");
         }
 
+        user.setPassword(passwordEncoder.encode(profilePasswordChange.newPassword()));
         userDao.save(user);
     }
 

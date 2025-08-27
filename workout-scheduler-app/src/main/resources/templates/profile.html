@@ -1,32 +1,11 @@
 <!DOCTYPE html>
 <html data-bs-theme="light" lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Profile - Workout Tracker</title>
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
-    <link rel="stylesheet" href="/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="/css/bss-overrides.css">
-</head>
+<head th:replace="fragments/header :: header (pageTitle = 'Profile')"></head>
 
 <body id="page-top">
     <div id="wrapper">
-        <nav class="navbar align-items-start p-0 sidebar sidebar-dark accordion bg-gradient-primary navbar-dark" style="background: var(--bs-dark);">
-            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center m-0 sidebar-brand" href="#">
-                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
-                    <div class="mx-3 sidebar-brand-text"><span>Workout Tracker</span></div>
-                </a>
-                <hr class="my-0 sidebar-divider">
-                <ul class="navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-                    <li class="nav-item"><a class="nav-link active" th:href="@{/users/profile}"><i class="fas fa-user"></i><span>Profile</span></a></li>
-                    <li class="nav-item"></li>
-                </ul>
-                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
-            </div>
-        </nav>
+        <nav th:replace="fragments/navbar"></nav>
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 <nav class="navbar navbar-expand bg-white shadow mb-4 topbar">
@@ -150,12 +129,12 @@
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <p th:text="*{username}">Username</p>
+                                                            <p th:value="*{username}" th:text="*{username}">Username</p>
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <p th:text="*{email}">user@mail.com</p>
+                                                            <p th:value="*{email}" th:text="*{email}">user@mail.com</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -224,7 +203,7 @@
                                                                 <label class="form-label text-danger" th:text="${error}" for="training_style"></label>
                                                             </div>
                                                             <select class="form-select" id="training_style" th:field="*{trainingStyle}" name="training_style">
-                                                                <option th:each="trainingStyleEnum : ${T(com.dimitarrradev.workoutScheduler.workout.TrainingStyle).values()}"
+                                                                <option th:each="trainingStyleEnum : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle).values()}"
                                                                         th:value="${trainingStyleEnum}" th:text="${trainingStyleEnum.getName()}"></option>
                                                             </select>
                                                         </div>
@@ -274,11 +253,7 @@
                     </div>
                 </div>
             </div>
-            <footer class="bg-white sticky-footer">
-                <div class="container my-auto">
-                    <div class="text-center my-auto copyright"><span>Copyright © Workout Tracker 2025</span></div>
-                </div>
-            </footer>
+            <footer th:replace="fragments/footer :: footer"></footer>
         </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
     <script src="/bootstrap/js/bootstrap.min.js"></script>

@@ -69,9 +69,7 @@ public class UserController {
                     userProfile.email(),
                     userProfile.firstName(),
                     userProfile.lastName(),
-                    Boolean.FALSE,
-                    null,
-                    null
+                    Boolean.FALSE
             );
 
             model.addAttribute("profileAccountEdit", profileAccountEdit);
@@ -107,17 +105,6 @@ public class UserController {
     @PostMapping("/profile-account-edit")
     public String postProfileAccountEdit(Authentication authentication, @Valid @ModelAttribute("profileAccountEdit") UserProfileAccountEditBindingModel profileAccountEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            if (profileAccountEdit.isChangingPassword()) {
-                profileAccountEdit = new UserProfileAccountEditBindingModel(
-                        profileAccountEdit.username(),
-                        profileAccountEdit.email(),
-                        profileAccountEdit.firstName(),
-                        profileAccountEdit.lastName(),
-                        Boolean.FALSE,
-                        null,
-                        null
-                );
-            }
             redirectAttributes.addFlashAttribute("profileAccountEdit", profileAccountEdit);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.profileAccountEdit", bindingResult);
         } else {

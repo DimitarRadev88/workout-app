@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head th:replace="fragments/header :: header (pageTitle = 'Exercises')"></head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav th:replace="fragments/navbar"></nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none me-3 rounded-circle" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <ul class="navbar-nav flex-nowrap ms-auto">
+                            <li class="nav-item mx-1 dropdown no-arrow">
+                                <div class="shadow dropdown-list dropdown-menu dropdown-menu-end" aria-labelledby="alertsDropdown"></div>
+                            </li>
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">Valerie Luna</span><img class="border rounded-circle img-profile" src="assets/img/avatars/avatar1.jpeg"></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in"><a class="dropdown-item" href="#"><i class="fas fa-user me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Profile</a><a class="dropdown-item" href="#"><i class="fas fa-cogs me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Settings</a><a class="dropdown-item" href="#"><i class="fas fa-list me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Activity log</a>
+                                        <div class="dropdown-divider"></div><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Logout</a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Exercises</h3>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mb-2">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Find exercise</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <form>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="select_exercise"><strong>Target</strong></label>
+                                                        <select class="form-select" id="select_exercise">
+                                                                <option value="chest" selected="">Chest</option>
+                                                                <option value="legs">Legs</option>
+                                                        </select></div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Search Exercises</button></div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center ms-0 me-0">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Employee Info</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 text-nowrap">
+                                                <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable"><label class="form-label">Show&nbsp;<select class="d-inline-block form-select form-select-sm">
+                                                            <option value="10" selected="">10</option>
+                                                            <option value="25">25</option>
+                                                            <option value="50">50</option>
+                                                            <option value="100">100</option>
+                                                        </select>&nbsp;</label></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="text-md-end dataTables_filter" id="dataTable_filter"><label class="form-label"><input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search"></label></div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive mt-2 table" id="dataTable-1" role="grid" aria-describedby="dataTable_info">
+                                            <table class="table my-0" id="dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Exercise</th>
+                                                        <th>Complexity</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Bench Press</td>
+                                                        <td>Easy</td>
+                                                        <td><button class="btn btn-primary" type="button">View</button></td>
+                                                    </tr>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td><strong>Position</strong></td>
+                                                        <td><strong>Office</strong></td>
+                                                        <td><strong>Office</strong></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 align-self-center">
+                                                <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">Showing 1 to 10 of 27</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
+                                                    <ul class="pagination">
+                                                        <li class="page-item disabled"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
+                                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                        <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+                                                    </ul>
+                                                </nav>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Workout Tracker 2025</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+</body>
+
+</html>
