@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Profile')}"></head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav th:replace="~{fragments/navbar :: topNavbar (username = ${username})}"></nav>
+                <div class="container">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Exercises</h3>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-lg-6 mb-4">
+                                    <div id="find-exercise" class="card text-white bg-primary shadow">
+                                        <div class="card-body">
+                                            <a class="stretched-link" style="text-decoration: none; color:white" th:href="@{/exercises/find}">
+                                                <p class="m-0">Find Exercise</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 mb-4">
+                                    <div id="add-exercise" class="card text-white bg-primary shadow">
+                                    <div class="card-body">
+                                            <a class="stretched-link" style="text-decoration: none; color:white;" th:href="@{/exercises/add}">
+                                                <p class="m-0">Add Exercise</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+</body>
+
+</html>

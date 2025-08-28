@@ -1,43 +1,14 @@
 <!DOCTYPE html>
-<html data-bs-theme="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+<html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org">
 
-<head th:replace="fragments/header :: header (pageTitle = 'Profile')"></head>
+<head th:replace="~{fragments/header :: header (pageTitle = 'Profile')}"></head>
 
 <body id="page-top">
     <div id="wrapper">
-        <nav th:replace="fragments/navbar"></nav>
+        <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar">
-                    <div class="container-fluid">
-                        <button class="btn btn-link d-md-none me-3 rounded-circle" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
-                        <ul class="navbar-nav flex-nowrap ms-auto">
-                            <li class="nav-item mx-1 dropdown no-arrow">
-                                <div class="shadow dropdown-list dropdown-menu dropdown-menu-end" aria-labelledby="alertsDropdown"></div>
-                            </li>
-                            <div class="d-none d-sm-block topbar-divider"></div>
-                            <li class="nav-item dropdown no-arrow">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">Valerie Luna</span><img class="border rounded-circle img-profile" src="assets/img/avatars/avatar1.jpeg"></a>
-                                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fas fa-user me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Profile
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fas fa-cogs me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Settings
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fas fa-list me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Activity log
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fas fa-sign-out-alt me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Logout
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+                <nav th:replace="~{fragments/navbar :: topNavbar (username = ${username})}"></nav>
                 <div class="container-fluid">
                     <h3 class="text-dark mb-4">Profile</h3>
                     <div class="row mb-3">
@@ -125,7 +96,7 @@
                                             <p class="text-primary m-0 fw-bold">Personal Information</p>
                                         </div>
                                         <div class="card-body">
-                                            <form th:action="@{/users/profile-account-edit}" th:object="${profileAccountEdit}" method="post">
+                                            <form th:action="@{/users/profile-account-edit}" th:object="${profileAccountEdit}" th:method="@{PATCH}">
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
@@ -167,7 +138,7 @@
                                             <p class="text-primary m-0 fw-bold">Training Information</p>
                                         </div>
                                         <div class="card-body">
-                                            <form th:action="@{/users/profile-info-edit}" th:object="${profileInfoEdit}" method="post">
+                                            <form th:action="@{/users/profile-info-edit}" th:object="${profileInfoEdit}" th:method="@{PATCH}">
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
@@ -227,7 +198,7 @@
                                             <div class="mb-3"><button class="btn btn-primary btn-sm" id="change_password_button" type="button">Change Password</button></div>
                                         </div>
                                         <div style="display: none;" id="password_change" class="card-body">
-                                            <form th:action="@{/users/profile-password-change}" th:object="${passwordChange}" method="post">
+                                            <form th:action="@{/users/profile-password-change}" th:object="${passwordChange}" th:method="@{PUT}">
 
                                                 <div class="row" id="change_password_row">
                                                     <div class="mb-3">
@@ -253,7 +224,7 @@
                     </div>
                 </div>
             </div>
-            <footer th:replace="fragments/footer :: footer"></footer>
+            <footer th:replace="~{fragments/footer :: footer}"></footer>
         </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
     <script src="/bootstrap/js/bootstrap.min.js"></script>

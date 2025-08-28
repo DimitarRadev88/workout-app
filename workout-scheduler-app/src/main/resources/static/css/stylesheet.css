@@ -1,0 +1,4 @@
+#find-exercise:hover, #add-exercise:hover {
+    transition-delay: 100ms;
+    opacity: 80%;
+}

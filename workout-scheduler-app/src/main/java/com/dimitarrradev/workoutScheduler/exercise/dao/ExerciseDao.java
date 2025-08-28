@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ExerciseDao extends JpaRepository<Exercise, Long> {
+    boolean existsExerciseByName(String name);
 }

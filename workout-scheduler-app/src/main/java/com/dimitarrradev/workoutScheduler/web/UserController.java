@@ -9,10 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -61,8 +58,10 @@ public class UserController {
 
     @GetMapping("/profile")
     public String getProfilePage(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        model.addAttribute("username", username);
         if (!model.containsAttribute("profileAccountEdit")) {
-            UserProfileAccountViewModel userProfile = userService.getUserProfileAccountView(authentication.getName());
+            UserProfileAccountViewModel userProfile = userService.getUserProfileAccountView(username);
 
             UserProfileAccountEditBindingModel profileAccountEdit = new UserProfileAccountEditBindingModel(
                     userProfile.username(),
@@ -77,7 +76,7 @@ public class UserController {
         }
 
         if (!model.containsAttribute("profileInfoEdit")) {
-            UserProfileInfoViewModel userProfile = userService.getUserProfileInfoView(authentication.getName());
+            UserProfileInfoViewModel userProfile = userService.getUserProfileInfoView(username);
 
             UserProfileInfoEditBindingModel profileInfoEdit = new UserProfileInfoEditBindingModel(
                     userProfile.weight(),
@@ -102,7 +101,7 @@ public class UserController {
         return "profile";
     }
 
-    @PostMapping("/profile-account-edit")
+    @PatchMapping("/profile-account-edit")
     public String postProfileAccountEdit(Authentication authentication, @Valid @ModelAttribute("profileAccountEdit") UserProfileAccountEditBindingModel profileAccountEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("profileAccountEdit", profileAccountEdit);
@@ -114,7 +113,7 @@ public class UserController {
         return "redirect:/users/profile";
     }
 
-    @PostMapping("/profile-password-change")
+    @PutMapping("/profile-password-change")
     public String postProfileChangePassword(Authentication authentication, @Valid @ModelAttribute("passwordChange") UserProfilePasswordChangeBindingModel passwordChange, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             passwordChange = new UserProfilePasswordChangeBindingModel(
@@ -131,7 +130,7 @@ public class UserController {
         return "redirect:/users/profile";
     }
 
-    @PostMapping("/profile-info-edit")
+    @PatchMapping("/profile-info-edit")
     public String postProfileInfoEdit(Authentication authentication, @Valid @ModelAttribute("profileInfoEdit") UserProfileInfoEditBindingModel profileInfoEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("profileInfoEdit", profileInfoEdit);
@@ -140,6 +139,12 @@ public class UserController {
             userService.doInfoEdit(authentication.getName(), profileInfoEdit);
         }
         return "redirect:/users/profile";
+    }
+
+    @PostMapping("/logout")
+    public String logout(Authentication authentication) {
+        authentication.setAuthenticated(false);
+        return "redirect:/users/login";
     }
 
 }

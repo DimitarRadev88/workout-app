@@ -19,6 +19,8 @@ public class Exercise {
     private String description;
     @Basic
     private String picture;
+    @Basic
+    private Boolean active;
 
     public Long getId() {
         return id;
@@ -58,5 +60,13 @@ public class Exercise {
 
     public void setPicture(String picture) {
         this.picture = picture;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

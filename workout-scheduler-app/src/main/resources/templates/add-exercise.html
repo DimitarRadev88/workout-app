@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Profile')}"></head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav th:replace="~{fragments/navbar :: topNavbar (username = ${username})}"></nav>
+                <div class="container">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Exercises</h3>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mb-2">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Add Exercise</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <form th:action="@{/exercises/add}" th:object="${exerciseAdd}" method="post">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="bodyPart"><strong>Target</strong></label>
+                                                        <select class="form-select" th:field="*{bodyPart}" id="bodyPart" name="bodyPart">
+                                                                <option th:each="bodyPart : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart).values()}"
+                                                                        th:value="${bodyPart}" th:text="${#strings.capitalize(#strings.toLowerCase(bodyPart.name()))}">Chest</option>
+                                                        </select></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="exerciseName"><strong>Name</strong></label>
+                                                        <input class="form-control" th:value="*{exerciseName}" type="text" id="exerciseName" placeholder="Bench Press" name="exerciseName"></div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="equipment"><strong>Equipment</strong></label>
+                                                        <input class="form-control" th:value="*{equipment}" type="text" id="equipment" placeholder="Bench, Barbell" name="equipment"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col col-xxl-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="description"><strong>Description</strong></label>
+                                                        <textarea id="description" th:value="*{description}" class="form-control" name="description" style="height: 10rem;"></textarea></div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Add Exercise</button></div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+</body>
+
+</html>
