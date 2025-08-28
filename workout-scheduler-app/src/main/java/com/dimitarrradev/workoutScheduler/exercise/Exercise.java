@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.exercise;
 
+import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import jakarta.persistence.*;
 
@@ -21,6 +22,13 @@ public class Exercise {
     private String picture;
     @Basic
     private Boolean active;
+    @Column(nullable = false, name = "added_by")
+    private String addedBy;
+    @Basic
+    @Enumerated(EnumType.STRING)
+    private Complexity complexity;
+    @Basic
+    private String equipment;
 
     public Long getId() {
         return id;
@@ -68,5 +76,29 @@ public class Exercise {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public String getAddedBy() {
+        return addedBy;
+    }
+
+    public void setAddedBy(String addedBy) {
+        this.addedBy = addedBy;
+    }
+
+    public Complexity getComplexity() {
+        return complexity;
+    }
+
+    public void setComplexity(Complexity complexity) {
+        this.complexity = complexity;
+    }
+
+    public String getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(String equipment) {
+        this.equipment = equipment;
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org">
+<html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head th:replace="~{fragments/header :: header (pageTitle = 'Profile')}"></head>
 
@@ -30,6 +30,23 @@
                                     <div class="card-body">
                                             <a class="stretched-link" style="text-decoration: none; color:white;" th:href="@{/exercises/add}">
                                                 <p class="m-0">Add Exercise</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div sec:authorize="hasRole('ROLE_ADMIN')" class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-lg-6 mb-4">
+                                    <div id="for-review" class="card text-white bg-primary shadow">
+                                        <div class="card-body">
+                                            <a class="stretched-link" style="text-decoration: none; color:white" th:href="@{/exercises/for-review}">
+                                                <p class="m-0" th:if="${countForReview == 0}">For Review</p>
+                                                <i th:if="${countForReview > 0}" class="fas fa-exclamation-triangle text-warning"></i>
+                                                <span th:if="${countForReview > 0}" th:text="${countForReview + ' For Review'}">For Review</span>
                                             </a>
                                         </div>
                                     </div>

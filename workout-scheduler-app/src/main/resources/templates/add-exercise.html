@@ -26,6 +26,25 @@
                                         <form th:action="@{/exercises/add}" th:object="${exerciseAdd}" method="post">
                                             <div class="row">
                                                 <div class="col">
+                                                    <div class="mb-3">
+                                                        <div class="form-label"><strong>Complexity</strong></div>
+                                                        <div class="form-check">
+                                                            <input id="complexity_1" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).EASY}" th:field="*{complexity}" type="radio" />
+                                                            <label class="form-check-label" for="complexity_1">Easy</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input id="complexity_2" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).MEDIUM}" th:field="*{complexity}" type="radio" />
+                                                            <label class="form-check-label" for="complexity_2">Medium</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input id="complexity_3" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).HARD}" th:field="*{complexity}" type="radio" />
+                                                            <label class="form-check-label" for="complexity_3">Hard</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
                                                     <div class="mb-3"><label class="form-label" for="bodyPart"><strong>Target</strong></label>
                                                         <select class="form-select" th:field="*{bodyPart}" id="bodyPart" name="bodyPart">
                                                                 <option th:each="bodyPart : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart).values()}"
@@ -41,6 +60,9 @@
                                                 <div class="col">
                                                     <div class="mb-3"><label class="form-label" for="equipment"><strong>Equipment</strong></label>
                                                         <input class="form-control" th:value="*{equipment}" type="text" id="equipment" placeholder="Bench, Barbell" name="equipment"></div>
+                                                </div>
+                                                <div class="col" hidden="hidden" disabled="true">
+                                                        <input class="form-control" th:value="${username}" th:field="*{addedBy}" type="text" id="username" placeholder="Bench, Barbell" name="username">
                                                 </div>
                                             </div>
                                             <div class="row">

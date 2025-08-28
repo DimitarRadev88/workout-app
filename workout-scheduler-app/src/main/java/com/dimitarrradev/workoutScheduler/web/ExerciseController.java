@@ -1,19 +1,19 @@
 package com.dimitarrradev.workoutScheduler.web;
 
+import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseForReviewViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import jakarta.validation.Valid;
-import org.springframework.context.annotation.Role;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/exercises")
@@ -36,7 +36,7 @@ public class ExerciseController {
         String username = authentication.getName();
         model.addAttribute("username", username);
 
-        ExerciseAddBindingModel exerciseAdd = new ExerciseAddBindingModel(null, null, null, null);
+        ExerciseAddBindingModel exerciseAdd = new ExerciseAddBindingModel(null, null, null, null, username, null);
         model.addAttribute("exerciseAdd", exerciseAdd);
 
         return "add-exercise";
@@ -59,14 +59,34 @@ public class ExerciseController {
     public String getExercises(Model model, Authentication authentication) {
         String username = authentication.getName();
         model.addAttribute("username", username);
+
+        authentication.getAuthorities().stream().filter(authority -> authority
+                .getAuthority().equals("ROLE_ADMIN"))
+                .findAny()
+                .ifPresent(authority -> {
+                    long countForReview = exerciseService.getExercisesForReviewCount();
+                    model.addAttribute("countForReview", countForReview);
+                });
+
         return "exercises";
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/for-review")
-    public String getExercisesForReview(Model model, Authentication authentication) {
+    public String getExercisesForReview(
+            Model model,
+            Authentication authentication,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+    ) {
         String username = authentication.getName();
         model.addAttribute("username", username);
+
+        Page<ExerciseForReviewViewModel> allForReview = exerciseService.getPaginatedAndSorted(pageNumber, pageSize, sortDirection);
+        List<ExerciseForReviewViewModel> exercisesForReview = allForReview.getContent();
+
+        model.addAttribute("exercisesForReview", exercisesForReview);
 
         return "exercises-for-review";
     }
