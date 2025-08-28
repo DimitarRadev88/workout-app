@@ -39,12 +39,12 @@ public class ExerciseService {
         return exerciseDao.countAllByActiveIsFalse();
     }
 
-    public Page<ExerciseForReviewViewModel> getPaginatedAndSorted(int pageNo, int pageSize, String sortDirection) {
+    public Page<ExerciseForReviewViewModel> getPaginatedAndSorted(int pageNumber, int pageSize, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("asc") ?
                 Sort.by("name").ascending() :
                 Sort.by("name").descending();
 
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 
         return exerciseDao.findAll(pageable).map(exercise -> new ExerciseForReviewViewModel(
                 exercise.getId(),

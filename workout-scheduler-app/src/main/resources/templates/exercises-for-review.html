@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html data-bs-theme="light" lang="en">
 
-<head th:replace="~{fragments/header :: header (pageTitle = 'Profile')}"></head>
+<head th:replace="~{fragments/header :: header (pageTitle = 'Exercise For Review')}"></head>
 
 <body id="page-top">
 <div id="wrapper">
@@ -18,12 +18,16 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 text-nowrap">
-                                    <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable"><label class="form-label">Show&nbsp;<select class="d-inline-block form-select form-select-sm">
-                                                <option value="10" selected="">10</option>
-                                                <option value="25">25</option>
-                                                <option value="50">50</option>
-                                                <option value="100">100</option>
-                                            </select>&nbsp;</label></div>
+                                    <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
+                                        <label class="form-label" for="page_size">Show </label>
+                                        <select class="d-inline-block form-select form-select-sm" id="page_size" onchange="redirectExercisesForReviewWithPageSize()">
+                                            <option th:each="size : ${pageSizes}"
+                                                    th:value="${size}"
+                                                    th:text="${size}"
+                                                    th:selected="${size} == ${pageSize}">
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="text-md-end dataTables_filter" id="dataTable_filter"><label class="form-label"><input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search"></label></div>
@@ -46,7 +50,7 @@
                                             <td th:text="*{forReview.name}">Bench Press</td>
                                             <td th:text="*{forReview.description}">Lie flat on a bench and press</td>
                                             <td th:text="*{forReview.equipment}">Bench, Barbell</td>
-                                            <td th:text="${#strings.capitalize(#strings.toLowerCase(forReview.complexity.name()))}">Easy</td>
+                                            <td th:text="${#strings.capitalize(#strings.toLowerCase(forReview.complexity.name))}">Easy</td>
                                             <td><button class="btn btn-success text-white" type="button">Approve</button></td>
                                             <td><button class="btn btn-danger" type="button">Delete</button></td>
                                         </tr>
@@ -65,7 +69,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 align-self-center">
-                                    <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">Showing 1 to 10 of 27</p>
+                                    <p id="dataTable_info" class="dataTables_info" th:text="${'Showing ' + (pageNumber * pageSize - pageSize + 1) + ' to ' + (pageNumber * pageSize) + ' of ' + elementsCount}" role="status" aria-live="polite">Showing 1 to 10 of 27</p>
                                 </div>
                                 <div class="col-md-6">
                                     <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
@@ -87,6 +91,7 @@
     </div>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
     <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
 </body>
 
 </html>

@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -82,10 +83,17 @@ public class ExerciseController {
     ) {
         String username = authentication.getName();
         model.addAttribute("username", username);
+        model.addAttribute("pageNumber", pageNumber);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("pageSizes", Arrays.asList(5, 10, 25, 50));
 
         Page<ExerciseForReviewViewModel> allForReview = exerciseService.getPaginatedAndSorted(pageNumber, pageSize, sortDirection);
+        long elementsCount = allForReview.getTotalElements();
+        long pagesCount = elementsCount / pageSize;
         List<ExerciseForReviewViewModel> exercisesForReview = allForReview.getContent();
 
+        model.addAttribute("elementsCount", elementsCount);
+        model.addAttribute("pagesCount", pagesCount);
         model.addAttribute("exercisesForReview", exercisesForReview);
 
         return "exercises-for-review";
