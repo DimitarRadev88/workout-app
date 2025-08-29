@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ExerciseService {
@@ -49,26 +50,50 @@ public class ExerciseService {
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 
-        Page<ExerciseForReviewViewModel> page = exerciseDao.findAll(pageable).map(exercise -> new ExerciseForReviewViewModel(
-                exercise.getId(),
-                exercise.getName(),
-                exercise.getDescription(),
-                exercise.getEquipment(),
-                exercise.getComplexity(),
-                exercise.getAddedBy()
-        ));
+        Page<ExerciseForReviewViewModel> page = exerciseDao
+                .findAllByActiveFalse(pageable)
+                .map(exercise -> new ExerciseForReviewViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getDescription(),
+                        exercise.getEquipment(),
+                        exercise.getComplexity(),
+                        exercise.getAddedBy()
+                ));
 
         return new PageAndExerciseServiceView(
                 page.getContent(),
                 page.getTotalElements(),
                 page.getTotalPages(),
                 String.format("Showing %d to %d of %d exercises",
-                        (pageNumber - 1) * pageSize + 1,
+                        page.getTotalElements() == 0 ? 0 : (pageNumber - 1) * pageSize + 1,
                         pageNumber < page.getTotalPages() ? (long) pageNumber * pageSize : page.getTotalElements(),
                         page.getTotalElements()
-                        ),
+                ),
                 List.of(5, 10, 25, 50)
         );
     }
 
+    public void approveExercise(Long id) {
+        Optional<Exercise> exerciseOptional = exerciseDao.findById(id);
+
+        if (exerciseOptional.isEmpty()) {
+            throw new IllegalArgumentException("Exercise not found");
+        }
+
+        exerciseOptional.ifPresent(exercise -> {
+            exercise.setActive(true);
+            exerciseDao.save(exercise);
+        });
+    }
+
+    public void deleteExercise(Long id) {
+        Optional<Exercise> exerciseOptional = exerciseDao.findById(id);
+
+        if (exerciseOptional.isEmpty()) {
+            throw new IllegalArgumentException("Exercise not found");
+        }
+
+        exerciseOptional.ifPresent(exerciseDao::delete);
+    }
 }

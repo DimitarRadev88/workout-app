@@ -51,8 +51,16 @@
                                             <td th:text="*{forReview.description}">Lie flat on a bench and press</td>
                                             <td th:text="*{forReview.equipment}">Bench, Barbell</td>
                                             <td th:text="${#strings.capitalize(#strings.toLowerCase(forReview.complexity.name))}">Easy</td>
-                                            <td><button class="btn btn-success text-white" type="button">Approve</button></td>
-                                            <td><button class="btn btn-danger" type="button">Delete</button></td>
+                                            <td>
+                                                <form th:action="@{/exercises/approve/{id}(id=${forReview.id})}" th:method="@{PATCH}">
+                                                    <button class="btn btn-success text-white" type="submit">Approve</button>
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <form th:action="@{/exercises/delete/{id}(id=${forReview.id})}" th:method="@{PATCH}">
+                                                  <button class="btn btn-danger text-white" type="submit">Delete</button>
+                                                </form>
+                                            </td>
                                         </tr>
                                     </tbody>
                                     <tfoot>

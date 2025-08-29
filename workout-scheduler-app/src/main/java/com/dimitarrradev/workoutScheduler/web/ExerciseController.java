@@ -99,4 +99,20 @@ public class ExerciseController {
         return "exercises-for-review";
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PatchMapping("/approve/{id}")
+    public String approveExercise(@PathVariable Long id) {
+        exerciseService.approveExercise(id);
+
+        return "redirect:/exercises/for-review";
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    public String deleteExercise(@PathVariable Long id) {
+        exerciseService.deleteExercise(id);
+
+        return "redirect:/exercises/for-review";
+    }
+
 }
