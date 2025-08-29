@@ -1,10 +1,11 @@
 package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseForReviewViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseServiceView;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -14,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Controller
 @RequestMapping("/exercises")
 public class ExerciseController {
+    private static final Logger log = LoggerFactory.getLogger(ExerciseController.class);
     private final ExerciseService exerciseService;
 
     public ExerciseController(ExerciseService exerciseService) {
@@ -82,19 +83,18 @@ public class ExerciseController {
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
         String username = authentication.getName();
+
         model.addAttribute("username", username);
         model.addAttribute("pageNumber", pageNumber);
         model.addAttribute("pageSize", pageSize);
-        model.addAttribute("pageSizes", Arrays.asList(5, 10, 25, 50));
 
-        Page<ExerciseForReviewViewModel> allForReview = exerciseService.getPaginatedAndSorted(pageNumber, pageSize, sortDirection);
-        long elementsCount = allForReview.getTotalElements();
-        long pagesCount = elementsCount / pageSize;
-        List<ExerciseForReviewViewModel> exercisesForReview = allForReview.getContent();
+        PageAndExerciseServiceView dataAndExercise = exerciseService.getPaginatedAndSortedDataAndExercise(pageNumber, pageSize, sortDirection);
 
-        model.addAttribute("elementsCount", elementsCount);
-        model.addAttribute("pagesCount", pagesCount);
-        model.addAttribute("exercisesForReview", exercisesForReview);
+        model.addAttribute("pageSizes", dataAndExercise.pageSizes());
+        model.addAttribute("elementsCount", dataAndExercise.totalElements());
+        model.addAttribute("pagesCount", dataAndExercise.totalPages());
+        model.addAttribute("exercisesForReview", dataAndExercise.exercises());
+        model.addAttribute("shownElements", dataAndExercise.shownElementsRangeAndTotalCountString());
 
         return "exercises-for-review";
     }
