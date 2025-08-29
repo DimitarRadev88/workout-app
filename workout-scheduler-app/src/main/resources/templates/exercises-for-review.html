@@ -82,9 +82,11 @@
                                 <div class="col-md-6">
                                     <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
                                         <ul class="pagination">
-                                            <li class="page-item disabled"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
-                                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                            <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+                                            <li class="page-item"><a class="page-link" th:if="${pageNumber > 1}" aria-label="First" th:href="@{/exercises/for-review(pageNumber=${1}, sortDirection=${sortDirection}, pageSize=${pageSize})}"><span aria-hidden="true">«</span></a></li>
+                                            <li class="page-item"><a class="page-link" th:if="${pageNumber > 1}" aria-label="Previous" th:href="@{/exercises/for-review(pageNumber=${pageNumber - 1}, sortDirection=${sortDirection}, pageSize=${pageSize})}"><span aria-hidden="true">‹</span></a></li>
+                                            <li class="page-item"><a class="page-link" style="background-color: var(--bs-pagination-hover-bg);" th:text="${pageNumber}" href="#">1</a></li>
+                                            <li class="page-item"><a class="page-link" th:if="${pageNumber < pagesCount}" aria-label="Next" th:href="@{/exercises/for-review(pageNumber=${pageNumber + 1}, sortDirection=${sortDirection}, pageSize=${pageSize})}"><span aria-hidden="true">›</span></a></li>
+                                            <li class="page-item"><a class="page-link" th:if="${pageNumber < pagesCount}" aria-label="Last" th:href="@{/exercises/for-review(pageNumber=${pagesCount}, sortDirection=${sortDirection}, pageSize=${pageSize})}"><span aria-hidden="true">»</span></a></li>
                                         </ul>
                                     </nav>
                                 </div>

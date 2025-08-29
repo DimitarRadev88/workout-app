@@ -87,6 +87,7 @@ public class ExerciseController {
         model.addAttribute("username", username);
         model.addAttribute("pageNumber", pageNumber);
         model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sortDirection", sortDirection);
 
         PageAndExerciseServiceView dataAndExercise = exerciseService.getPaginatedAndSortedDataAndExercise(pageNumber, pageSize, sortDirection);
 
