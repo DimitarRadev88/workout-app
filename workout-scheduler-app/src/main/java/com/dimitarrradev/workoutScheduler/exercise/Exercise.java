@@ -21,7 +21,7 @@ public class Exercise {
     @Basic
     private String picture;
     @Basic
-    private Boolean active;
+    private Boolean approved;
     @Column(nullable = false, name = "added_by")
     private String addedBy;
     @Basic
@@ -70,12 +70,12 @@ public class Exercise {
         this.picture = picture;
     }
 
-    public Boolean getActive() {
-        return active;
+    public Boolean getApproved() {
+        return approved;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setApproved(Boolean approved) {
+        this.approved = approved;
     }
 
     public String getAddedBy() {

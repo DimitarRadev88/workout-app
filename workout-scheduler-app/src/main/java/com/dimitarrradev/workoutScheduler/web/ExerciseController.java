@@ -1,8 +1,10 @@
 package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseServiceView;
+import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseFindServiceView;
+import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseReviewServiceView;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.Arrays;
 
 @Controller
 @RequestMapping("/exercises")
@@ -27,10 +27,42 @@ public class ExerciseController {
     }
 
     @GetMapping("/find")
-    public String getFindExercises(Model model, Authentication authentication) {
+    public String getFindExercises(
+            Model model,
+            Authentication authentication,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+    ) {
         String username = authentication.getName();
         model.addAttribute("username", username);
+
+        ExerciseFindBindingModel exerciseFind = null;
+
+        PageAndExerciseFindServiceView dataAndExercise = null;
+
+        if (!model.containsAttribute("exerciseFind")) {
+            exerciseFind = new ExerciseFindBindingModel(null, null);
+        } else {
+            exerciseFind = (ExerciseFindBindingModel) model.getAttribute("exerciseFind");
+        }
+
+        exerciseService.getPaginatedAndSortedDataAndExerciseActiveTrue(exerciseFind, pageNumber, pageSize, sortDirection);
+
+        model.addAttribute("exerciseFind", exerciseFind);
+
         return "find-exercise";
+    }
+
+    @PostMapping("/find")
+    public String postFindExercises(ExerciseFindBindingModel exerciseFind, RedirectAttributes redirectAttributes, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseFind", bindingResult);
+        }
+
+        redirectAttributes.addFlashAttribute("exerciseFind", exerciseFind);
+
+        return "redirect:/exercises/find";
     }
 
     @GetMapping("/add")
@@ -63,7 +95,7 @@ public class ExerciseController {
         model.addAttribute("username", username);
 
         authentication.getAuthorities().stream().filter(authority -> authority
-                .getAuthority().equals("ROLE_ADMIN"))
+                        .getAuthority().equals("ROLE_ADMIN"))
                 .findAny()
                 .ifPresent(authority -> {
                     long countForReview = exerciseService.getExercisesForReviewCount();
@@ -89,7 +121,7 @@ public class ExerciseController {
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sortDirection", sortDirection);
 
-        PageAndExerciseServiceView dataAndExercise = exerciseService.getPaginatedAndSortedDataAndExercise(pageNumber, pageSize, sortDirection);
+        PageAndExerciseReviewServiceView dataAndExercise = exerciseService.getPaginatedAndSortedDataAndExerciseActiveFalse(pageNumber, pageSize, sortDirection);
 
         model.addAttribute("pageSizes", dataAndExercise.pageSizes());
         model.addAttribute("elementsCount", dataAndExercise.totalElements());

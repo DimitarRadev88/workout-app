@@ -6,5 +6,4 @@ document.getElementById("change_password_button")
 
 function redirectExercisesForReviewWithPageSize() {
     window.location.replace("http://localhost:8081/exercises/for-review?pageSize=" + document.getElementById("page_size").value);
-
 }

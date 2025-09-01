@@ -23,18 +23,33 @@
                                         <p class="text-primary m-0 fw-bold">Find exercise</p>
                                     </div>
                                     <div class="card-body">
-                                        <form>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="select_exercise"><strong>Target</strong></label>
-                                                        <select class="form-select" id="select_exercise">
-                                                                <option value="chest" selected="">Chest</option>
-                                                                <option value="legs">Legs</option>
-                                                        </select></div>
-                                                </div>
+                                        <div class="row">
+                                            <div class="mb-3">
+                                                <form th:object="${exerciseFind}" th:action="@{/exercises/find}" method="post" id="find_exercise_form">
+                                                    <div class="row">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="select_target_body_part"><strong>Target Muscles</strong></label>
+                                                            <select th:field="*{targetBodyPart}" class="form-select" id="select_target_body_part" aria-label="Default select example">
+                                                                <option th:each="target : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart).values()}"
+                                                                        th:value="${target}" th:text="${target.getName()}" selected="">Chest</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="select_complexity"><strong>Complexity</strong></label>
+                                                            <div class="form-check">
+                                                                <div id="select_complexity" th:each="complexity : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).values()}">
+                                                                    <input id="complexity" class="form-check-input" th:value="${complexity}" th:field="*{complexity}" type="radio" />
+                                                                    <label class="form-check-label" for="complexity" th:text="${complexity.getName()}">Easy</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Search Exercises</button></div>
+                                                </form>
                                             </div>
-                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Search Exercises</button></div>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
