@@ -4,51 +4,60 @@
 <head th:replace="~{fragments/header :: header (pageTitle = 'Find Exercise')}"></head>
 
 <body id="page-top">
-    <div id="wrapper">
-        <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                <nav th:replace="~{fragments/navbar :: topNavbar (username = ${username})}"></nav>
-                <div class="container">
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                        <h3 class="text-dark mb-0">Exercises</h3>
-                    </div>
+<div id="wrapper">
+    <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav th:replace="~{fragments/navbar :: topNavbar (username = ${username})}"></nav>
+            <div class="container">
+                <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-dark mb-0">Exercises</h3>
                 </div>
-                <div class="row d-flex justify-content-center mb-2">
-                    <div class="col-lg-8">
-                        <div class="row">
-                            <div class="col col-xxl-12">
-                                <div class="card shadow">
-                                    <div class="card-header py-3">
-                                        <p class="text-primary m-0 fw-bold">Find exercise</p>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="mb-3">
-                                                <form th:object="${exerciseFind}" th:action="@{/exercises/find}" method="post" id="find_exercise_form">
-                                                    <div class="row">
-                                                        <div class="mb-3">
-                                                            <label class="form-label" for="select_target_body_part"><strong>Target Muscles</strong></label>
-                                                            <select th:field="*{targetBodyPart}" class="form-select" id="select_target_body_part" aria-label="Default select example">
-                                                                <option th:each="target : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart).values()}"
-                                                                        th:value="${target}" th:text="${target.getName()}" selected="">Chest</option>
-                                                            </select>
-                                                        </div>
+            </div>
+            <div id="filter_element" style="display: none" class="row d-flex justify-content-center mb-2">
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="col col-xxl-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <p class="text-primary m-0 fw-bold">Filter</p>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="mb-3">
+                                            <form th:object="${exerciseFind}" th:action="@{/exercises/find/{muscleGroup}(muscleGroup=${exerciseFind.targetBodyPart.name()})}" method="post" id="find_exercise_form">
+                                                <div class="row">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="select_target_body_part"><strong>Target Muscles</strong></label>
+                                                        <select th:field="*{targetBodyPart}" class="form-select"
+                                                                id="select_target_body_part"
+                                                                aria-label="Default select example">
+                                                            <option th:each="target : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart).values()}"
+                                                                    th:value="${target}" th:text="${target.getName()}"
+                                                                    selected="">Chest
+                                                            </option>
+                                                        </select>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="mb-3">
-                                                            <label class="form-label" for="select_complexity"><strong>Complexity</strong></label>
-                                                            <div class="form-check">
-                                                                <div id="select_complexity" th:each="complexity : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).values()}">
-                                                                    <input id="complexity" class="form-check-input" th:value="${complexity}" th:field="*{complexity}" type="radio" />
-                                                                    <label class="form-check-label" for="complexity" th:text="${complexity.getName()}">Easy</label>
-                                                                </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="select_complexity"><strong>Complexity</strong></label>
+                                                        <div class="form-check">
+                                                            <div id="select_complexity"
+                                                                 th:each="complexity : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).values()}">
+                                                                <input id="complexity" class="form-check-input"
+                                                                       th:value="${complexity}" th:field="*{complexity}"
+                                                                       type="radio"/>
+                                                                <label class="form-check-label" for="complexity"
+                                                                       th:text="${complexity.getName()}">Easy</label>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Search Exercises</button></div>
-                                                </form>
-                                            </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -56,63 +65,110 @@
                         </div>
                     </div>
                 </div>
-                <div class="row d-flex justify-content-center ms-0 me-0">
-                    <div class="col">
-                        <div class="row">
-                            <div class="col">
-                                <div class="card shadow">
-                                    <div class="card-header py-3">
-                                        <p class="text-primary m-0 fw-bold">Employee Info</p>
+            </div>
+            <div class="row d-flex justify-content-center ms-0 me-0">
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <div class="col-md-6 text-nowrap">
+                                        <p>Exercises</p>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 text-nowrap">
-                                                <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable"><label class="form-label">Show&nbsp;<select class="d-inline-block form-select form-select-sm">
-                                                            <option value="10" selected="">10</option>
-                                                            <option value="25">25</option>
-                                                            <option value="50">50</option>
-                                                            <option value="100">100</option>
-                                                        </select>&nbsp;</label></div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="text-md-end dataTables_filter" id="dataTable_filter"><label class="form-label"><input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search"></label></div>
+                                    <div class="col-md-6 text-nowrap">
+                                        <button type="button" id="filter_exercise_button" class="btn btn-primary">Filter</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 text-nowrap">
+                                            <div id="dataTable_length" class="dataTables_length"
+                                                 aria-controls="dataTable">
+                                                <label class="form-label" for="page_size">Show </label>
+                                                <select class="d-inline-block form-select form-select-sm" id="page_size"
+                                                        onchange="redirectExercisesWithPageSize()">
+                                                    <option th:each="size : ${pageSizes}"
+                                                            th:value="${size}"
+                                                            th:text="${size}"
+                                                            th:selected="${size} == ${pageSize}">
+                                                    </option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="table-responsive mt-2 table" id="dataTable-1" role="grid" aria-describedby="dataTable_info">
+                                        <div class="col-md-6">
+                                            <div class="text-md-end dataTables_filter" id="dataTable_filter">
+                                                <label class="form-label">
+                                                    <input type="search" class="form-control form-control-sm"
+                                                           aria-controls="dataTable" placeholder="Search">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive mt-2 table" id="dataTable-1" role="grid"
+                                             aria-describedby="dataTable_info">
                                             <table class="table my-0" id="dataTable">
                                                 <thead>
-                                                    <tr>
-                                                        <th>Exercise</th>
-                                                        <th>Complexity</th>
-                                                        <th>Action</th>
-                                                    </tr>
+                                                <tr>
+                                                    <th>Exercise</th>
+                                                    <th>Complexity</th>
+                                                    <th>Action</th>
+                                                </tr>
                                                 </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Bench Press</td>
-                                                        <td>Easy</td>
-                                                        <td><button class="btn btn-primary" type="button">View</button></td>
-                                                    </tr>
+                                                <tbody th:each="exercise : ${exercises}">
+                                                <tr>
+                                                    <td th:text="*{exercise.name}">Bench Press</td>
+                                                    <td th:text="${#strings.capitalize(#strings.toLowerCase(exercise.complexity.name))}">
+                                                        Easy
+                                                    </td>
+                                                    <td>
+                                                        <a class="btn btn-primary text-white"
+                                                           th:href="@{/exercises/{id}(id=${exercise.id})}">View</a>
+                                                    </td>
+                                                </tr>
                                                 </tbody>
                                                 <tfoot>
-                                                    <tr>
-                                                        <td><strong>Position</strong></td>
-                                                        <td><strong>Office</strong></td>
-                                                        <td><strong>Office</strong></td>
-                                                    </tr>
+                                                <tr>
+                                                    <td><strong>Exercise</strong></td>
+                                                    <td><strong>Complexity</strong></td>
+                                                    <td><strong>Action</strong></td>
+                                                </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6 align-self-center">
-                                                <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">Showing 1 to 10 of 27</p>
+                                                <p id="dataTable_info" class="dataTables_info"
+                                                   th:text="${shownElements}" role="status" aria-live="polite">Showing 1 to 10 of 27</p>
                                             </div>
                                             <div class="col-md-6">
                                                 <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
                                                     <ul class="pagination">
-                                                        <li class="page-item disabled"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
-                                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                                        <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+                                                        <li class="page-item">
+                                                            <a class="page-link" th:if="${pageNumber > 1}" aria-label="First"
+                                                               th:href="@{/exercises/for-review(pageNumber=${1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
+                                                               <span aria-hidden="true">«</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="page-item">
+                                                            <a class="page-link" th:if="${pageNumber > 1}" aria-label="Previous"
+                                                               th:href="@{/exercises/for-review(pageNumber=${pageNumber - 1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
+                                                                <span aria-hidden="true">‹</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="page-item">
+                                                            <a class="page-link" style="background-color: var(--bs-pagination-hover-bg);" th:text="${pageNumber}" href="#">1</a>
+                                                        </li>
+                                                        <li class="page-item">
+                                                            <a class="page-link" th:if="${pageNumber < pagesCount}" aria-label="Next"
+                                                               th:href="@{/exercises/for-review(pageNumber=${pageNumber + 1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
+                                                               <span aria-hidden="true">›</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="page-item">
+                                                            <a class="page-link" th:if="${pageNumber < pagesCount}" aria-label="Last"
+                                                               th:href="@{/exercises/for-review(pageNumber=${pagesCount}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
+                                                               <span aria-hidden="true">»</span>
+                                                            </a>
+                                                        </li>
                                                     </ul>
                                                 </nav>
                                             </div>
@@ -125,10 +181,14 @@
                 </div>
             </div>
             <footer th:replace="~{fragments/footer :: footer}"></footer>
-        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+        </div>
+        <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
     <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
+</div>
+>
 </body>
 
 </html>

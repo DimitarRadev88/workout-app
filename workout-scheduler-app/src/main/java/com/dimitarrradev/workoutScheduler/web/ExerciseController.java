@@ -2,6 +2,7 @@ package com.dimitarrradev.workoutScheduler.web;
 
 import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseFindServiceView;
 import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseReviewServiceView;
+import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
@@ -16,6 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Locale;
+
 @Controller
 @RequestMapping("/exercises")
 public class ExerciseController {
@@ -26,10 +29,11 @@ public class ExerciseController {
         this.exerciseService = exerciseService;
     }
 
-    @GetMapping("/find")
+    @GetMapping("/find/{muscleGroup}")
     public String getFindExercises(
             Model model,
             Authentication authentication,
+            @PathVariable("muscleGroup") String muscleGroup,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
@@ -37,24 +41,37 @@ public class ExerciseController {
         String username = authentication.getName();
         model.addAttribute("username", username);
 
-        ExerciseFindBindingModel exerciseFind = null;
-
-        PageAndExerciseFindServiceView dataAndExercise = null;
+        ExerciseFindBindingModel exerciseFind;
 
         if (!model.containsAttribute("exerciseFind")) {
-            exerciseFind = new ExerciseFindBindingModel(null, null);
+            if (muscleGroup.equals("all")) {
+                exerciseFind = new ExerciseFindBindingModel(TargetBodyPart.ABS, null);
+            } else {
+                exerciseFind = new ExerciseFindBindingModel(TargetBodyPart.valueOf(muscleGroup.toUpperCase()), null);
+            }
         } else {
             exerciseFind = (ExerciseFindBindingModel) model.getAttribute("exerciseFind");
         }
 
-        exerciseService.getPaginatedAndSortedDataAndExerciseActiveTrue(exerciseFind, pageNumber, pageSize, sortDirection);
+        model.addAttribute("username", username);
+        model.addAttribute("pageNumber", pageNumber);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sortDirection", sortDirection);
+        model.addAttribute("muscleGroup", muscleGroup);
 
+        PageAndExerciseFindServiceView dataAndExerciseViewModel = exerciseService.getPaginatedAndSortedDataAndExerciseActiveTrue(exerciseFind, pageNumber, pageSize, sortDirection);
+
+        model.addAttribute("pageSizes", dataAndExerciseViewModel.pageSizes());
+        model.addAttribute("elementsCount", dataAndExerciseViewModel.totalElements());
+        model.addAttribute("pagesCount", dataAndExerciseViewModel.totalPages());
+        model.addAttribute("exercises", dataAndExerciseViewModel.exercises());
+        model.addAttribute("shownElements", dataAndExerciseViewModel.shownElementsRangeAndTotalCountString());
         model.addAttribute("exerciseFind", exerciseFind);
 
         return "find-exercise";
     }
 
-    @PostMapping("/find")
+    @PostMapping("/find/{muscleGroup}")
     public String postFindExercises(ExerciseFindBindingModel exerciseFind, RedirectAttributes redirectAttributes, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseFind", bindingResult);
@@ -62,7 +79,7 @@ public class ExerciseController {
 
         redirectAttributes.addFlashAttribute("exerciseFind", exerciseFind);
 
-        return "redirect:/exercises/find";
+        return "redirect:/exercises/find/" + exerciseFind.targetBodyPart().getName();
     }
 
     @GetMapping("/add")

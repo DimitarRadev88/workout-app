@@ -20,7 +20,7 @@
                                 <div class="col-md-6 text-nowrap">
                                     <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
                                         <label class="form-label" for="page_size">Show </label>
-                                        <select class="d-inline-block form-select form-select-sm" id="page_size" onchange="redirectExercisesForReviewWithPageSize()">
+                                        <select class="d-inline-block form-select form-select-sm" id="page_size" onchange="redirectExercisesWithPageSize()">
                                             <option th:each="size : ${pageSizes}"
                                                     th:value="${size}"
                                                     th:text="${size}"

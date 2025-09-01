@@ -195,7 +195,7 @@
                                                     <label class="form-label text-danger" th:text="${error}" for="new_password"><strong>Last Name</strong></label>
                                                 </div>
                                             </div>
-                                            <div class="mb-3"><button class="btn btn-primary btn-sm" id="change_password_button" type="button">Change Password</button></div>
+                                            <div class="mb-3"><button class="btn btn-primary btn-sm" id="change_password_button" onclick="showPasswordChangeElement()" type="button">Change Password</button></div>
                                         </div>
                                         <div style="display: none;" id="password_change" class="card-body">
                                             <form th:action="@{/users/profile-password-change}" th:object="${passwordChange}" th:method="@{PUT}">
