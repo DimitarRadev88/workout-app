@@ -8,15 +8,17 @@ function redirectExercisesWithPageSize() {
 }s
 
 function showFilters() {
-    document.getElementById("filter_element").style.display = null;
-    document.getElementById("filter_show_exercise_button").style.display = "none";
-    document.getElementById("filter_hide_exercise_button").style.display = null;
+    setFiltersVisibility(null, "none", null)
 }
 
 function hideFilters() {
-    document.getElementById("filter_element").style.display = "none";
-    document.getElementById("filter_show_exercise_button").style.display = null;
-    document.getElementById("filter_hide_exercise_button").style.display = "none";
+    setFiltersVisibility("none", null, "none")
+}
+
+function setFiltersVisibility(element, showButton, hideButton) {
+    document.getElementById("filter_element").style.display = element;
+    document.getElementById("filter_show_exercise_button").style.display = showButton;
+    document.getElementById("filter_hide_exercise_button").style.display = hideButton;
 }
 
 function replaceQueryParam(url, param, value) {
@@ -25,3 +27,4 @@ function replaceQueryParam(url, param, value) {
     params.set(param, value);
     return urlObj.toString();
 }
+

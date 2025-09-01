@@ -7,6 +7,7 @@ import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseForReviewViewMode
 import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseFindServiceView;
 import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseReviewServiceView;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
+import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import org.springframework.data.domain.Page;
@@ -110,7 +111,7 @@ public class ExerciseService {
 
         Page<ExerciseFindViewModel> page = null;
 
-        if (exerciseFind.targetBodyPart() != null) {
+        if (exerciseFind.targetBodyPart() != null && !exerciseFind.targetBodyPart().equals(TargetBodyPart.ALL)) {
             if (exerciseFind.complexity() != null && !exerciseFind.complexity().equals(Complexity.ALL)) {
                 page = exerciseDao
                         .findAllByApprovedTrueAndTargetBodyPartAndComplexity(pageable, exerciseFind.targetBodyPart(), exerciseFind.complexity())

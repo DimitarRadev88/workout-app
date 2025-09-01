@@ -17,7 +17,8 @@ public enum TargetBodyPart {
     FOREARMS("Forearms"),
     LEGS("Legs"),
     ADDUCTORS("Adductors"),
-    ABDUCTORS("Abductors");
+    ABDUCTORS("Abductors"),
+    ALL("All");
 
     private final String name;
 

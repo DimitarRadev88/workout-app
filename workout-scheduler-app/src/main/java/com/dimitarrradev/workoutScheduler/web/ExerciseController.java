@@ -44,11 +44,7 @@ public class ExerciseController {
         ExerciseFindBindingModel exerciseFind;
 
         if (!model.containsAttribute("exerciseFind")) {
-            if (muscleGroup.equals("all")) {
-                exerciseFind = new ExerciseFindBindingModel(TargetBodyPart.ABS, null);
-            } else {
-                exerciseFind = new ExerciseFindBindingModel(TargetBodyPart.valueOf(muscleGroup.toUpperCase()), null);
-            }
+            exerciseFind = new ExerciseFindBindingModel(TargetBodyPart.valueOf(muscleGroup.toUpperCase()), null);
         } else {
             exerciseFind = (ExerciseFindBindingModel) model.getAttribute("exerciseFind");
         }
@@ -72,13 +68,8 @@ public class ExerciseController {
     }
 
     @PostMapping("/find/{muscleGroup}")
-    public String postFindExercises(ExerciseFindBindingModel exerciseFind, RedirectAttributes redirectAttributes, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseFind", bindingResult);
-        }
-
+    public String postFindExercises(ExerciseFindBindingModel exerciseFind, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("exerciseFind", exerciseFind);
-
         return "redirect:/exercises/find/" + exerciseFind.targetBodyPart().getName();
     }
 
