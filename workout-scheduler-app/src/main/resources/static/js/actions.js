@@ -7,9 +7,17 @@ function redirectExercisesWithPageSize() {
     window.location.replace(replaceQueryParam(window.location.href, "pageSize", document.getElementById("page_size").value));
 }s
 
-document.getElementById("filter_exercise_button").addEventListener("click", () => {
+function showFilters() {
     document.getElementById("filter_element").style.display = null;
-});
+    document.getElementById("filter_show_exercise_button").style.display = "none";
+    document.getElementById("filter_hide_exercise_button").style.display = null;
+}
+
+function hideFilters() {
+    document.getElementById("filter_element").style.display = "none";
+    document.getElementById("filter_show_exercise_button").style.display = null;
+    document.getElementById("filter_hide_exercise_button").style.display = "none";
+}
 
 function replaceQueryParam(url, param, value) {
     const urlObj = new URL(url);

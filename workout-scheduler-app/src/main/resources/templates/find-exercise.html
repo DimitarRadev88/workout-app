@@ -14,9 +14,9 @@
                     <h3 class="text-dark mb-0">Exercises</h3>
                 </div>
             </div>
-            <div id="filter_element" style="display: none" class="row d-flex justify-content-center mb-2">
+            <div class="row d-flex justify-content-center mb-2">
                 <div class="col-lg-8">
-                    <div class="row">
+                    <div id="filter_element" class="row" style="display: none">
                         <div class="col col-xxl-12">
                             <div class="card shadow">
                                 <div class="card-header py-3">
@@ -76,7 +76,10 @@
                                         <p>Exercises</p>
                                     </div>
                                     <div class="col-md-6 text-nowrap">
-                                        <button type="button" id="filter_exercise_button" class="btn btn-primary">Filter</button>
+                                        <button type="button" id="filter_show_exercise_button" onclick="showFilters()" class="btn btn-primary">Show Filters</button>
+                                    </div>
+                                    <div class="col-md-6 text-nowrap">
+                                        <button type="button" id="filter_hide_exercise_button" style="display: none" onclick="hideFilters()" class="btn btn-primary">Hide Filters</button>
                                     </div>
                                 </div>
                                 <div class="card-body">
