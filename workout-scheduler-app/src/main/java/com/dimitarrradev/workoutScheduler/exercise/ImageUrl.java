@@ -9,8 +9,6 @@ public class ImageUrl extends BaseEntity {
 
     @Column(nullable = false)
     private String url;
-    @Column(nullable = false)
-    private Boolean forDelete;
     @ManyToOne(fetch = FetchType.LAZY)
     private Exercise exercise;
 
@@ -20,14 +18,6 @@ public class ImageUrl extends BaseEntity {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public Boolean getForDelete() {
-        return forDelete;
-    }
-
-    public void setForDelete(Boolean forDelete) {
-        this.forDelete = forDelete;
     }
 
     public Exercise getExercise() {

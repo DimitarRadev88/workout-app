@@ -8,7 +8,6 @@ import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.ImageUrlBindingModel;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -17,8 +16,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/exercises")
@@ -143,38 +140,47 @@ public class ExerciseController {
     @GetMapping("/view/{id}")
     public String viewExercise(Model model, Authentication authentication, @PathVariable long id) {
         String username = authentication.getName();
+
         model.addAttribute("username", username);
 
         ExerciseViewModel exerciseView = exerciseService.getExerciseView(id);
         model.addAttribute("exerciseView", exerciseView);
 
-
-        ExerciseEditBindingModel exerciseEdit = new ExerciseEditBindingModel(
-                id,
-                exerciseView.name(),
-                exerciseView.description(),
-                null,
-                exerciseView.imageUrls().stream()
-                        .map(imageUrlViewModel -> new ImageUrlBindingModel(
-                                imageUrlViewModel.id(),
-                                imageUrlViewModel.url(),
-                                imageUrlViewModel.forDelete()))
-                        .toList()
-        );
-
-
-        model.addAttribute("exerciseEdit", exerciseEdit);
-
         return "exercise-view";
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/edit/{id}")
+    public String getEditExercise(@PathVariable long id, Model model, Authentication authentication) {
+        String username = authentication.getName();
+
+        model.addAttribute("username", username);
+
+        ExerciseEditBindingModel exerciseEdit = exerciseService.getExerciseEditBindingModel(id);
+
+        model.addAttribute("exerciseEdit", exerciseEdit);
+
+        return "edit-exercise";
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/edit/{id}")
-    public String editExercise(@PathVariable long id, ExerciseEditBindingModel exerciseEdit, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("exerciseEdit", exerciseEdit);
+    public String editExercise(@PathVariable long id, ExerciseEditBindingModel exerciseEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("exerciseEdit", exerciseEdit);
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseEdit", bindingResult);
+        }
 
         exerciseService.editExercise(exerciseEdit);
 
         return "redirect:/exercises/view/" + id;
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("{exerciseId}/imageUrls/delete/{id}")
+    public String deleteImageUrl(@PathVariable long exerciseId, @PathVariable long id) {
+        exerciseService.deleteImageUrl(id);
+        return "redirect:/exercises/edit/" + exerciseId;
     }
 
 

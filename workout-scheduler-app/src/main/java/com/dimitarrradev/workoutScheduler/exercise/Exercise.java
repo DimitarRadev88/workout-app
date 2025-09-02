@@ -19,7 +19,7 @@ public class Exercise extends BaseEntity {
     private TargetBodyPart targetBodyPart;
     @Column(columnDefinition = "TEXT")
     private String description;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exercise")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exercise", fetch = FetchType.LAZY)
     private List<ImageUrl> imageURLs;
     @Basic
     private Boolean approved;

@@ -3,14 +3,15 @@ package com.dimitarrradev.workoutScheduler.exercise.service;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.ImageUrl;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseDao;
+import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlDao;
 import com.dimitarrradev.workoutScheduler.exercise.dto.*;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.ImageUrlBindingModel;
 import jakarta.transaction.Transactional;
-import org.hibernate.loader.NonUniqueDiscoveredSqlAliasException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,18 +19,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 public class ExerciseService {
 
     private final ExerciseDao exerciseDao;
+    private final ImageUrlDao imageUrlDao;
 
-    public ExerciseService(ExerciseDao exerciseDao) {
+    public ExerciseService(ExerciseDao exerciseDao, ImageUrlDao imageUrlDao) {
         this.exerciseDao = exerciseDao;
+        this.imageUrlDao = imageUrlDao;
     }
 
     public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
@@ -181,13 +183,13 @@ public class ExerciseService {
                 exercise.getImageURLs().stream()
                         .map(imageUrl -> new ImageUrlViewModel(
                                 imageUrl.getId(),
-                                imageUrl.getUrl(),
-                                imageUrl.getForDelete()
+                                imageUrl.getUrl()
                         ))
                         .toList()
         );
     }
 
+    @Transactional
     public void editExercise(ExerciseEditBindingModel exerciseEdit) {
         Exercise exercise = exerciseDao
                 .findById(exerciseEdit.id())
@@ -204,20 +206,43 @@ public class ExerciseService {
                             ImageUrl imageUrl = new ImageUrl();
                             imageUrl.setId(image.id());
                             imageUrl.setUrl(image.url());
-                            imageUrl.setForDelete(image.forDelete());
                             return imageUrl;
                         }).toList()
         );
 
         if (exerciseEdit.imageUrl() != null) {
-            ImageUrl imageUrl = new ImageUrl();
-            imageUrl.setUrl(exerciseEdit.imageUrl());
-            imageUrl.setExercise(exercise);
-            imageUrl.setForDelete(false);
-            exercise.getImageURLs().add(imageUrl);
+            List<ImageUrl> list = Arrays.stream(exerciseEdit.imageUrl().split(System.lineSeparator()))
+                    .map(url -> {
+                        ImageUrl imageUrl = new ImageUrl();
+                        imageUrl.setUrl(url.trim());
+                        imageUrl.setExercise(exercise);
+                        exercise.getImageURLs().add(imageUrl);
+                        return imageUrl;
+                    }).toList();
+            exercise.getImageURLs().addAll(list);
         }
 
         exerciseDao.save(exercise);
+    }
 
+    public void deleteImageUrl(long id) {
+        imageUrlDao.deleteById(id);
+    }
+
+    public ExerciseEditBindingModel getExerciseEditBindingModel(long id) {
+        Exercise exercise = exerciseDao.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+
+        return new ExerciseEditBindingModel(
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getDescription(),
+                null,
+                exercise.getImageURLs().stream().map(imageUrl -> {
+                    return new ImageUrlBindingModel(
+                            imageUrl.getId(),
+                            imageUrl.getUrl()
+                    );
+                }).toList()
+        );
     }
 }
