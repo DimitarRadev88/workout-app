@@ -1,14 +1,15 @@
 package com.dimitarrradev.workoutScheduler.web;
 
+import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseFindServiceView;
 import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseReviewServiceView;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.ImageUrlBindingModel;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,12 +18,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Locale;
+import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/exercises")
 public class ExerciseController {
-    private static final Logger log = LoggerFactory.getLogger(ExerciseController.class);
     private final ExerciseService exerciseService;
 
     public ExerciseController(ExerciseService exerciseService) {
@@ -139,6 +139,44 @@ public class ExerciseController {
 
         return "exercises-for-review";
     }
+
+    @GetMapping("/view/{id}")
+    public String viewExercise(Model model, Authentication authentication, @PathVariable long id) {
+        String username = authentication.getName();
+        model.addAttribute("username", username);
+
+        ExerciseViewModel exerciseView = exerciseService.getExerciseView(id);
+        model.addAttribute("exerciseView", exerciseView);
+
+
+        ExerciseEditBindingModel exerciseEdit = new ExerciseEditBindingModel(
+                id,
+                exerciseView.name(),
+                exerciseView.description(),
+                null,
+                exerciseView.imageUrls().stream()
+                        .map(imageUrlViewModel -> new ImageUrlBindingModel(
+                                imageUrlViewModel.id(),
+                                imageUrlViewModel.url(),
+                                imageUrlViewModel.forDelete()))
+                        .toList()
+        );
+
+
+        model.addAttribute("exerciseEdit", exerciseEdit);
+
+        return "exercise-view";
+    }
+
+    @PatchMapping("/edit/{id}")
+    public String editExercise(@PathVariable long id, ExerciseEditBindingModel exerciseEdit, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("exerciseEdit", exerciseEdit);
+
+        exerciseService.editExercise(exerciseEdit);
+
+        return "redirect:/exercises/view/" + id;
+    }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/approve/{id}")

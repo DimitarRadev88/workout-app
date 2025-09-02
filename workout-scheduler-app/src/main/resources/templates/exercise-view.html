@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head th:replace="~{fragments/header :: header (pageTitle = ${exerciseName})}"></head>
+
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav th:replace="~{fragments/navbar :: topNavbar (username = ${username})}"></nav>
+                <section class="py-4 py-xl-5">
+                    <div th:object="${exerciseView}" class="container-fluid p-0">
+                        <div class="row g-0 mb-5">
+                            <div class="col-md-8 col-xl-6 text-center mx-auto">
+                                <h2 th:text="*{name}">Exercise Name</h2>
+                                <p th:text="*{complexity}">Exercise Complexity</p>
+                                <p th:text="*{description}">Exercise Description</p>
+                            </div>
+                        </div>
+                        <div class="row g-0 mb-5">
+                            <div class="col-md-8 col-xl-6 text-center mx-auto">
+                                <h4>Execution Gallery</h4>
+                            </div>
+                        </div>
+                        <div class="row g-0 row-cols-1 row-cols-md-2 row-cols-xl-3" data-bss-baguettebox="">
+                            <div th:each="imageUrl : *{imageUrls}" class="col">
+                                <a th:href="@{https://www.google.com/search(q=*{name})}">
+                                    <img class="img-fluid" th:src="${imageUrl.url()}" alt="https://images.unsplash.com/photo-1689877020200-403d8542d95d" loading="lazy">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div>
+                    <form th:action="@{/exercises/edit/{id}(id=*{id})}" th:object="${exerciseEdit}" th:method="patch">
+                        <label for="change_name">Exercise Name</label>
+                        <input type="text" th:field="*{name}" name="change_name" id="change_name">
+                        <label for="change_description">Description</label>
+                        <input type="text" th:field="*{description}" name="change_description" id="change_description">
+                        <label for="add_image_url">Add image</label>
+                        <input type="text" th:field="*{imageUrl}" th:text="*{imageUrl}" name="add_image_url" id="add_image_url">
+                        <div th:each="imageUrlObj :${exerciseEdit.imageUrls}">
+                            <img th:width="100px" th:src="${imageUrlObj.url()}" th:alt="${imageUrlObj.id()}">
+<!--                            <label for="delete_image_url">Delete Image</label>-->
+<!--                            <input type="checkbox" name="delete_image_url" id="delete_image_url" checked="" th:value="false" th:field="${imageUrlObj.forDelete}">-->
+                        </div>
+                        <button type="submit">Edit</button>
+                    </form>
+                </div>
+
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Workout Tracker 2025</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/Lightbox-Gallery-No-Gutters-baguetteBox.min.js"></script>
+    <script src="/js/Lightbox-Gallery-No-Gutters-Lightbox-Gallery.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
+</body>
+
+</html>

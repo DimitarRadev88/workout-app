@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.workout;
 
+import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
@@ -11,10 +12,7 @@ import java.util.Map;
 
 @Entity
 @Table(name = "workouts")
-public class Workout {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Workout extends BaseEntity {
     @Basic
     private LocalDate date;
     @OneToMany
@@ -29,14 +27,6 @@ public class Workout {
     private Program program;
     @ManyToOne
     private User user;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public LocalDate getDate() {
         return date;

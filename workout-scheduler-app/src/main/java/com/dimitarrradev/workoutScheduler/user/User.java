@@ -1,9 +1,9 @@
 package com.dimitarrradev.workoutScheduler.user;
 
-import com.dimitarrradev.workoutScheduler.exercise.Exercise;
+import com.dimitarrradev.workoutScheduler.BaseEntity;
+import com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.role.Role;
-import com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
 
@@ -11,11 +11,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     @Column(unique = true, nullable = false)
     private String username;
     @Column(name = "first_name")
@@ -50,19 +47,11 @@ public class User {
     )
     private List<Program> programs;
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "users_roles" ,
+    @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;

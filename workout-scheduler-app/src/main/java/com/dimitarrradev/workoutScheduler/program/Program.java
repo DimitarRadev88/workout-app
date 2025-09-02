@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.program;
 
+import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.program.enums.ProgramGoal;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
@@ -10,11 +11,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "programs")
-public class Program {
+public class Program extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     @Column(unique = true, nullable = false)
     private String title;
     @Column(unique = true, nullable = false)
@@ -30,14 +28,6 @@ public class Program {
     private List<Workout> workouts;
     @ManyToMany(mappedBy = "programs")
     private List<User> users;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;

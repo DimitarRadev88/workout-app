@@ -1,16 +1,17 @@
 package com.dimitarrradev.workoutScheduler.exercise;
 
+import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "exercises")
-public class Exercise {
+public class Exercise extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     @Column(nullable = false, unique = true)
     private String name;
     @Column(nullable = false, name = "target_body_part")
@@ -18,8 +19,8 @@ public class Exercise {
     private TargetBodyPart targetBodyPart;
     @Column(columnDefinition = "TEXT")
     private String description;
-    @Basic
-    private String picture;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exercise")
+    private List<ImageUrl> imageURLs;
     @Basic
     private Boolean approved;
     @Column(nullable = false, name = "added_by")
@@ -30,12 +31,8 @@ public class Exercise {
     @Basic
     private String equipment;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public Exercise() {
+        this.imageURLs = new ArrayList<>();
     }
 
     public String getName() {
@@ -62,12 +59,12 @@ public class Exercise {
         this.description = description;
     }
 
-    public String getPicture() {
-        return picture;
+    public List<ImageUrl> getImageURLs() {
+        return imageURLs;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public void setImageURLs(List<ImageUrl> imageURLs) {
+        this.imageURLs = imageURLs;
     }
 
     public Boolean getApproved() {
