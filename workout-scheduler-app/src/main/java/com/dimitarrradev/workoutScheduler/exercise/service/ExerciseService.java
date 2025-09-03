@@ -67,7 +67,6 @@ public class ExerciseService {
                         exercise.getId(),
                         exercise.getName(),
                         exercise.getDescription(),
-                        exercise.getEquipment(),
                         exercise.getComplexity(),
                         exercise.getAddedBy()
                 ));

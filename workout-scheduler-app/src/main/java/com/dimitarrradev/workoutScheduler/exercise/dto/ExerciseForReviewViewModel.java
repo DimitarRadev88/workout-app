@@ -6,7 +6,6 @@ public record ExerciseForReviewViewModel(
         Long id,
         String name,
         String description,
-        String equipment,
         Complexity complexity,
         String addedBy
 ) {

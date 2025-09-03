@@ -39,7 +39,6 @@
                                         <tr>
                                             <th>Name</th>
                                             <th>Description</th>
-                                            <th>Equipment</th>
                                             <th>Complexity</th>
                                             <th></th>
                                             <th></th>
@@ -49,7 +48,6 @@
                                         <tr>
                                             <td th:text="*{forReview.name}">Bench Press</td>
                                             <td th:text="*{forReview.description}">Lie flat on a bench and press</td>
-                                            <td th:text="*{forReview.equipment}">Bench, Barbell</td>
                                             <td th:text="${#strings.capitalize(#strings.toLowerCase(forReview.complexity.name))}">Easy</td>
                                             <td>
                                                 <form th:action="@{/exercises/approve/{id}(id=${forReview.id})}" th:method="@{PATCH}">
@@ -67,7 +65,6 @@
                                         <tr>
                                             <td><strong>Name</strong></td>
                                             <td><strong>Description</strong></td>
-                                            <td><strong>Equipment</strong></td>
                                             <td><strong>Complexity</strong></td>
                                             <td><strong>&nbsp;</strong></td>
                                             <td><strong></strong></td>

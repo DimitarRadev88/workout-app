@@ -79,10 +79,14 @@ public class ExerciseController {
 
     @GetMapping("/add")
     public String getAddExercise(Model model, Authentication authentication) {
-        String username = addUsername(model, authentication);
+        addUsername(model, authentication);
 
-        ExerciseAddBindingModel exerciseAdd = new ExerciseAddBindingModel(null, null, null, null, username, null);
-        model.addAttribute("exerciseAdd", exerciseAdd);
+        if (!model.containsAttribute("exerciseAdd")) {
+            ExerciseAddBindingModel exerciseAdd = new ExerciseAddBindingModel(null, null, null, null, null);
+            model.addAttribute("exerciseAdd", exerciseAdd);
+        } else {
+            model.addAttribute("exerciseAdd", model.getAttribute("exerciseAdd"));
+        }
 
         return "add-exercise";
     }

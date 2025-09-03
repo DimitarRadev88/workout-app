@@ -27,26 +27,30 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="mb-3">
-                                                        <div class="form-label"><strong>Complexity</strong></div>
+                                                        <div th:unless="${#fields.hasErrors('complexity')}" class="form-label"><strong>Complexity</strong></div>
+                                                        <div class="form-label text-danger" th:if="${#fields.hasErrors('complexity')}" ><strong th:text="${#fields.errors('complexity').getFirst()}">Complexity</strong></div>
                                                         <div class="form-check">
-                                                            <input id="complexity_1" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).EASY}" th:field="*{complexity}" type="radio" />
                                                             <label class="form-check-label" for="complexity_1">Easy</label>
+                                                            <input id="complexity_1" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).EASY}" th:field="*{complexity}" type="radio" />
                                                         </div>
                                                         <div class="form-check">
-                                                            <input id="complexity_2" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).MEDIUM}" th:field="*{complexity}" type="radio" />
                                                             <label class="form-check-label" for="complexity_2">Medium</label>
+                                                            <input id="complexity_2" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).MEDIUM}" th:field="*{complexity}" type="radio" />
                                                         </div>
                                                         <div class="form-check">
-                                                            <input id="complexity_3" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).HARD}" th:field="*{complexity}" type="radio" />
                                                             <label class="form-check-label" for="complexity_3">Hard</label>
+                                                            <input id="complexity_3" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).HARD}" th:field="*{complexity}" type="radio" />
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="bodyPart"><strong>Target</strong></label>
+                                                    <div class="mb-3">
+                                                        <label th:unless="${#fields.hasErrors('bodyPart')}" class="form-label" for="bodyPart"><strong>Target Body Part</strong></label>
+                                                        <label th:if="${#fields.hasErrors('bodyPart')}" class="form-label text-danger" for="bodyPart"><strong th:text="${#fields.errors('bodyPart').getFirst()}">Target Body Part</strong></label>
                                                         <select class="form-select" th:field="*{bodyPart}" id="bodyPart" name="bodyPart">
+                                                                <option selected hidden th:value="${null}">Select</option>
                                                                 <option th:each="bodyPart : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart).values()}"
                                                                         th:value="${bodyPart}" th:text="${#strings.capitalize(#strings.toLowerCase(bodyPart.name()))}">Chest</option>
                                                         </select></div>
@@ -54,21 +58,20 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="exerciseName"><strong>Name</strong></label>
+                                                    <div class="mb-3">
+                                                        <label th:unless="${#fields.hasErrors('exerciseName')}" class="form-label" for="exerciseName"><strong>Exercise Name</strong></label>
+                                                        <label th:if="${#fields.hasErrors('exerciseName')}" class="form-label text-danger" for="exerciseName"><strong th:text="${#fields.errors('exerciseName').getFirst()}">Exercise Name</strong></label>
                                                         <input class="form-control" th:value="*{exerciseName}" type="text" id="exerciseName" placeholder="Bench Press" name="exerciseName"></div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="equipment"><strong>Equipment</strong></label>
-                                                        <input class="form-control" th:value="*{equipment}" type="text" id="equipment" placeholder="Bench, Barbell" name="equipment"></div>
-                                                </div>
-                                                <div class="col" hidden="hidden" disabled="true">
-                                                        <input class="form-control" th:value="${username}" th:field="*{addedBy}" type="text" id="username" placeholder="Bench, Barbell" name="username">
+                                                <div class="col" hidden disabled>
+                                                    <input class="form-control" th:value="${username}" th:field="*{addedBy}" type="text" id="username" placeholder="Bench, Barbell" name="username">
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col col-xxl-12">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="description"><strong>Description</strong></label>
+                                                        <label th:unless="${#fields.hasErrors('description')}" class="form-label" for="description"><strong>Execution Description</strong></label>
+                                                        <label th:if="${#fields.hasErrors('description')}" class="form-label text-danger" for="description"><strong th:text="${#fields.errors('description').getFirst()}">Execution Description</strong></label>
                                                         <textarea id="description" th:value="*{description}" class="form-control" name="description" style="height: 10rem;"></textarea></div>
                                                 </div>
                                             </div>

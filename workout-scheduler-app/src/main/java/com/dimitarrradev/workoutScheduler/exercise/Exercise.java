@@ -28,8 +28,6 @@ public class Exercise extends BaseEntity {
     @Basic
     @Enumerated(EnumType.STRING)
     private Complexity complexity;
-    @Basic
-    private String equipment;
 
     public Exercise() {
         this.imageURLs = new ArrayList<>();
@@ -91,11 +89,4 @@ public class Exercise extends BaseEntity {
         this.complexity = complexity;
     }
 
-    public String getEquipment() {
-        return equipment;
-    }
-
-    public void setEquipment(String equipment) {
-        this.equipment = equipment;
-    }
 }
