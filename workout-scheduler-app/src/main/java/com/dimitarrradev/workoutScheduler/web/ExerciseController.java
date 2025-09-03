@@ -11,15 +11,11 @@ import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/exercises")
@@ -123,31 +119,6 @@ public class ExerciseController {
         return "exercises";
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/for-review")
-    public String getExercisesForReview(
-            Model model,
-            Authentication authentication,
-            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
-            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
-    ) {
-        addUsername(model, authentication);
-        model.addAttribute("pageNumber", pageNumber);
-        model.addAttribute("pageSize", pageSize);
-        model.addAttribute("sortDirection", sortDirection);
-
-        PageAndExerciseReviewServiceView dataAndExercise = exerciseService.getPaginatedAndSortedDataAndExerciseActiveFalse(pageNumber, pageSize, sortDirection);
-
-        model.addAttribute("pageSizes", dataAndExercise.pageSizes());
-        model.addAttribute("elementsCount", dataAndExercise.totalElements());
-        model.addAttribute("pagesCount", dataAndExercise.totalPages());
-        model.addAttribute("exercisesForReview", dataAndExercise.exercises());
-        model.addAttribute("shownElements", dataAndExercise.shownElementsRangeAndTotalCountString());
-
-        return "exercises-for-review";
-    }
-
     @GetMapping("/view/{id}")
     public String viewExercise(
             Model model,
@@ -188,11 +159,12 @@ public class ExerciseController {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("exerciseEdit", exerciseEdit);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseEdit", bindingResult);
+        } else {
+            exerciseService.editExercise(exerciseEdit);
         }
 
-        exerciseService.editExercise(exerciseEdit);
 
-        return "redirect:/exercises/view/" + id;
+        return "redirect:/exercises/edit/" + id;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -205,10 +177,34 @@ public class ExerciseController {
         return "redirect:/exercises/edit/" + exerciseId;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/for-review")
+    public String getExercisesForReview(
+            Model model,
+            Authentication authentication,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+    ) {
+        addUsername(model, authentication);
+        model.addAttribute("pageNumber", pageNumber);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sortDirection", sortDirection);
+
+        PageAndExerciseReviewServiceView dataAndExercise = exerciseService.getPaginatedAndSortedDataAndExerciseActiveFalse(pageNumber, pageSize, sortDirection);
+
+        model.addAttribute("pageSizes", dataAndExercise.pageSizes());
+        model.addAttribute("elementsCount", dataAndExercise.totalElements());
+        model.addAttribute("pagesCount", dataAndExercise.totalPages());
+        model.addAttribute("exercisesForReview", dataAndExercise.exercises());
+        model.addAttribute("shownElements", dataAndExercise.shownElementsRangeAndTotalCountString());
+
+        return "exercises-for-review";
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/approve/{id}")
-    public String approveExercise(@PathVariable Long id) {
+    public String approveExercise(@PathVariable long id) {
         exerciseService.approveExercise(id);
 
         return "redirect:/exercises/for-review";
@@ -216,7 +212,7 @@ public class ExerciseController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
-    public String deleteExercise(@PathVariable Long id) {
+    public String deleteExercise(@PathVariable long id) {
         exerciseService.deleteExercise(id);
 
         return "redirect:/exercises/for-review";

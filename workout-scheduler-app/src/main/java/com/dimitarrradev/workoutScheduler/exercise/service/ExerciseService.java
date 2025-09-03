@@ -241,7 +241,8 @@ public class ExerciseService {
                             imageUrl.getId(),
                             imageUrl.getUrl()
                     );
-                }).toList()
+                }).toList(),
+                exercise.getApproved()
         );
     }
 }

@@ -7,6 +7,7 @@ public record ExerciseEditBindingModel(
         String name,
         String description,
         String imageUrl,
-        List<ImageUrlBindingModel> imageUrls
+        List<ImageUrlBindingModel> imageUrls,
+        Boolean isApproved
 ) {
 }

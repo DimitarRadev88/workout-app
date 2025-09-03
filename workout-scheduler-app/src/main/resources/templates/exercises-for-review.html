@@ -55,6 +55,9 @@
                                                 </form>
                                             </td>
                                             <td>
+                                                <a class="btn btn-warning text-white" th:href="@{/exercises/edit/{id}(id=${forReview.id})}">Edit</a>
+                                            </td>
+                                            <td>
                                                 <form th:action="@{/exercises/delete/{id}(id=${forReview.id})}" th:method="@{DELETE}">
                                                   <button class="btn btn-danger text-white" type="submit">Delete</button>
                                                 </form>
