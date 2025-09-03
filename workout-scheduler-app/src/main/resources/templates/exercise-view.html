@@ -35,6 +35,9 @@
                 </div>
             </section>
         </div>
+        <div sec:authorize="${hasRole('ROLE_ADMIN')}">
+            <a class="btn btn-primary" th:href="@{/exercises/edit/{id}(id=${id})}">Edit</a>
+        </div>
         <footer class="bg-white sticky-footer">
             <div class="container my-auto">
                 <div class="text-center my-auto copyright"><span>Copyright © Workout Tracker 2025</span></div>

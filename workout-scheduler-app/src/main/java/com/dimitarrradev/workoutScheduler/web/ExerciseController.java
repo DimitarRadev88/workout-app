@@ -11,11 +11,15 @@ import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/exercises")
@@ -35,8 +39,7 @@ public class ExerciseController {
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
-        String username = authentication.getName();
-        model.addAttribute("username", username);
+        String username = addUsername(model, authentication);
 
         ExerciseFindBindingModel exerciseFind;
 
@@ -65,15 +68,18 @@ public class ExerciseController {
     }
 
     @PostMapping("/find/{muscleGroup}")
-    public String postFindExercises(ExerciseFindBindingModel exerciseFind, RedirectAttributes redirectAttributes) {
+    public String postFindExercises(
+            ExerciseFindBindingModel exerciseFind,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
         redirectAttributes.addFlashAttribute("exerciseFind", exerciseFind);
         return "redirect:/exercises/find/" + exerciseFind.targetBodyPart().getName();
     }
 
     @GetMapping("/add")
     public String getAddExercise(Model model, Authentication authentication) {
-        String username = authentication.getName();
-        model.addAttribute("username", username);
+        String username = addUsername(model, authentication);
 
         ExerciseAddBindingModel exerciseAdd = new ExerciseAddBindingModel(null, null, null, null, username, null);
         model.addAttribute("exerciseAdd", exerciseAdd);
@@ -82,7 +88,11 @@ public class ExerciseController {
     }
 
     @PostMapping("/add")
-    public String addExercise(@Valid @ModelAttribute("exerciseAdd") ExerciseAddBindingModel exerciseAdd, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String addExercise(
+            @Valid ExerciseAddBindingModel exerciseAdd,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("exerciseAdd", exerciseAdd);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseAdd", bindingResult);
@@ -96,8 +106,7 @@ public class ExerciseController {
 
     @GetMapping
     public String getExercises(Model model, Authentication authentication) {
-        String username = authentication.getName();
-        model.addAttribute("username", username);
+        addUsername(model, authentication);
 
         authentication.getAuthorities().stream().filter(authority -> authority
                         .getAuthority().equals("ROLE_ADMIN"))
@@ -119,9 +128,7 @@ public class ExerciseController {
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
-        String username = authentication.getName();
-
-        model.addAttribute("username", username);
+        addUsername(model, authentication);
         model.addAttribute("pageNumber", pageNumber);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sortDirection", sortDirection);
@@ -138,10 +145,12 @@ public class ExerciseController {
     }
 
     @GetMapping("/view/{id}")
-    public String viewExercise(Model model, Authentication authentication, @PathVariable long id) {
-        String username = authentication.getName();
-
-        model.addAttribute("username", username);
+    public String viewExercise(
+            Model model,
+            Authentication authentication,
+            @PathVariable long id
+    ) {
+        addUsername(model, authentication);
 
         ExerciseViewModel exerciseView = exerciseService.getExerciseView(id);
         model.addAttribute("exerciseView", exerciseView);
@@ -151,13 +160,14 @@ public class ExerciseController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/edit/{id}")
-    public String getEditExercise(@PathVariable long id, Model model, Authentication authentication) {
-        String username = authentication.getName();
-
-        model.addAttribute("username", username);
+    public String getEditExercise(
+            @PathVariable long id,
+            Model model,
+            Authentication authentication
+    ) {
+        addUsername(model, authentication);
 
         ExerciseEditBindingModel exerciseEdit = exerciseService.getExerciseEditBindingModel(id);
-
         model.addAttribute("exerciseEdit", exerciseEdit);
 
         return "edit-exercise";
@@ -165,7 +175,12 @@ public class ExerciseController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/edit/{id}")
-    public String editExercise(@PathVariable long id, ExerciseEditBindingModel exerciseEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String editExercise(
+            @PathVariable long id,
+            ExerciseEditBindingModel exerciseEdit,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("exerciseEdit", exerciseEdit);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseEdit", bindingResult);
@@ -178,7 +193,10 @@ public class ExerciseController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("{exerciseId}/imageUrls/delete/{id}")
-    public String deleteImageUrl(@PathVariable long exerciseId, @PathVariable long id) {
+    public String deleteImageUrl(
+            @PathVariable long exerciseId,
+            @PathVariable long id
+    ) {
         exerciseService.deleteImageUrl(id);
         return "redirect:/exercises/edit/" + exerciseId;
     }
@@ -198,6 +216,13 @@ public class ExerciseController {
         exerciseService.deleteExercise(id);
 
         return "redirect:/exercises/for-review";
+    }
+
+    private static String addUsername(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        model.addAttribute("username", username);
+
+        return username;
     }
 
 }
