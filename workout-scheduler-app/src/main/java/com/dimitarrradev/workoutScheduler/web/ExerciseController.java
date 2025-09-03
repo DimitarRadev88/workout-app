@@ -5,9 +5,7 @@ import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseFindServic
 import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseReviewServiceView;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
-import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.*;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -16,6 +14,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/exercises")
@@ -142,8 +142,14 @@ public class ExerciseController {
     ) {
         addUsername(model, authentication);
 
-        ExerciseEditBindingModel exerciseEdit = exerciseService.getExerciseEditBindingModel(id);
-        model.addAttribute("exerciseEdit", exerciseEdit);
+        if (!model.containsAttribute("exerciseEdit")) {
+            ExerciseEditBindingModel exerciseEdit = exerciseService.getExerciseEditBindingModel(id);
+            model.addAttribute("exerciseEdit", exerciseEdit);
+        } else {
+            model.addAttribute("exerciseEdit", model.getAttribute("exerciseEdit"));
+        }
+
+        model.addAttribute("imageUrls", exerciseService.getExerciseImages(id));
 
         return "edit-exercise";
     }
@@ -152,7 +158,7 @@ public class ExerciseController {
     @PatchMapping("/edit/{id}")
     public String editExercise(
             @PathVariable long id,
-            ExerciseEditBindingModel exerciseEdit,
+            @Valid ExerciseEditBindingModel exerciseEdit,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
     ) {
@@ -162,7 +168,6 @@ public class ExerciseController {
         } else {
             exerciseService.editExercise(exerciseEdit);
         }
-
 
         return "redirect:/exercises/edit/" + id;
     }

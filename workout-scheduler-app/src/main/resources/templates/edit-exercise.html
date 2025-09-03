@@ -26,14 +26,24 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="exercise_name"><strong>Name</strong></label>
+                                                        <label th:unless="${#fields.hasErrors('name')}" class="form-label" for="exercise_name">
+                                                            <strong>Name</strong>
+                                                        </label>
+                                                        <label th:if="${#fields.hasErrors('name')}" class="form-label" for="exercise_name">
+                                                            <strong th:text="${#fields.errors('name').getFirst()}">Name</strong>
+                                                        </label>
                                                         <input class="form-control" type="text" th:field="*{name}" name="exercise_name" id="exercise_name">
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="description"><strong>Description</strong></label>
+                                                            <label th:unless="${#fields.hasErrors('description')}" class="form-label" for="description">
+                                                                <strong>Description</strong>
+                                                            </label>
+                                                            <label th:if="${#fields.hasErrors('description')}" class="form-label" for="description">
+                                                                <strong th:text="${#fields.errors('description').getFirst()}">Description</strong>
+                                                            </label>
                                                             <textarea class="form-control" th:field="*{description}" id="description" name="description"></textarea>
                                                         </div>
                                                     </div>
@@ -41,15 +51,21 @@
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="add_image_url"><strong>Add images</strong></label>
-                                                            <textarea class="form-control" th:field="*{imageUrl}"
-                                                                      id="add_image_url" name="add_image_url"
+                                                            <label th:unless="${#fields.hasErrors('addImageUrls')}" class="form-label" for="addImageUrls">
+                                                                <strong>Image URLs</strong>
+                                                            </label>
+                                                            <label th:if="${#fields.hasErrors('addImageUrls')}" class="form-label" for="addImageUrls">
+                                                                <strong th:text="${#fields.errors('addImageUrls').getFirst()}">Image URLs</strong>
+                                                            </label>
+                                                            <textarea class="form-control" th:field="*{addImageUrls}"
+                                                                      id="addImageUrls" name="addImageUrls"
                                                                       placeholder="You can add several urls split by new line">
                                                             </textarea>
-
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <input hidden type="text" name="isApproved" id="isApproved" th:value="*{isApproved}" th:field="*{isApproved}">
+
                                                 <div class="mb-3">
                                                     <button class="btn btn-primary btn-sm" type="submit">Save Settings</button>
                                                 </div>
@@ -69,7 +85,7 @@
                                             <p class="text-primary m-0 fw-bold">ImageUrls</p>
                                         </div>
                                         <div class="card-body">
-                                            <div th:each="imageUrlObj :${exerciseEdit.imageUrls}" class="row">
+                                            <div th:each="imageUrlObj : ${imageUrls}" class="row">
                                                 <div class="col">
                                                     <div class="mb-3">
                                                         <form class="d-flex justify-content-between"

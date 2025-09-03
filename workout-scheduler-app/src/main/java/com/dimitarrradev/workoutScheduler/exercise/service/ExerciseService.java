@@ -10,7 +10,7 @@ import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.ImageUrlBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.ImageUrlViewModel;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -180,7 +180,7 @@ public class ExerciseService {
                 exercise.getComplexity().getName(),
                 exercise.getDescription(),
                 exercise.getImageURLs().stream()
-                        .map(imageUrl -> new ImageUrlViewModel(
+                        .map(imageUrl -> new com.dimitarrradev.workoutScheduler.exercise.dto.ImageUrlViewModel(
                                 imageUrl.getId(),
                                 imageUrl.getUrl()
                         ))
@@ -196,21 +196,9 @@ public class ExerciseService {
 
         exercise.setName(exerciseEdit.name());
         exercise.setDescription(exerciseEdit.description());
-        exercise.setImageURLs(
-                exerciseEdit.imageUrls() == null
-                        ? new ArrayList<>()
-                        : exerciseEdit.imageUrls()
-                        .stream()
-                        .map(image -> {
-                            ImageUrl imageUrl = new ImageUrl();
-                            imageUrl.setId(image.id());
-                            imageUrl.setUrl(image.url());
-                            return imageUrl;
-                        }).toList()
-        );
 
-        if (exerciseEdit.imageUrl() != null) {
-            List<ImageUrl> list = Arrays.stream(exerciseEdit.imageUrl().split(System.lineSeparator()))
+        if (exerciseEdit.addImageUrls() != null && !exerciseEdit.addImageUrls().isBlank()) {
+            List<ImageUrl> list = Arrays.stream(exerciseEdit.addImageUrls().split(System.lineSeparator()))
                     .map(url -> {
                         ImageUrl imageUrl = new ImageUrl();
                         imageUrl.setUrl(url.trim());
@@ -236,13 +224,16 @@ public class ExerciseService {
                 exercise.getName(),
                 exercise.getDescription(),
                 null,
-                exercise.getImageURLs().stream().map(imageUrl -> {
-                    return new ImageUrlBindingModel(
-                            imageUrl.getId(),
-                            imageUrl.getUrl()
-                    );
-                }).toList(),
                 exercise.getApproved()
         );
+    }
+
+    public List<ImageUrlViewModel> getExerciseImages(long exerciseId) {
+        List<ImageUrlViewModel> result = imageUrlDao.findByExercise_Id(exerciseId).stream()
+                .map(imageUrl -> new ImageUrlViewModel(imageUrl.getId(), imageUrl.getUrl()))
+                .toList();
+
+        return result.isEmpty() ? new ArrayList<>() : result;
+
     }
 }

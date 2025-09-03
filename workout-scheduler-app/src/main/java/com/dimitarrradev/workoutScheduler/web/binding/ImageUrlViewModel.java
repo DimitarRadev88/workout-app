@@ -1,6 +1,6 @@
 package com.dimitarrradev.workoutScheduler.web.binding;
 
-public record ImageUrlBindingModel(
+public record ImageUrlViewModel(
         Long id,
         String url
 ) {
