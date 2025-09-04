@@ -15,11 +15,12 @@ public interface ExerciseDao extends JpaRepository<Exercise, Long> {
 
     long countAllByApprovedFalse();
 
-    Page<Exercise> findAllByApprovedIs(Pageable pageable, Boolean approved);
+    Page<Exercise> findAllByApprovedIsAndNameContainingIgnoreCase(Pageable pageable, Boolean approved, String name);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndComplexity(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity);
+    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndComplexityAndNameContainingIgnoreCase(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, String name);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart);
+    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndNameContainingIgnoreCase(Pageable pageable, TargetBodyPart targetBodyPart, String name);
 
-    Page<Exercise> findAllByApprovedTrueAndComplexity(Pageable pageable, Complexity complexity);
+    Page<Exercise> findAllByApprovedTrueAndComplexityAndNameContainingIgnoreCase(Pageable pageable, Complexity complexity, String name);
 }
+

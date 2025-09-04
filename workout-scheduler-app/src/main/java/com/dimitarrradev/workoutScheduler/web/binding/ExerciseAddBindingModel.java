@@ -6,11 +6,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import static com.dimitarrradev.workoutScheduler.exception.ErrorMessage.*;
+
 public record ExerciseAddBindingModel(
-        @NotBlank @Size(min = 2, max = 100, message = "Exercise name should be between 2 and 100 symbols") String exerciseName,
-        @NotBlank @Size(min = 20, message = "Please provide simple exercise execution guide") String description,
-        @NotNull(message = "You must select the main muscle group involved in exercise execution") TargetBodyPart bodyPart,
+        @NotBlank(message = EXERCISE_NAME_MESSAGE) @Size(min = 2, max = 100, message = EXERCISE_NAME_MESSAGE) String exerciseName,
+        @NotBlank(message = EXERCISE_DESCRIPTION_MESSAGE) @Size(min = 20, message = EXERCISE_DESCRIPTION_MESSAGE) String description,
+        @NotNull(message = TARGET_BODY_PART_MESSAGE) TargetBodyPart bodyPart,
         String addedBy,
-        @NotNull(message = "You must select exercise Complexity (How hard is for execution)") Complexity complexity
+        @NotNull(message = EXERCISE_COMPLEXITY_MESSAGE) Complexity complexity
 ) {
 }

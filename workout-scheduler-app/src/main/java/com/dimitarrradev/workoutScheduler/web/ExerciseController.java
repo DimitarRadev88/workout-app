@@ -33,14 +33,15 @@ public class ExerciseController {
             @PathVariable("muscleGroup") String muscleGroup,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "name", defaultValue = "") String name
     ) {
         String username = addUsername(model, authentication);
 
         ExerciseFindBindingModel exerciseFind;
 
         if (!model.containsAttribute("exerciseFind")) {
-            exerciseFind = new ExerciseFindBindingModel(TargetBodyPart.valueOf(muscleGroup.toUpperCase()), null);
+            exerciseFind = new ExerciseFindBindingModel(name, TargetBodyPart.valueOf(muscleGroup.toUpperCase()), null);
         } else {
             exerciseFind = (ExerciseFindBindingModel) model.getAttribute("exerciseFind");
         }
@@ -66,7 +67,6 @@ public class ExerciseController {
     @PostMapping("/find/{muscleGroup}")
     public String postFindExercises(
             ExerciseFindBindingModel exerciseFind,
-            BindingResult bindingResult,
             RedirectAttributes redirectAttributes
     ) {
         redirectAttributes.addFlashAttribute("exerciseFind", exerciseFind);

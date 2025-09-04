@@ -4,15 +4,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
+import static com.dimitarrradev.workoutScheduler.exception.ErrorMessage.*;
 
 public record ExerciseEditBindingModel(
         Long id,
-        @NotBlank @Size(min = 2, max = 100, message = "Exercise name should be between 2 and 100 symbols") String name,
-        @NotBlank @Size(min = 20, message = "Please provide simple exercise execution guide")  String description,
+        @NotBlank(message = EXERCISE_NAME_MESSAGE) @Size(min = 2, max = 100, message = EXERCISE_NAME_MESSAGE) String name,
+        @NotBlank @Size(min = 20, message = EXERCISE_DESCRIPTION_MESSAGE)  String description,
         @Pattern(
                 regexp = "^https?://[^\\s/$.?#].[^\\s]*(\\r?\\nhttps?://[^\\s/$.?#].[^\\s]*)*$",
-                message = "The provided url is not valid"
+                message = IMAGE_URL_MESSAGE
         ) String addImageUrls,
         Boolean isApproved
 ) {

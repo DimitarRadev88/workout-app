@@ -62,7 +62,7 @@ public class ExerciseService {
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 
         Page<ExerciseForReviewViewModel> page = exerciseDao
-                .findAllByApprovedIs(pageable, false)
+                .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
                 .map(exercise -> new ExerciseForReviewViewModel(
                         exercise.getId(),
                         exercise.getName(),
@@ -119,7 +119,12 @@ public class ExerciseService {
         if (exerciseFind.targetBodyPart() != null && !exerciseFind.targetBodyPart().equals(TargetBodyPart.ALL)) {
             if (exerciseFind.complexity() != null && !exerciseFind.complexity().equals(Complexity.ALL)) {
                 page = exerciseDao
-                        .findAllByApprovedTrueAndTargetBodyPartAndComplexity(pageable, exerciseFind.targetBodyPart(), exerciseFind.complexity())
+                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndNameContainingIgnoreCase(
+                                pageable,
+                                exerciseFind.targetBodyPart(),
+                                exerciseFind.complexity(),
+                                exerciseFind.name().trim()
+                        )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
                                 exercise.getName(),
@@ -127,7 +132,11 @@ public class ExerciseService {
                         ));
             } else {
                 page = exerciseDao
-                        .findAllByApprovedTrueAndTargetBodyPart(pageable, exerciseFind.targetBodyPart())
+                        .findAllByApprovedTrueAndTargetBodyPartAndNameContainingIgnoreCase(
+                                pageable,
+                                exerciseFind.targetBodyPart(),
+                                exerciseFind.name().trim()
+                        )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
                                 exercise.getName(),
@@ -137,7 +146,11 @@ public class ExerciseService {
         } else {
             if (exerciseFind.complexity() != null && !exerciseFind.complexity().equals(Complexity.ALL)) {
                 page = exerciseDao
-                        .findAllByApprovedTrueAndComplexity(pageable, exerciseFind.complexity())
+                        .findAllByApprovedTrueAndComplexityAndNameContainingIgnoreCase(
+                                pageable,
+                                exerciseFind.complexity(),
+                                exerciseFind.name().trim()
+                        )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
                                 exercise.getName(),
@@ -145,7 +158,11 @@ public class ExerciseService {
                         ));
             } else {
                 page = exerciseDao
-                        .findAllByApprovedIs(pageable, true)
+                        .findAllByApprovedIsAndNameContainingIgnoreCase(
+                                pageable,
+                                true,
+                                exerciseFind.name().trim()
+                        )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
                                 exercise.getName(),
