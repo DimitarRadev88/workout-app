@@ -18,4 +18,5 @@ public class WeekSchedule extends Schedule {
     public void setDaySchedules(List<DaySchedule> daySchedules) {
         this.daySchedules = daySchedules;
     }
+
 }
