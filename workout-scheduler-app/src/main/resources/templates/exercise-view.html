@@ -9,7 +9,7 @@
     <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
     <div class="d-flex flex-column" id="content-wrapper">
         <div id="content">
-            <nav th:replace="~{fragments/navbar :: topNavbar (username = ${username})}"></nav>
+            <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
             <section class="py-4 py-xl-5">
                 <div th:object="${exerciseView}" class="container-fluid p-0">
                     <div class="row g-0 mb-5">

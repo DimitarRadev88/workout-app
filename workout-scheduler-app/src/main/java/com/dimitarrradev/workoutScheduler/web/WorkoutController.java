@@ -13,5 +13,4 @@ public class WorkoutController {
         this.workoutService = workoutService;
     }
 
-
 }

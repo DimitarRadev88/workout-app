@@ -17,7 +17,7 @@
     </div>
 </nav>
 
-<nav th:fragment="topNavbar (username)" class="navbar navbar-expand bg-white shadow mb-4 topbar">
+<nav th:fragment="topNavbar" class="navbar navbar-expand bg-white shadow mb-4 topbar">
     <div class="container-fluid">
         <button class="btn btn-link d-md-none me-3 rounded-circle" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
         <ul class="navbar-nav flex-nowrap ms-auto">
@@ -26,7 +26,7 @@
             </li>
             <div class="d-none d-sm-block topbar-divider"></div>
             <li class="nav-item dropdown no-arrow">
-                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span th:text="${username}" class="d-none d-lg-inline me-2 text-gray-600 small">Valerie Luna</span><img class="border rounded-circle img-profile" src="/img/avatars/avatar1.jpeg"></a>
+                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span th:text="${#authentication.getName()}" class="d-none d-lg-inline me-2 text-gray-600 small">Valerie Luna</span><img class="border rounded-circle img-profile" src="/img/avatars/avatar1.jpeg"></a>
                     <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
                         <a class="dropdown-item" href="/users/profile">
                             <i class="fas fa-user me-2 fa-sm fa-fw text-gray-400"></i>&nbsp;Profile

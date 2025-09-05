@@ -29,15 +29,12 @@ public class ExerciseController {
     @GetMapping("/find/{muscleGroup}")
     public String getFindExercises(
             Model model,
-            Authentication authentication,
             @PathVariable("muscleGroup") String muscleGroup,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             @RequestParam(value = "name", defaultValue = "") String name
     ) {
-        String username = addUsername(model, authentication);
-
         ExerciseFindBindingModel exerciseFind;
 
         if (!model.containsAttribute("exerciseFind")) {
@@ -46,7 +43,6 @@ public class ExerciseController {
             exerciseFind = (ExerciseFindBindingModel) model.getAttribute("exerciseFind");
         }
 
-        model.addAttribute("username", username);
         model.addAttribute("pageNumber", pageNumber);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sortDirection", sortDirection);
@@ -65,18 +61,13 @@ public class ExerciseController {
     }
 
     @PostMapping("/find/{muscleGroup}")
-    public String postFindExercises(
-            ExerciseFindBindingModel exerciseFind,
-            RedirectAttributes redirectAttributes
-    ) {
+    public String postFindExercises(ExerciseFindBindingModel exerciseFind, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("exerciseFind", exerciseFind);
         return "redirect:/exercises/find/" + exerciseFind.targetBodyPart().getName();
     }
 
     @GetMapping("/add")
-    public String getAddExercise(Model model, Authentication authentication) {
-        addUsername(model, authentication);
-
+    public String getAddExercise(Model model) {
         if (!model.containsAttribute("exerciseAdd")) {
             ExerciseAddBindingModel exerciseAdd = new ExerciseAddBindingModel(null, null, null, null, null);
             model.addAttribute("exerciseAdd", exerciseAdd);
@@ -106,8 +97,6 @@ public class ExerciseController {
 
     @GetMapping
     public String getExercises(Model model, Authentication authentication) {
-        addUsername(model, authentication);
-
         authentication.getAuthorities().stream().filter(authority -> authority
                         .getAuthority().equals("ROLE_ADMIN"))
                 .findAny()
@@ -120,13 +109,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/view/{id}")
-    public String viewExercise(
-            Model model,
-            Authentication authentication,
-            @PathVariable long id
-    ) {
-        addUsername(model, authentication);
-
+    public String viewExercise(Model model, @PathVariable long id) {
         ExerciseViewModel exerciseView = exerciseService.getExerciseView(id);
         model.addAttribute("exerciseView", exerciseView);
 
@@ -135,13 +118,7 @@ public class ExerciseController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/edit/{id}")
-    public String getEditExercise(
-            @PathVariable long id,
-            Model model,
-            Authentication authentication
-    ) {
-        addUsername(model, authentication);
-
+    public String getEditExercise(@PathVariable long id, Model model) {
         if (!model.containsAttribute("exerciseEdit")) {
             ExerciseEditBindingModel exerciseEdit = exerciseService.getExerciseEditBindingModel(id);
             model.addAttribute("exerciseEdit", exerciseEdit);
@@ -174,10 +151,7 @@ public class ExerciseController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("{exerciseId}/imageUrls/delete/{id}")
-    public String deleteImageUrl(
-            @PathVariable long exerciseId,
-            @PathVariable long id
-    ) {
+    public String deleteImageUrl(@PathVariable long exerciseId, @PathVariable long id) {
         exerciseService.deleteImageUrl(id);
         return "redirect:/exercises/edit/" + exerciseId;
     }
@@ -186,12 +160,10 @@ public class ExerciseController {
     @GetMapping("/for-review")
     public String getExercisesForReview(
             Model model,
-            Authentication authentication,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
-        addUsername(model, authentication);
         model.addAttribute("pageNumber", pageNumber);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sortDirection", sortDirection);
@@ -221,13 +193,6 @@ public class ExerciseController {
         exerciseService.deleteExercise(id);
 
         return "redirect:/exercises/for-review";
-    }
-
-    private static String addUsername(Model model, Authentication authentication) {
-        String username = authentication.getName();
-        model.addAttribute("username", username);
-
-        return username;
     }
 
 }

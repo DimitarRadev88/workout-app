@@ -59,7 +59,6 @@ public class UserController {
     @GetMapping("/profile")
     public String getProfilePage(Model model, Authentication authentication) {
         String username = authentication.getName();
-        model.addAttribute("username", username);
         if (!model.containsAttribute("profileAccountEdit")) {
             UserProfileAccountViewModel userProfile = userService.getUserProfileAccountView(username);
 
