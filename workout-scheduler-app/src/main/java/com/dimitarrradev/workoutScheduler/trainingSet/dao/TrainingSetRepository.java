@@ -5,6 +5,6 @@ import jakarta.annotation.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Resource
-public interface TrainingSetDao extends JpaRepository<TrainingSet, Long> {
+public interface TrainingSetRepository extends JpaRepository<TrainingSet, Long> {
 
 }

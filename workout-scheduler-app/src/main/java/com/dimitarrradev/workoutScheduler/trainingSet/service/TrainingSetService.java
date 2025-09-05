@@ -1,15 +1,15 @@
 package com.dimitarrradev.workoutScheduler.trainingSet.service;
 
-import com.dimitarrradev.workoutScheduler.trainingSet.dao.TrainingSetDao;
+import com.dimitarrradev.workoutScheduler.trainingSet.dao.TrainingSetRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TrainingSetService {
 
-    private final TrainingSetDao trainingSetDao;
+    private final TrainingSetRepository trainingSetRepository;
 
-    public TrainingSetService(TrainingSetDao trainingSetDao) {
-        this.trainingSetDao = trainingSetDao;
+    public TrainingSetService(TrainingSetRepository trainingSetRepository) {
+        this.trainingSetRepository = trainingSetRepository;
     }
 
 }

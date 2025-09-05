@@ -3,8 +3,8 @@ package com.dimitarrradev.workoutScheduler;
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.service.RoleService;
 import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
-import com.dimitarrradev.workoutScheduler.program.dao.ProgramDao;
-import com.dimitarrradev.workoutScheduler.workout.dao.WorkoutDao;
+import com.dimitarrradev.workoutScheduler.program.dao.ProgramRepository;
+import com.dimitarrradev.workoutScheduler.workout.dao.WorkoutRepository;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
@@ -15,7 +15,7 @@ public class ConsoleRunner implements CommandLineRunner {
     private final UserService userService;
     private final RoleService roleService;
 
-    public ConsoleRunner(UserService userService, RoleService roleService, ProgramDao programDao, WorkoutDao workoutDao) {
+    public ConsoleRunner(UserService userService, RoleService roleService, ProgramRepository programDao, WorkoutRepository workoutRepository) {
         this.userService = userService;
         this.roleService = roleService;
     }

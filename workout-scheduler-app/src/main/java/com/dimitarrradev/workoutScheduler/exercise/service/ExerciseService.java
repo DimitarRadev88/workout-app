@@ -2,8 +2,8 @@ package com.dimitarrradev.workoutScheduler.exercise.service;
 
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.ImageUrl;
-import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseDao;
-import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlDao;
+import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
+import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dto.*;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
@@ -26,16 +26,16 @@ import java.util.Optional;
 @Service
 public class ExerciseService {
 
-    private final ExerciseDao exerciseDao;
-    private final ImageUrlDao imageUrlDao;
+    private final ExerciseRepository exerciseRepository;
+    private final ImageUrlRepository imageUrlRepository;
 
-    public ExerciseService(ExerciseDao exerciseDao, ImageUrlDao imageUrlDao) {
-        this.exerciseDao = exerciseDao;
-        this.imageUrlDao = imageUrlDao;
+    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository) {
+        this.exerciseRepository = exerciseRepository;
+        this.imageUrlRepository = imageUrlRepository;
     }
 
     public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
-        if (exerciseDao.existsExerciseByName(exerciseAdd.exerciseName())) {
+        if (exerciseRepository.existsExerciseByName(exerciseAdd.exerciseName())) {
             throw new IllegalArgumentException("Exercise already exists");
         }
 
@@ -47,11 +47,11 @@ public class ExerciseService {
         exercise.setAddedBy(exerciseAdd.addedBy());
         exercise.setComplexity(exerciseAdd.complexity());
 
-        exerciseDao.save(exercise);
+        exerciseRepository.save(exercise);
     }
 
     public long getExercisesForReviewCount() {
-        return exerciseDao.countAllByApprovedFalse();
+        return exerciseRepository.countAllByApprovedFalse();
     }
 
     public PageAndExerciseReviewServiceView getPaginatedAndSortedDataAndExerciseActiveFalse(int pageNumber, int pageSize, String sortDirection) {
@@ -61,7 +61,7 @@ public class ExerciseService {
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 
-        Page<ExerciseForReviewViewModel> page = exerciseDao
+        Page<ExerciseForReviewViewModel> page = exerciseRepository
                 .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
                 .map(exercise -> new ExerciseForReviewViewModel(
                         exercise.getId(),
@@ -85,7 +85,7 @@ public class ExerciseService {
     }
 
     public void approveExercise(Long id) {
-        Optional<Exercise> exerciseOptional = exerciseDao.findById(id);
+        Optional<Exercise> exerciseOptional = exerciseRepository.findById(id);
 
         if (exerciseOptional.isEmpty()) {
             throw new IllegalArgumentException("Exercise not found");
@@ -93,18 +93,18 @@ public class ExerciseService {
 
         exerciseOptional.ifPresent(exercise -> {
             exercise.setApproved(true);
-            exerciseDao.save(exercise);
+            exerciseRepository.save(exercise);
         });
     }
 
     public void deleteExercise(Long id) {
-        Optional<Exercise> exerciseOptional = exerciseDao.findById(id);
+        Optional<Exercise> exerciseOptional = exerciseRepository.findById(id);
 
         if (exerciseOptional.isEmpty()) {
             throw new IllegalArgumentException("Exercise not found");
         }
 
-        exerciseOptional.ifPresent(exerciseDao::delete);
+        exerciseOptional.ifPresent(exerciseRepository::delete);
     }
 
     public PageAndExerciseFindServiceView getPaginatedAndSortedDataAndExerciseActiveTrue(ExerciseFindBindingModel exerciseFind, int pageNumber, int pageSize, String sortDirection) {
@@ -118,7 +118,7 @@ public class ExerciseService {
 
         if (exerciseFind.targetBodyPart() != null && !exerciseFind.targetBodyPart().equals(TargetBodyPart.ALL)) {
             if (exerciseFind.complexity() != null && !exerciseFind.complexity().equals(Complexity.ALL)) {
-                page = exerciseDao
+                page = exerciseRepository
                         .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndNameContainingIgnoreCase(
                                 pageable,
                                 exerciseFind.targetBodyPart(),
@@ -131,7 +131,7 @@ public class ExerciseService {
                                 exercise.getComplexity()
                         ));
             } else {
-                page = exerciseDao
+                page = exerciseRepository
                         .findAllByApprovedTrueAndTargetBodyPartAndNameContainingIgnoreCase(
                                 pageable,
                                 exerciseFind.targetBodyPart(),
@@ -145,7 +145,7 @@ public class ExerciseService {
             }
         } else {
             if (exerciseFind.complexity() != null && !exerciseFind.complexity().equals(Complexity.ALL)) {
-                page = exerciseDao
+                page = exerciseRepository
                         .findAllByApprovedTrueAndComplexityAndNameContainingIgnoreCase(
                                 pageable,
                                 exerciseFind.complexity(),
@@ -157,7 +157,7 @@ public class ExerciseService {
                                 exercise.getComplexity()
                         ));
             } else {
-                page = exerciseDao
+                page = exerciseRepository
                         .findAllByApprovedIsAndNameContainingIgnoreCase(
                                 pageable,
                                 true,
@@ -188,7 +188,7 @@ public class ExerciseService {
 
     @Transactional
     public ExerciseViewModel getExerciseView(Long id) {
-        Exercise exercise = exerciseDao
+        Exercise exercise = exerciseRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
@@ -207,7 +207,7 @@ public class ExerciseService {
 
     @Transactional
     public void editExercise(ExerciseEditBindingModel exerciseEdit) {
-        Exercise exercise = exerciseDao
+        Exercise exercise = exerciseRepository
                 .findById(exerciseEdit.id())
                 .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
@@ -226,15 +226,15 @@ public class ExerciseService {
             exercise.getImageURLs().addAll(list);
         }
 
-        exerciseDao.save(exercise);
+        exerciseRepository.save(exercise);
     }
 
     public void deleteImageUrl(long id) {
-        imageUrlDao.deleteById(id);
+        imageUrlRepository.deleteById(id);
     }
 
     public ExerciseEditBindingModel getExerciseEditBindingModel(long id) {
-        Exercise exercise = exerciseDao.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+        Exercise exercise = exerciseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
         return new ExerciseEditBindingModel(
                 exercise.getId(),
@@ -246,7 +246,7 @@ public class ExerciseService {
     }
 
     public List<ImageUrlViewModel> getExerciseImages(long exerciseId) {
-        List<ImageUrlViewModel> result = imageUrlDao.findByExercise_Id(exerciseId).stream()
+        List<ImageUrlViewModel> result = imageUrlRepository.findByExercise_Id(exerciseId).stream()
                 .map(imageUrl -> new ImageUrlViewModel(imageUrl.getId(), imageUrl.getUrl()))
                 .toList();
 

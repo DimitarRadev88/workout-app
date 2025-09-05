@@ -5,7 +5,7 @@ import com.dimitarrradev.workoutScheduler.role.service.RoleService;
 import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle;
 import com.dimitarrradev.workoutScheduler.user.User;
-import com.dimitarrradev.workoutScheduler.user.dao.UserDao;
+import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
@@ -24,19 +24,19 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private final UserDao userDao;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
 
-    public UserService(UserDao userDao, PasswordEncoder passwordEncoder, RoleService roleService) {
-        this.userDao = userDao;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
     }
 
     @Transactional
     public void addFirstUser(String username, String password) {
-        if (userDao.existsUserByUsername(username)) {
+        if (userRepository.existsUserByUsername(username)) {
             throw new IllegalArgumentException("Username is already in use");
         }
 
@@ -47,20 +47,20 @@ public class UserService {
         Role role = roleService.getRoles().getFirst();
         user.setRoles(new ArrayList<>(List.of(role)));
 
-        userDao.save(user);
+        userRepository.save(user);
     }
 
     public long getUserCount() {
-        return userDao.count();
+        return userRepository.count();
     }
 
     @Transactional
     public String doRegister(UserRegisterBindingModel userRegisterBindingModel) {
-        if (userDao.existsUserByUsername(userRegisterBindingModel.username())) {
+        if (userRepository.existsUserByUsername(userRegisterBindingModel.username())) {
             throw new IllegalArgumentException("Username is already in use");
         }
 
-        if (userDao.existsUserByEmail(userRegisterBindingModel.email())) {
+        if (userRepository.existsUserByEmail(userRegisterBindingModel.email())) {
             throw new IllegalArgumentException("Email is already in use");
         }
 
@@ -70,13 +70,13 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(userRegisterBindingModel.password()));
         user.setRoles(new ArrayList<>(List.of(roleService.getRoleByType(RoleType.USER))));
 
-        User saved = userDao.save(user);
+        User saved = userRepository.save(user);
 
         return saved.getUsername();
     }
 
     public UserProfileAccountViewModel getUserProfileAccountView(String username) {
-        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
         UserProfileAccountViewModel result = new UserProfileAccountViewModel(
                 user.getUsername(),
                 user.getEmail(),
@@ -87,7 +87,7 @@ public class UserService {
     }
 
     public UserProfileInfoViewModel getUserProfileInfoView(String username) {
-        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
         UserProfileInfoViewModel result = new UserProfileInfoViewModel(
                 user.getWeight(),
                 user.getHeight(),
@@ -98,7 +98,7 @@ public class UserService {
     }
 
     public void doPasswordChange(String username, @Valid UserProfilePasswordChangeBindingModel profilePasswordChange) {
-        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
 
         if (!passwordEncoder.matches(profilePasswordChange.oldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Old password is incorrect");
@@ -107,27 +107,27 @@ public class UserService {
         }
 
         user.setPassword(passwordEncoder.encode(profilePasswordChange.newPassword()));
-        userDao.save(user);
+        userRepository.save(user);
     }
 
     public void doInfoEdit(String username, UserProfileInfoEditBindingModel profileInfoEdit) {
-        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
 
         user.setWeight(profileInfoEdit.weight());
         user.setHeight(profileInfoEdit.height());
         user.setGym(profileInfoEdit.gym());
         user.setTrainingStyle(profileInfoEdit.trainingStyle());
 
-        userDao.save(user);
+        userRepository.save(user);
     }
 
 
     public void doAccountEdit(String username, UserProfileAccountEditBindingModel profileAccountEdit) {
-        User user = userDao.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
 
         user.setFirstName(profileAccountEdit.firstName());
         user.setLastName(profileAccountEdit.lastName());
 
-        userDao.save(user);
+        userRepository.save(user);
     }
 }
