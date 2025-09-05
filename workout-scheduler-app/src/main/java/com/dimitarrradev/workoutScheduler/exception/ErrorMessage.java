@@ -6,4 +6,5 @@ public class ErrorMessage {
     public static final String TARGET_BODY_PART_MESSAGE = "Please select the main muscle group involved in exercise execution";
     public static final String EXERCISE_COMPLEXITY_MESSAGE = "Please select exercise Complexity (How hard is for execution)";
     public static final String IMAGE_URL_MESSAGE = "Please select exercise Complexity (How hard is for execution)";
+    public static final String LOGIN_ERROR_MESSAGE = "Invalid username or password";
 }

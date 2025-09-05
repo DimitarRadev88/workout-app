@@ -3,11 +3,13 @@ package com.dimitarrradev.workoutScheduler.workout;
 import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.program.Program;
+import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
 import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import com.dimitarrradev.workoutScheduler.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -27,6 +29,8 @@ public class Workout extends BaseEntity {
     private Program program;
     @ManyToOne
     private User user;
+    @OneToMany(mappedBy = "workout")
+    private List<DaySchedule> daySchedules;
 
     public LocalDate getDate() {
         return date;
@@ -58,5 +62,13 @@ public class Workout extends BaseEntity {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<DaySchedule> getDaySchedules() {
+        return daySchedules;
+    }
+
+    public void setDaySchedules(List<DaySchedule> daySchedules) {
+        this.daySchedules = daySchedules;
     }
 }

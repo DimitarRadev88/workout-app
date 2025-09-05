@@ -4,6 +4,8 @@ import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.role.Role;
+import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
+import com.dimitarrradev.workoutScheduler.schedule.WeekSchedule;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
 
@@ -52,6 +54,10 @@ public class User extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles;
+    @OneToMany(mappedBy = "user")
+    private List<DaySchedule> daySchedules;
+    @OneToMany(mappedBy = "user")
+    private List<WeekSchedule> weekSchedules;
 
     public String getUsername() {
         return username;
