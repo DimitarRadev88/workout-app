@@ -20,4 +20,9 @@ public class ScheduleController {
         return "schedules";
     }
 
+    @GetMapping("/daily")
+    public String getTodaySchedule() {
+        return "daily-schedule";
+    }
+
 }
