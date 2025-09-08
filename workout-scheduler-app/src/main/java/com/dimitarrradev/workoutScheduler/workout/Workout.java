@@ -6,10 +6,15 @@ import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
 import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import com.dimitarrradev.workoutScheduler.user.User;
+import com.dimitarrradev.workoutScheduler.workout.enums.Intensity;
+import com.dimitarrradev.workoutScheduler.workout.enums.TimeOfDay;
+import com.dimitarrradev.workoutScheduler.workout.enums.Volume;
 import jakarta.persistence.*;
+import org.springframework.beans.propertyeditors.LocaleEditor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Entity
@@ -27,10 +32,20 @@ public class Workout extends BaseEntity {
     private Map<Exercise, TrainingSet> exerciseTrainingSets;
     @ManyToOne
     private Program program;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Intensity intensity;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Volume volume;
     @ManyToOne
     private User user;
-    @OneToMany(mappedBy = "workout")
-    private List<DaySchedule> daySchedules;
+    @ManyToOne
+    @JoinColumn(name = "day_schedule_id")
+    private DaySchedule daySchedule;
+    @Column(name = "time_of_day", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TimeOfDay timeOfDay;
 
     public LocalDate getDate() {
         return date;
@@ -56,6 +71,22 @@ public class Workout extends BaseEntity {
         this.program = program;
     }
 
+    public Intensity getIntensity() {
+        return intensity;
+    }
+
+    public void setIntensity(Intensity intensity) {
+        this.intensity = intensity;
+    }
+
+    public Volume getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Volume volume) {
+        this.volume = volume;
+    }
+
     public User getUser() {
         return user;
     }
@@ -64,11 +95,20 @@ public class Workout extends BaseEntity {
         this.user = user;
     }
 
-    public List<DaySchedule> getDaySchedules() {
-        return daySchedules;
+    public DaySchedule getDaySchedule() {
+        return daySchedule;
     }
 
-    public void setDaySchedules(List<DaySchedule> daySchedules) {
-        this.daySchedules = daySchedules;
+    public void setDaySchedule(DaySchedule daySchedule) {
+        this.daySchedule = daySchedule;
     }
+
+    public TimeOfDay getTimeOfDay() {
+        return timeOfDay;
+    }
+
+    public void setTimeOfDay(TimeOfDay timeOfDay) {
+        this.timeOfDay = timeOfDay;
+    }
+
 }

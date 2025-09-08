@@ -1,89 +1,74 @@
 <!DOCTYPE html>
 <html data-bs-theme="light" lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/header :: header (pageTitle = 'Exercise For Review')}"></head>
+<head th:replace="~{fragments/header :: header (pageTitle = 'Today\'s schedule')}"></head>
 
 <body id="page-top">
-    <div id="wrapper">
-        <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
-
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
-                <div class="container-fluid">
-                    <h3 class="text-dark mb-4" th:text="${#dates.createNowForTimeZone(#locale.getDefault())}">Schedule Date</h3>
-                    <div class="card shadow">
-                        <div class="card-header py-3">
-                            <p class="text-primary m-0 fw-bold">Workouts</p>
+<div id="wrapper">
+    <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4" th:text="${#dates.createNowForTimeZone(#locale.getDefault())}">Schedule
+                    Date</h3>
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <p class="text-primary m-0 fw-bold">Workouts</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive mt-2 table" id="data_table" role="grid"
+                             aria-describedby="dataTable_info">
+                            <table class="table my-0" id="schedule_table">
+                                <thead>
+                                <tr>
+                                    <th>Target</th>
+                                    <th>Intensity</th>
+                                    <th>Volume</th>
+                                    <th>Time of Day</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="workout : ${dailySchedule.workouts()}">
+                                    <td th:text="${workout.targetBodyParts}">Chest</td>
+                                    <td th:text="${workout.intensity}">Low</td>
+                                    <td th:text="${workout.volume}">Low</td>
+                                    <td th:text="${workout.timeOfDay}">Morning</td>
+                                    <td>
+                                        <button class="btn btn-primary text-white" type="button">View</button>
+                                    </td>
+                                    <td>
+                                        <form action="">
+                                            <button class="btn btn-success text-white" type="submit">Mark Completed</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form action="">
+                                            <button class="btn btn-danger text-white" type="submit">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 text-nowrap">
-                                    <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable"><label class="form-label">Show&nbsp;<select class="d-inline-block form-select form-select-sm">
-                                                <option value="10" selected="">10</option>
-                                                <option value="25">25</option>
-                                                <option value="50">50</option>
-                                                <option value="100">100</option>
-                                            </select>&nbsp;</label></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="text-md-end dataTables_filter" id="dataTable_filter"><label class="form-label"></label></div>
-                                </div>
-                            </div>
-                            <div class="table-responsive mt-2 table" id="dataTable" role="grid" aria-describedby="dataTable_info">
-                                <table class="table my-0" id="dataTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Target</th>
-                                            <th>Equipment</th>
-                                            <th>Intensity</th>
-                                            <th>Volume</th>
-                                            <th>Time of Day</th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Chest</td>
-                                            <td>Bench, Barbell</td>
-                                            <td>Low</td>
-                                            <td>High</td>
-                                            <td>Morning</td>
-                                            <td><button class="btn btn-primary" type="button">View</button></td>
-                                            <td><button class="btn btn-success" type="button">Mark Completed</button></td>
-                                            <td><button class="btn btn-danger" type="button">Delete</button></td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td><strong>Target</strong></td>
-                                            <td><strong>Equipment</strong></td>
-                                            <td><strong>Intensity</strong></td>
-                                            <td><strong>Volume</strong></td>
-                                            <td><strong>Time of Day</strong></td>
-                                            <td><strong>&nbsp;</strong></td>
-                                            <td><strong></strong></td>
-                                            <td><strong></strong></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 align-self-center">
-                                    <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">Showing 1 to 10 of 27</p>
-                                </div>
+                        <div class="row">
+                            <div class="col-md-6 align-self-center">
+                                <p id="dataTable_info" class="dataTables_info" role="status" th:text="${dailySchedule.workouts().size()} + ' workouts'" aria-live="polite"></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <footer th:replace="~{fragments/footer :: footer}"></footer>
-        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+        </div>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
-    <script src="/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/js/theme.js"></script>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</div>
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script src="/js/theme.js"></script>
 </body>
 
 </html>

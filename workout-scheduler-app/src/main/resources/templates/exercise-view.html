@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
-<head th:replace="~{fragments/header :: header (pageTitle = ${exerciseName})}"></head>
-
+<head th:replace="~{fragments/header :: header (pageTitle = ${exerciseView.name()})}"></head>
 
 <body id="page-top">
 <div id="wrapper">
