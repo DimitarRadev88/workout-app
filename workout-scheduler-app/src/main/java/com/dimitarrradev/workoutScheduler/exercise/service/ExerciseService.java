@@ -6,6 +6,7 @@ import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dto.*;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
+import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
@@ -116,19 +117,56 @@ public class ExerciseService {
 
         Page<ExerciseFindViewModel> page = null;
 
-        if (exerciseFind.targetBodyPart() != null && !exerciseFind.targetBodyPart().equals(TargetBodyPart.ALL)) {
-            if (exerciseFind.complexity() != null && !exerciseFind.complexity().equals(Complexity.ALL)) {
+        TargetBodyPart targetBodyPart = exerciseFind.targetBodyPart() == null ? TargetBodyPart.ALL : exerciseFind.targetBodyPart();
+
+        Complexity complexity = exerciseFind.complexity() == null ? Complexity.ALL : exerciseFind.complexity();
+
+        MovementType movementType = exerciseFind.movementType() == null ? MovementType.All : exerciseFind.movementType();
+
+
+        if (!targetBodyPart.equals(TargetBodyPart.ALL)) {
+            if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementTypeAndNameContainingIgnoreCase(
                                 pageable,
-                                exerciseFind.targetBodyPart(),
-                                exerciseFind.complexity(),
+                                targetBodyPart,
+                                complexity,
+                                movementType,
                                 exerciseFind.name().trim()
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
                                 exercise.getName(),
-                                exercise.getComplexity()
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            } else if (!complexity.equals(Complexity.ALL)) {
+                page = exerciseRepository
+                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndNameContainingIgnoreCase(
+                                pageable,
+                                targetBodyPart,
+                                complexity,
+                                exerciseFind.name().trim()
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            } else if (movementType.equals(MovementType.All)) {
+                page = exerciseRepository
+                        .findAllByApprovedTrueAndTargetBodyPartAndMovementTypeAndNameContainingIgnoreCase(
+                                pageable,
+                                targetBodyPart,
+                                movementType,
+                                exerciseFind.name().trim()
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
                         ));
             } else {
                 page = exerciseRepository
@@ -140,33 +178,64 @@ public class ExerciseService {
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
                                 exercise.getName(),
-                                exercise.getComplexity()
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
                         ));
             }
         } else {
-            if (exerciseFind.complexity() != null && !exerciseFind.complexity().equals(Complexity.ALL)) {
+            if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
+                page = exerciseRepository
+                        .findAllByApprovedTrueAndComplexityAndMovementTypeAndNameContainingIgnoreCase(
+                                pageable,
+                                complexity,
+                                movementType,
+                                exerciseFind.name().trim()
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            } else if (!complexity.equals(Complexity.ALL)) {
                 page = exerciseRepository
                         .findAllByApprovedTrueAndComplexityAndNameContainingIgnoreCase(
                                 pageable,
-                                exerciseFind.complexity(),
+                                complexity,
                                 exerciseFind.name().trim()
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
                                 exercise.getName(),
-                                exercise.getComplexity()
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
                         ));
+
+            } else if (!movementType.equals(MovementType.All)) {
+                page = exerciseRepository
+                        .findAllByApprovedTrueAndMovementTypeAndNameContainingIgnoreCase(
+                                pageable,
+                                movementType,
+                                exerciseFind.name().trim()
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+
             } else {
                 page = exerciseRepository
-                        .findAllByApprovedIsAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndNameContainingIgnoreCase(
                                 pageable,
-                                true,
                                 exerciseFind.name().trim()
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
                                 exercise.getName(),
-                                exercise.getComplexity()
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
                         ));
             }
 
@@ -195,6 +264,7 @@ public class ExerciseService {
         return new ExerciseViewModel(
                 exercise.getName(),
                 exercise.getComplexity().getName(),
+                exercise.getMovementType().getName(),
                 exercise.getDescription(),
                 exercise.getImageURLs().stream()
                         .map(imageUrl -> new com.dimitarrradev.workoutScheduler.exercise.dto.ImageUrlViewModel(
