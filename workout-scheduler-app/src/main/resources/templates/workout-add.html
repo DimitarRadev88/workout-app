@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Add Workout')}"></head>
+
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+                <div class="container">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Workouts</h3>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mb-2">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Add Workout</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <form th:action="@{/workouts/add}" th:object="${workout}" method="post">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <label class="form-label"><strong>Type</strong></label>
+                                                        <div class="form-check">
+                                                            <div id="select_complexity"
+                                                                 th:each="type : ${T(com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType).values()}">
+                                                                <input id="complexity" class="form-check-input"
+                                                                       th:value="${type}" th:field="*{workoutType}"
+                                                                       type="radio"/>
+                                                                <label class="form-check-label" for="complexity"
+                                                                       th:text="${type.getName()}">Easy</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <label class="col-form-label"><strong>Target</strong></label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <div th:each="i : ${#numbers.sequence(0, target.length / 2 - 1, 1)}" class="form-check">
+                                                            <div id="select_target_1">
+                                                            <input id="target_1" class="form-check-input"
+                                                                   th:value="${target[i]}" th:field="*{targetBodyParts}"
+                                                                   type="checkbox"/>
+                                                            <label class="form-check-label" for="target_1"
+                                                                   th:text="${target[i].getName()}">Easy</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <div th:each="i : ${#numbers.sequence(target.length / 2, target.length - 1, 1)}" class="form-check">
+                                                            <div id="select_target_2">
+                                                                <input id="target_2" class="form-check-input"
+                                                                       th:value="${target[i]}" th:field="*{targetBodyParts}"
+                                                                       type="checkbox"/>
+                                                                <label class="form-check-label" for="target_2"
+                                                                       th:text="${target[i].getName()}">Easy</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Show Exercises</button></div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="country"><strong>Exercises</strong></label><select class="form-select">
+                                                            <optgroup label="This is a group">
+                                                                <option value="chest" selected="">Chest</option>
+                                                                <option value="legs">Legs</option>
+                                                            </optgroup>
+                                                        </select></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="first_name"><strong>Sets</strong></label><input class="form-control" type="number"></div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="last_name"><strong>Reps</strong></label><input class="form-control" type="number"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="first_name"><strong>Rest</strong></label><input class="form-control" type="number"></div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="mb-3"><label class="form-label" for="first_name"><strong>Weight</strong></label><input class="form-control" type="number"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col col-xxl-12">
+                                                    <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Superset</button></div>
+                                                    <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Add Exercise</button></div>
+                                                    <div class="mb-3"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col col-xxl-12">
+                                                    <div class="mb-3"></div>
+                                                    <div class="table-responsive mt-2 table" id="dataTable-2" role="grid" aria-describedby="dataTable_info">
+                                                        <table class="table my-0" id="dataTable">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Exercise</th>
+                                                                    <th>Sets</th>
+                                                                    <th>Reps</th>
+                                                                    <th>Weight</th>
+                                                                    <th>Rest</th>
+                                                                    <th></th>
+                                                                    <th></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>Bench Press</td>
+                                                                    <td>4</td>
+                                                                    <td>10</td>
+                                                                    <td>60</td>
+                                                                    <td>60</td>
+                                                                    <td><button class="btn btn-primary" type="button">Edit</button></td>
+                                                                    <td><button class="btn btn-danger" type="button">Delete</button></td>
+                                                                </tr>
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td><strong>Exercise</strong></td>
+                                                                    <td><strong>Sets</strong></td>
+                                                                    <td><strong>Reps</strong></td>
+                                                                    <td><strong>Weight</strong></td>
+                                                                    <td><strong>Rest</strong></td>
+                                                                    <td><strong></strong></td>
+                                                                    <td><strong></strong></td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
+</body>
+
+</html>

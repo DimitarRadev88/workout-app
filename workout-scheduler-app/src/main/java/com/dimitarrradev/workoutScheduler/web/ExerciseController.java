@@ -15,8 +15,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/exercises")
 public class ExerciseController {
@@ -57,7 +55,7 @@ public class ExerciseController {
         model.addAttribute("shownElements", dataAndExerciseViewModel.shownElementsRangeAndTotalCountString());
         model.addAttribute("exerciseFind", exerciseFind);
 
-        return "find-exercise";
+        return "exercise-find";
     }
 
     @PostMapping("/find/{muscleGroup}")
@@ -75,7 +73,7 @@ public class ExerciseController {
             model.addAttribute("exerciseAdd", model.getAttribute("exerciseAdd"));
         }
 
-        return "add-exercise";
+        return "exercise-add";
     }
 
     @PostMapping("/add")
@@ -128,7 +126,7 @@ public class ExerciseController {
 
         model.addAttribute("imageUrls", exerciseService.getExerciseImages(id));
 
-        return "edit-exercise";
+        return "exercise-edit";
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

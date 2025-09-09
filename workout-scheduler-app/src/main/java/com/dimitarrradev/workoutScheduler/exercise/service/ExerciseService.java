@@ -119,14 +119,11 @@ public class ExerciseService {
 
         Page<ExerciseFindViewModel> page = null;
 
-        String exerciseName = exerciseFind.name() == null ? "" : exerciseFind.name().trim();
-
         TargetBodyPart targetBodyPart = exerciseFind.targetBodyPart() == null ? TargetBodyPart.ALL : exerciseFind.targetBodyPart();
 
         Complexity complexity = exerciseFind.complexity() == null ? Complexity.ALL : exerciseFind.complexity();
 
         MovementType movementType = exerciseFind.movementType() == null ? MovementType.All : exerciseFind.movementType();
-
 
         if (!targetBodyPart.equals(TargetBodyPart.ALL)) {
             if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
@@ -156,7 +153,7 @@ public class ExerciseService {
                                 exercise.getComplexity(),
                                 exercise.getMovementType()
                         ));
-            } else if (movementType.equals(MovementType.All)) {
+            } else if (!movementType.equals(MovementType.All)) {
                 page = exerciseRepository
                         .findAllByApprovedTrueAndTargetBodyPartAndMovementType(
                                 pageable,
@@ -236,7 +233,6 @@ public class ExerciseService {
             }
 
         }
-
 
         return new PageAndExerciseFindServiceView(
                 page.getContent(),

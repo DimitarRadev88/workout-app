@@ -1,9 +1,8 @@
 package com.dimitarrradev.workoutScheduler.user.service;
 
 import com.dimitarrradev.workoutScheduler.role.Role;
-import com.dimitarrradev.workoutScheduler.role.service.RoleService;
 import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
-import com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle;
+import com.dimitarrradev.workoutScheduler.role.service.RoleService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
@@ -12,6 +11,7 @@ import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBind
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfilePasswordChangeBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
+import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -77,24 +77,22 @@ public class UserService {
 
     public UserProfileAccountViewModel getUserProfileAccountView(String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
-        UserProfileAccountViewModel result = new UserProfileAccountViewModel(
+        return new UserProfileAccountViewModel(
                 user.getUsername(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName()
         );
-        return result;
     }
 
     public UserProfileInfoViewModel getUserProfileInfoView(String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
-        UserProfileInfoViewModel result = new UserProfileInfoViewModel(
+        return new UserProfileInfoViewModel(
                 user.getWeight(),
                 user.getHeight(),
                 user.getGym(),
-                user.getTrainingStyle() != null ? user.getTrainingStyle() : TrainingStyle.CARDIO
+                user.getWorkoutType() != null ? user.getWorkoutType() : WorkoutType.CARDIO
         );
-        return result;
     }
 
     public void doPasswordChange(String username, @Valid UserProfilePasswordChangeBindingModel profilePasswordChange) {
@@ -116,7 +114,7 @@ public class UserService {
         user.setWeight(profileInfoEdit.weight());
         user.setHeight(profileInfoEdit.height());
         user.setGym(profileInfoEdit.gym());
-        user.setTrainingStyle(profileInfoEdit.trainingStyle());
+        user.setTrainingStyle(profileInfoEdit.workoutType());
 
         userRepository.save(user);
     }

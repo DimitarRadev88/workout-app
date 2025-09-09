@@ -30,4 +30,8 @@ public enum TargetBodyPart {
         return name;
     }
 
+    public int getLength() {
+        return TargetBodyPart.values().length;
+    }
+
 }

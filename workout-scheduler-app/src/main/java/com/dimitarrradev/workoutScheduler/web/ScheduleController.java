@@ -8,8 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.security.Principal;
-
 @Controller
 @RequestMapping("/schedules")
 public class ScheduleController {
@@ -32,7 +30,7 @@ public class ScheduleController {
 
         model.addAttribute("dailySchedule", dailySchedule);
 
-        return "daily-schedule";
+        return "schedule-daily";
     }
 
 }

@@ -1,12 +1,12 @@
 package com.dimitarrradev.workoutScheduler.user;
 
 import com.dimitarrradev.workoutScheduler.BaseEntity;
-import com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
 import com.dimitarrradev.workoutScheduler.schedule.WeekSchedule;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
+import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class User extends BaseEntity {
     private String gym;
     @Basic
     @Enumerated(EnumType.STRING)
-    private TrainingStyle trainingStyle;
+    private WorkoutType workoutType;
     @ManyToMany
     @JoinTable(name = "users_workouts",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -131,12 +131,12 @@ public class User extends BaseEntity {
         this.gym = gym;
     }
 
-    public TrainingStyle getTrainingStyle() {
-        return trainingStyle;
+    public WorkoutType getWorkoutType() {
+        return workoutType;
     }
 
-    public void setTrainingStyle(TrainingStyle trainingStyle) {
-        this.trainingStyle = trainingStyle;
+    public void setTrainingStyle(WorkoutType workoutType) {
+        this.workoutType = workoutType;
     }
 
     public List<Workout> getWorkouts() {

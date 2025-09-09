@@ -9,12 +9,10 @@ import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.workout.enums.Intensity;
 import com.dimitarrradev.workoutScheduler.workout.enums.TimeOfDay;
 import com.dimitarrradev.workoutScheduler.workout.enums.Volume;
+import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.persistence.*;
-import org.springframework.beans.propertyeditors.LocaleEditor;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 @Entity
@@ -38,6 +36,9 @@ public class Workout extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Volume volume;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private WorkoutType workoutType;
     @ManyToOne
     private User user;
     @ManyToOne
@@ -85,6 +86,14 @@ public class Workout extends BaseEntity {
 
     public void setVolume(Volume volume) {
         this.volume = volume;
+    }
+
+    public WorkoutType getWorkoutType() {
+        return workoutType;
+    }
+
+    public void setWorkoutType(WorkoutType workoutType) {
+        this.workoutType = workoutType;
     }
 
     public User getUser() {

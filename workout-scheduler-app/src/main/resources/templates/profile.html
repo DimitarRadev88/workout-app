@@ -169,13 +169,13 @@
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" th:unless="${#fields.hasErrors('trainingStyle')}" for="training_style"><strong>Training Style</strong></label>
-                                                            <div th:each="error: ${#fields.errors('trainingStyle')}">
-                                                                <label class="form-label text-danger" th:text="${error}" for="training_style"></label>
+                                                            <label class="form-label" th:unless="${#fields.hasErrors('workoutType')}" for="workout_type"><strong>Training Style</strong></label>
+                                                            <div th:each="error: ${#fields.errors('workoutType')}">
+                                                                <label class="form-label text-danger" th:text="${error}" for="workout_type"></label>
                                                             </div>
-                                                            <select class="form-select" id="training_style" th:field="*{trainingStyle}" name="training_style">
-                                                                <option th:each="trainingStyleEnum : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TrainingStyle).values()}"
-                                                                        th:value="${trainingStyleEnum}" th:text="${trainingStyleEnum.getName()}"></option>
+                                                            <select class="form-select" id="workout_type" th:field="*{workoutType}" name="workout_type">
+                                                                <option th:each="workoutType : ${T(com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType).values()}"
+                                                                        th:value="${workoutType}" th:text="${workoutType.getName()}"></option>
                                                             </select>
                                                         </div>
                                                     </div>

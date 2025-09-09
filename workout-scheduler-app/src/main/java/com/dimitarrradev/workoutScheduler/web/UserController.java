@@ -81,7 +81,7 @@ public class UserController {
                     userProfile.weight(),
                     userProfile.height(),
                     userProfile.gym(),
-                    userProfile.trainingStyle()
+                    userProfile.workoutType()
             );
 
             model.addAttribute("profileInfoEdit", profileInfoEdit);
