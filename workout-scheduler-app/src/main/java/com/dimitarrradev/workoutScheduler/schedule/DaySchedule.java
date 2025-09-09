@@ -9,7 +9,7 @@ import java.util.List;
 @Table(name = "day_schedules")
 public class DaySchedule extends Schedule {
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "day_schedule_id")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "daySchedule")
     private List<Workout> workout;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "week_schedule_id")

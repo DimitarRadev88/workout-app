@@ -54,6 +54,21 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="row">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="select_movement_type"><strong>Movement type</strong></label>
+                                                        <div class="form-check">
+                                                            <div id="select_movement_type"
+                                                                 th:each="movementType : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.MovementType).values()}">
+                                                                <input id="movement_type" class="form-check-input"
+                                                                       th:value="${movementType}" th:field="*{movementType}"
+                                                                       type="radio"/>
+                                                                <label class="form-check-label" for="movement_type"
+                                                                       th:text="${movementType.getName()}">Easy</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="mb-3">
                                                     <button class="btn btn-primary btn-sm" type="submit">Apply</button>
                                                 </div>

@@ -38,7 +38,7 @@ public class ExerciseController {
         ExerciseFindBindingModel exerciseFind;
 
         if (!model.containsAttribute("exerciseFind")) {
-            exerciseFind = new ExerciseFindBindingModel(name, TargetBodyPart.valueOf(muscleGroup.toUpperCase()), null);
+            exerciseFind = new ExerciseFindBindingModel(name, TargetBodyPart.valueOf(muscleGroup.toUpperCase()), null, null);
         } else {
             exerciseFind = (ExerciseFindBindingModel) model.getAttribute("exerciseFind");
         }

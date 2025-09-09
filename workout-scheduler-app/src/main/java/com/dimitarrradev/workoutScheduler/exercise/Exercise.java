@@ -2,6 +2,7 @@ package com.dimitarrradev.workoutScheduler.exercise;
 
 import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
+import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import jakarta.persistence.*;
 
@@ -17,6 +18,9 @@ public class Exercise extends BaseEntity {
     @Column(nullable = false, name = "target_body_part")
     @Enumerated(EnumType.STRING)
     private TargetBodyPart targetBodyPart;
+    @Column(nullable = false, name = "movement_type")
+    @Enumerated(EnumType.STRING)
+    private MovementType movementType;
     @Column(columnDefinition = "TEXT")
     private String description;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exercise", fetch = FetchType.LAZY)
@@ -47,6 +51,14 @@ public class Exercise extends BaseEntity {
 
     public void setTargetBodyPart(TargetBodyPart targetBodyPart) {
         this.targetBodyPart = targetBodyPart;
+    }
+
+    public MovementType getMovementType() {
+        return movementType;
+    }
+
+    public void setMovementType(MovementType exerciseType) {
+        this.movementType = exerciseType;
     }
 
     public String getDescription() {

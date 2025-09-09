@@ -57,13 +57,23 @@ function handleKeyUp(event) {
     }
 }
 
-// Your redirect function
-
-
 function replaceQueryParam(url, param, value) {
     const urlObj = new URL(url);
     const params = urlObj.searchParams;
     params.set(param, value);
     return urlObj.toString();
+}
+
+function showFilters() {
+    document.getElementById("filter_element").style.display = null;
+    document.getElementById("filter_show_exercise_button").style.display = "none";
+    document.getElementById("filter_hide_exercise_button").style.display = null;
+}
+
+
+function hideFilters() {
+    document.getElementById("filter_element").style.display = "none";
+    document.getElementById("filter_show_exercise_button").style.display = null;
+    document.getElementById("filter_hide_exercise_button").style.display = "none";
 }
 
