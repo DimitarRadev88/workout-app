@@ -69,7 +69,7 @@ public class ExerciseController {
     @GetMapping("/add")
     public String getAddExercise(Model model) {
         if (!model.containsAttribute("exerciseAdd")) {
-            ExerciseAddBindingModel exerciseAdd = new ExerciseAddBindingModel(null, null, null, null, null);
+            ExerciseAddBindingModel exerciseAdd = new ExerciseAddBindingModel(null, null, null, null, null, null);
             model.addAttribute("exerciseAdd", exerciseAdd);
         } else {
             model.addAttribute("exerciseAdd", model.getAttribute("exerciseAdd"));

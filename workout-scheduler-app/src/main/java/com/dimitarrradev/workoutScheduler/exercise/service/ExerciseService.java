@@ -47,6 +47,7 @@ public class ExerciseService {
         exercise.setApproved(false);
         exercise.setAddedBy(exerciseAdd.addedBy());
         exercise.setComplexity(exerciseAdd.complexity());
+        exercise.setMovementType(exerciseAdd.movementType());
 
         exerciseRepository.save(exercise);
     }
@@ -69,6 +70,7 @@ public class ExerciseService {
                         exercise.getName(),
                         exercise.getDescription(),
                         exercise.getComplexity(),
+                        exercise.getMovementType(),
                         exercise.getAddedBy()
                 ));
 
@@ -117,6 +119,8 @@ public class ExerciseService {
 
         Page<ExerciseFindViewModel> page = null;
 
+        String exerciseName = exerciseFind.name() == null ? "" : exerciseFind.name().trim();
+
         TargetBodyPart targetBodyPart = exerciseFind.targetBodyPart() == null ? TargetBodyPart.ALL : exerciseFind.targetBodyPart();
 
         Complexity complexity = exerciseFind.complexity() == null ? Complexity.ALL : exerciseFind.complexity();
@@ -127,12 +131,11 @@ public class ExerciseService {
         if (!targetBodyPart.equals(TargetBodyPart.ALL)) {
             if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementTypeAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementType(
                                 pageable,
                                 targetBodyPart,
                                 complexity,
-                                movementType,
-                                exerciseFind.name().trim()
+                                movementType
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
@@ -142,11 +145,10 @@ public class ExerciseService {
                         ));
             } else if (!complexity.equals(Complexity.ALL)) {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndTargetBodyPartAndComplexity(
                                 pageable,
                                 targetBodyPart,
-                                complexity,
-                                exerciseFind.name().trim()
+                                complexity
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
@@ -156,11 +158,10 @@ public class ExerciseService {
                         ));
             } else if (movementType.equals(MovementType.All)) {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPartAndMovementTypeAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndTargetBodyPartAndMovementType(
                                 pageable,
                                 targetBodyPart,
-                                movementType,
-                                exerciseFind.name().trim()
+                                movementType
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
@@ -170,10 +171,9 @@ public class ExerciseService {
                         ));
             } else {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPartAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndTargetBodyPart(
                                 pageable,
-                                exerciseFind.targetBodyPart(),
-                                exerciseFind.name().trim()
+                                exerciseFind.targetBodyPart()
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
@@ -185,11 +185,10 @@ public class ExerciseService {
         } else {
             if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndComplexityAndMovementTypeAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndComplexityAndMovementType(
                                 pageable,
                                 complexity,
-                                movementType,
-                                exerciseFind.name().trim()
+                                movementType
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
@@ -199,10 +198,9 @@ public class ExerciseService {
                         ));
             } else if (!complexity.equals(Complexity.ALL)) {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndComplexityAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndComplexity(
                                 pageable,
-                                complexity,
-                                exerciseFind.name().trim()
+                                complexity
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
@@ -213,10 +211,9 @@ public class ExerciseService {
 
             } else if (!movementType.equals(MovementType.All)) {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndMovementTypeAndNameContainingIgnoreCase(
+                        .findAllByApprovedTrueAndMovementType(
                                 pageable,
-                                movementType,
-                                exerciseFind.name().trim()
+                                movementType
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),
@@ -227,9 +224,8 @@ public class ExerciseService {
 
             } else {
                 page = exerciseRepository
-                        .findAllByApprovedTrueAndNameContainingIgnoreCase(
-                                pageable,
-                                exerciseFind.name().trim()
+                        .findAllByApprovedTrue(
+                                pageable
                         )
                         .map(exercise -> new ExerciseFindViewModel(
                                 exercise.getId(),

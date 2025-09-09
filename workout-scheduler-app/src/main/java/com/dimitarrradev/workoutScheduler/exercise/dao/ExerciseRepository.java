@@ -18,20 +18,20 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
 
     Page<Exercise> findAllByApprovedIsAndNameContainingIgnoreCase(Pageable pageable, Boolean approved, String name);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndComplexityAndNameContainingIgnoreCase(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, String name);
+    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndNameContainingIgnoreCase(Pageable pageable, TargetBodyPart targetBodyPart, String name);
+    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndComplexity(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity);
 
-    Page<Exercise> findAllByApprovedTrueAndComplexityAndNameContainingIgnoreCase(Pageable pageable, Complexity complexity, String name);
+    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementTypeAndNameContainingIgnoreCase(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType, String name);
+    Page<Exercise> findAllByApprovedTrueAndTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndMovementTypeAndNameContainingIgnoreCase(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType, String trim);
+    Page<Exercise> findAllByApprovedTrueAndComplexityAndMovementType(Pageable pageable, Complexity complexity, MovementType movementType);
 
-    Page<Exercise> findAllByApprovedTrueAndComplexityAndMovementTypeAndNameContainingIgnoreCase(Pageable pageable, Complexity complexity, MovementType movementType, String trim);
+    Page<Exercise> findAllByApprovedTrueAndComplexity(Pageable pageable, Complexity complexity);
 
-    Page<Exercise> findAllByApprovedTrueAndMovementTypeAndNameContainingIgnoreCase(Pageable pageable, MovementType movementType, String trim);
+    Page<Exercise> findAllByApprovedTrueAndMovementType(Pageable pageable, MovementType movementType);
 
-    Page<Exercise> findAllByApprovedTrueAndNameContainingIgnoreCase(Pageable pageable, String trim);
+    Page<Exercise> findAllByApprovedTrue(Pageable pageable);
 }
 

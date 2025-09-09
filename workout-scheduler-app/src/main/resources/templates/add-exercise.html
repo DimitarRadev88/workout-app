@@ -47,6 +47,22 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="mb-3">
+                                                        <div th:unless="${#fields.hasErrors('movementType')}" class="form-label"><strong>Movement Type</strong></div>
+                                                        <div class="form-label text-danger" th:if="${#fields.hasErrors('movementType')}" ><strong th:text="${#fields.errors('movementType').getFirst()}">Movement Type</strong></div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label" for="movement_type_1">Compound</label>
+                                                            <input id="movement_type_1" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.MovementType).COMPOUND}" th:field="*{movementType}" type="radio" />
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label" for="movement_type_2">Isolation</label>
+                                                            <input id="movement_type_2" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.MovementType).ISOLATION}" th:field="*{movementType}" type="radio" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
                                                         <label th:unless="${#fields.hasErrors('bodyPart')}" class="form-label" for="bodyPart"><strong>Target Body Part</strong></label>
                                                         <label th:if="${#fields.hasErrors('bodyPart')}" class="form-label text-danger" for="bodyPart"><strong th:text="${#fields.errors('bodyPart').getFirst()}">Target Body Part</strong></label>
                                                         <select class="form-select" th:field="*{bodyPart}" id="bodyPart" name="bodyPart">
