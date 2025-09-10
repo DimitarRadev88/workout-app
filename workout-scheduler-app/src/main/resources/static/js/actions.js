@@ -77,3 +77,16 @@ function hideFilters() {
     document.getElementById("filter_hide_exercise_button").style.display = "none";
 }
 
+function redirectAddWorkoutWithFilterForExercises() {
+    const leftTarget = document.querySelectorAll("#target_1:checked");
+    leftTarget.forEach(target => {console.log(target.value);});
+    const rightTarget = document.querySelectorAll("#target_2:checked");
+    rightTarget.forEach(target => {console.log(target.value);});
+    const values = [];
+
+    leftTarget.forEach(target => {values.push(target.value);});
+    rightTarget.forEach(target => {values.push(target.value);});
+
+    window.location.replace(replaceQueryParam(window.location.href, "selectedBodyParts", values));
+}
+

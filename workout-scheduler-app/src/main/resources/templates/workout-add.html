@@ -54,7 +54,8 @@
                                                         <div th:each="i : ${#numbers.sequence(0, target.length / 2 - 1, 1)}" class="form-check">
                                                             <div id="select_target_1">
                                                             <input id="target_1" class="form-check-input"
-                                                                   th:value="${target[i]}" th:field="*{targetBodyParts}"
+                                                                   th:value="${target[i]}"
+                                                                   th:checked="${selectedBodyPartNames.contains(target[i].name())}"
                                                                    type="checkbox"/>
                                                             <label class="form-check-label" for="target_1"
                                                                    th:text="${target[i].getName()}">Easy</label>
@@ -67,7 +68,8 @@
                                                         <div th:each="i : ${#numbers.sequence(target.length / 2, target.length - 1, 1)}" class="form-check">
                                                             <div id="select_target_2">
                                                                 <input id="target_2" class="form-check-input"
-                                                                       th:value="${target[i]}" th:field="*{targetBodyParts}"
+                                                                       th:value="${target[i]}"
+                                                                       th:checked="${selectedBodyPartNames.contains(target[i].name())}"
                                                                        type="checkbox"/>
                                                                 <label class="form-check-label" for="target_2"
                                                                        th:text="${target[i].getName()}">Easy</label>
@@ -76,37 +78,53 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Show Exercises</button></div>
+                                            <div class="mb-3">
+                                                <button class="btn btn-primary btn-sm" type="button" id="filter_workout_exercises" onclick="redirectAddWorkoutWithFilterForExercises()">Filter Exercises</button>
+                                            </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="country"><strong>Exercises</strong></label><select class="form-select">
-                                                            <optgroup label="This is a group">
-                                                                <option value="chest" selected="">Chest</option>
-                                                                <option value="legs">Legs</option>
-                                                            </optgroup>
-                                                        </select></div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="exercises"><strong>Exercises</strong></label>
+                                                        <select class="form-select" id="exercises">
+                                                                <option th:each="ex : ${exercises}" th:value="${ex}" th:text="${ex.name}" >Chest</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="first_name"><strong>Sets</strong></label><input class="form-control" type="number"></div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="sets"><strong>Sets</strong></label>
+                                                        <input class="form-control" type="number" id="sets">
+                                                    </div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="last_name"><strong>Reps</strong></label><input class="form-control" type="number"></div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="min_reps"><strong>Min Reps</strong></label>
+                                                        <input class="form-control" type="number" id="min_reps">
+                                                        <label class="form-label" for="max_reps"><strong>Max Reps</strong></label>
+                                                        <input class="form-control" type="number" id="max_reps">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="first_name"><strong>Rest</strong></label><input class="form-control" type="number"></div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="rest"><strong>Rest</strong></label>
+                                                        <input class="form-control" type="number" id="rest">
+                                                    </div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="mb-3"><label class="form-label" for="first_name"><strong>Weight</strong></label><input class="form-control" type="number"></div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="weight"><strong>Weight</strong></label>
+                                                        <input class="form-control" type="number" id="weight">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col col-xxl-12">
-                                                    <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Superset</button></div>
-                                                    <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Add Exercise</button></div>
+                                                    <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">Superset</button></div>
+                                                    <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">Add Exercise</button></div>
                                                     <div class="mb-3"></div>
                                                 </div>
                                             </div>
@@ -152,6 +170,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <button class="btn btn-success" type="submit">Create Workout</button>
                                         </form>
                                     </div>
                                 </div>

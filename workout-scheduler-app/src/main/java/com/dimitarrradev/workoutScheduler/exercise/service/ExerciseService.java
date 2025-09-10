@@ -315,4 +315,22 @@ public class ExerciseService {
         return result.isEmpty() ? new ArrayList<>() : result;
 
     }
+
+    public List<ExerciseNameAndIdViewModel> getExercisesViewByTargets(String[] targetBodyParts) {
+        if (targetBodyParts.length == 0 || targetBodyParts[0].equals("All")) {
+
+            return exerciseRepository.findAllByApprovedTrue()
+                    .stream()
+                    .map(ex -> new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()))
+                    .toList();
+        }
+        List<TargetBodyPart> targetBodyPartList = Arrays.stream(targetBodyParts).map(TargetBodyPart::valueOf).toList();
+
+
+        return exerciseRepository
+                .findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyPartList)
+                .stream()
+                .map(ex -> new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()))
+                .toList();
+    }
 }
