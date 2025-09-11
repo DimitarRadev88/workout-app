@@ -54,8 +54,7 @@
                                                         <div th:each="i : ${#numbers.sequence(0, target.length / 2 - 1, 1)}" class="form-check">
                                                             <div id="select_target_1">
                                                             <input id="target_1" class="form-check-input"
-                                                                   th:value="${target[i]}"
-                                                                   th:checked="${selectedBodyPartNames.contains(target[i].name())}"
+                                                                   th:value="${target[i]}" th:field="*{targetBodyParts}"
                                                                    type="checkbox"/>
                                                             <label class="form-check-label" for="target_1"
                                                                    th:text="${target[i].getName()}">Easy</label>
@@ -68,8 +67,7 @@
                                                         <div th:each="i : ${#numbers.sequence(target.length / 2, target.length - 1, 1)}" class="form-check">
                                                             <div id="select_target_2">
                                                                 <input id="target_2" class="form-check-input"
-                                                                       th:value="${target[i]}"
-                                                                       th:checked="${selectedBodyPartNames.contains(target[i].name())}"
+                                                                       th:value="${target[i]}" th:field="*{targetBodyParts}"
                                                                        type="checkbox"/>
                                                                 <label class="form-check-label" for="target_2"
                                                                        th:text="${target[i].getName()}">Easy</label>

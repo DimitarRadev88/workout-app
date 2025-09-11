@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,14 +35,12 @@ public class WorkoutController {
     }
 
     @GetMapping("/add")
-    public String getWorkoutsAdd(Model model, @RequestParam(name = "selectedBodyParts", defaultValue = "All") String[] selectedBodyParts) {
-        WorkoutAddBindingModel workout = new WorkoutAddBindingModel(null, null, null);
+    public String getWorkoutsAdd(Model model, @RequestParam(name = "selectedBodyParts", defaultValue = "ALL") String[] selectedBodyParts) {
         List<ExerciseNameAndIdViewModel> exercises = exerciseService.getExercisesViewByTargets(selectedBodyParts);
         TargetBodyPart[] target = TargetBodyPart.values();
-        List<String> selectedBodyPartNames = Arrays.asList(selectedBodyParts);
-        System.out.println(selectedBodyPartNames.contains(target[0].getName().toUpperCase()));
+        List<TargetBodyPart> selectedBodyPart = Arrays.stream(selectedBodyParts).map(TargetBodyPart::valueOf).toList();
+        WorkoutAddBindingModel workout = new WorkoutAddBindingModel(null, selectedBodyPart, null);
         model.addAttribute("target", target);
-        model.addAttribute("selectedBodyPartNames", selectedBodyPartNames);
         model.addAttribute("workout", workout);
         model.addAttribute("exercises", exercises);
         return "workout-add";

@@ -317,7 +317,7 @@ public class ExerciseService {
     }
 
     public List<ExerciseNameAndIdViewModel> getExercisesViewByTargets(String[] targetBodyParts) {
-        if (targetBodyParts.length == 0 || targetBodyParts[0].equals("All")) {
+        if (targetBodyParts.length == 0 || targetBodyParts[0].equals("ALL")) {
 
             return exerciseRepository.findAllByApprovedTrue()
                     .stream()
