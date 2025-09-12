@@ -36,11 +36,7 @@ public class User extends BaseEntity {
     @Basic
     @Enumerated(EnumType.STRING)
     private WorkoutType workoutType;
-    @ManyToMany
-    @JoinTable(name = "users_workouts",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "workout_id")
-    )
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Workout> workouts;
     @ManyToMany
     @JoinTable(name = "users_programs",
@@ -161,5 +157,25 @@ public class User extends BaseEntity {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public void setWorkoutType(WorkoutType workoutType) {
+        this.workoutType = workoutType;
+    }
+
+    public List<DaySchedule> getDaySchedules() {
+        return daySchedules;
+    }
+
+    public void setDaySchedules(List<DaySchedule> daySchedules) {
+        this.daySchedules = daySchedules;
+    }
+
+    public List<WeekSchedule> getWeekSchedules() {
+        return weekSchedules;
+    }
+
+    public void setWeekSchedules(List<WeekSchedule> weekSchedules) {
+        this.weekSchedules = weekSchedules;
     }
 }

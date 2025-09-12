@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Create Workout')}"></head>
+
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+                <div class="container">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Create Workout</h3>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mb-2">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Create Workout</p>
+                                    </div>
+                                    <form th:action="@{/workouts/create}" th:object="${workout}" method="post">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <label class="form-label"><strong>Type</strong></label>
+                                                        <div class="form-check">
+                                                            <div id="select_complexity"
+                                                                 th:each="type : ${T(com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType).values()}">
+                                                                <input id="complexity" class="form-check-input"
+                                                                       th:value="${type}" th:field="*{workoutType}"
+                                                                       type="radio"/>
+                                                                <label class="form-check-label" for="complexity"
+                                                                       th:text="${type.getName()}">Easy</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <label class="form-label"><strong>Intensity</strong></label>
+                                                        <div class="form-check">
+                                                            <div id="select_intensity"
+                                                                 th:each="value : ${T(com.dimitarrradev.workoutScheduler.workout.enums.Intensity).values()}">
+                                                                <input id="value" class="form-check-input"
+                                                                       th:value="${value}" th:field="*{intensity}"
+                                                                       type="radio"/>
+                                                                <label class="form-check-label" for="value"
+                                                                       th:text="${value.getName()}">Easy</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="col-form-label"><strong>Target</strong></label>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <div th:each="i : ${#numbers.sequence(0, targets.length / 2 - 1, 1)}" class="form-check">
+                                                            <div id="select_target_1">
+                                                            <input id="target_1" class="form-check-input"
+                                                                   th:value="${targets[i]}" th:field="*{targetBodyParts}"
+                                                                   type="checkbox"/>
+                                                            <label class="form-check-label" for="target_1"
+                                                                   th:text="${targets[i].getName()}">Easy</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <div th:each="i : ${#numbers.sequence(targets.length / 2, targets.length - 1, 1)}" class="form-check">
+                                                            <div id="select_target_2">
+                                                                <input id="target_2" class="form-check-input"
+                                                                       th:value="${targets[i]}" th:field="*{targetBodyParts}"
+                                                                       type="checkbox"/>
+                                                                <label class="form-check-label" for="target_2"
+                                                                       th:text="${targets[i].getName()}">Easy</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="workout_date"><strong>Date and Time</strong></label>
+                                                        <div class="form-check">
+                                                            <input class='form-control' type="datetime-local"
+                                                                   th:field="*{workoutDateTime}" th:value="*{workoutDateTime}" name="workout_date" id="workout_date"
+                                                                   th:min="*{#temporals.format(#temporals.createNow(), 'yyyy-MM-dd''T''HH:mm')}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <button class="btn btn-primary btn-sm" type="submit">Create</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
+</body>
+
+</html>

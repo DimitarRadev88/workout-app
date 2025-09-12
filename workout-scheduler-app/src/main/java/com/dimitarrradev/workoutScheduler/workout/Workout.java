@@ -2,6 +2,7 @@ package com.dimitarrradev.workoutScheduler.workout;
 
 import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
+import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
 import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
@@ -11,15 +12,22 @@ import com.dimitarrradev.workoutScheduler.workout.enums.TimeOfDay;
 import com.dimitarrradev.workoutScheduler.workout.enums.Volume;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Entity
 @Table(name = "workouts")
 public class Workout extends BaseEntity {
-    @Basic
-    private LocalDate date;
+    @Column(nullable = false, name = "workout_date_time")
+    @FutureOrPresent
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH-mm")
+    private LocalDateTime workoutDateTime;
     @OneToMany
     @MapKeyJoinColumn(name = "exercise_id")
     @JoinColumn(name = "set_id")
@@ -33,27 +41,28 @@ public class Workout extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Intensity intensity;
-    @Column(nullable = false)
+    @Basic
     @Enumerated(EnumType.STRING)
     private Volume volume;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private WorkoutType workoutType;
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
     @ManyToOne
     @JoinColumn(name = "day_schedule_id")
     private DaySchedule daySchedule;
-    @Column(name = "time_of_day", nullable = false)
+    @Column(name = "target_body_parts", nullable = false)
     @Enumerated(EnumType.STRING)
-    private TimeOfDay timeOfDay;
+    private List<TargetBodyPart> targetBodyParts;
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDateTime getWorkoutDateTime() {
+        return workoutDateTime;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setWorkoutDateTime(LocalDateTime workoutDateTime) {
+        this.workoutDateTime = workoutDateTime;
     }
 
     public Map<Exercise, TrainingSet> getExerciseTrainingSets() {
@@ -112,12 +121,11 @@ public class Workout extends BaseEntity {
         this.daySchedule = daySchedule;
     }
 
-    public TimeOfDay getTimeOfDay() {
-        return timeOfDay;
+    public List<TargetBodyPart> getTargetBodyParts() {
+        return targetBodyParts;
     }
 
-    public void setTimeOfDay(TimeOfDay timeOfDay) {
-        this.timeOfDay = timeOfDay;
+    public void setTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
+        this.targetBodyParts = targetBodyParts;
     }
-
 }

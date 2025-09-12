@@ -29,6 +29,8 @@ public class TrainingSet extends BaseEntity {
     private Integer actualReps;
     @Basic
     private Double weight;
+    @Basic
+    private Boolean isCompleted;
 
     public Map<Exercise, Integer> getExerciseMinRepsMap() {
         return exerciseMinRepsMap;
@@ -68,5 +70,13 @@ public class TrainingSet extends BaseEntity {
 
     public void setWeight(Double weight) {
         this.weight = weight;
+    }
+
+    public Boolean getCompleted() {
+        return isCompleted;
+    }
+
+    public void setCompleted(Boolean completed) {
+        isCompleted = completed;
     }
 }

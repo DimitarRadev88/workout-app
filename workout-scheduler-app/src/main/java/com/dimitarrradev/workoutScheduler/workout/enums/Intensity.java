@@ -5,14 +5,14 @@ public enum Intensity {
     MEDIUM("Medium"),
     HIGH("High");
 
-    private final String value;
+    private final String name;
 
-    Intensity(String value) {
-        this.value = value;
+    Intensity(String name) {
+        this.name = name;
     }
 
-    public String getValue() {
-        return value;
+    public String getName() {
+        return name;
     }
 
 }

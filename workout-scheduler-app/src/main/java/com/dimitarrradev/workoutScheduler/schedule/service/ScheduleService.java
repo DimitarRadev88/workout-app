@@ -35,9 +35,9 @@ public class ScheduleService {
                                         .getName()).distinct()
                                 .collect(Collectors.joining(", ")
                                 ),
-                        workout.getTimeOfDay().getValue(),
-                        workout.getIntensity().getValue(),
+                        workout.getIntensity().getName(),
                         workout.getVolume().getValue(),
+                        workout.getWorkoutDateTime(),
                         daySchedule.getCompleted()
                 )).toList()
         );

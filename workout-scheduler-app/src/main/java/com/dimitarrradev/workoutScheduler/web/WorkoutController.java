@@ -1,22 +1,20 @@
 package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseNameAndIdViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
-import com.dimitarrradev.workoutScheduler.workout.Workout;
-import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import com.dimitarrradev.workoutScheduler.workout.service.WorkoutService;
+import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/workouts")
@@ -34,16 +32,31 @@ public class WorkoutController {
         return "workouts";
     }
 
-    @GetMapping("/add")
-    public String getWorkoutsAdd(Model model, @RequestParam(name = "selectedBodyParts", defaultValue = "ALL") String[] selectedBodyParts) {
-        List<ExerciseNameAndIdViewModel> exercises = exerciseService.getExercisesViewByTargets(selectedBodyParts);
-        TargetBodyPart[] target = TargetBodyPart.values();
-        List<TargetBodyPart> selectedBodyPart = Arrays.stream(selectedBodyParts).map(TargetBodyPart::valueOf).toList();
-        WorkoutAddBindingModel workout = new WorkoutAddBindingModel(null, selectedBodyPart, null);
-        model.addAttribute("target", target);
+    @GetMapping("/create")
+    public String getWorkoutCreate(Model model) {
+        WorkoutAddBindingModel workout = new WorkoutAddBindingModel(null, null, null, LocalDateTime.now());
+        TargetBodyPart[] targets = TargetBodyPart.values();
         model.addAttribute("workout", workout);
-        model.addAttribute("exercises", exercises);
-        return "workout-add";
+        model.addAttribute("targets", targets);
+        return "workout-create";
+    }
+
+    @PostMapping("/create")
+    public String postWorkoutCreate(
+            @Valid WorkoutAddBindingModel workout,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Authentication authentication
+    ) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("workout", workout);
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.workout", bindingResult);
+            return "redirect:/create";
+        }
+
+        long workoutId = workoutService.createWorkout(workout, authentication.getName());
+
+        return "redirect:/workouts/edit/" +  workoutId;
     }
 
 }

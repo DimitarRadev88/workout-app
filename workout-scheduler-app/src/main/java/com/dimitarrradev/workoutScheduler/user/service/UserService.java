@@ -128,4 +128,8 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    public User getUserEntityByUsername(String username) {
+        return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+    }
 }
