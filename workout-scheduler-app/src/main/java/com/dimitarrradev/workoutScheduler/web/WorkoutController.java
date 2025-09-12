@@ -3,6 +3,7 @@ package com.dimitarrradev.workoutScheduler.web;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
+import com.dimitarrradev.workoutScheduler.workout.Workout;
 import com.dimitarrradev.workoutScheduler.workout.service.WorkoutService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -34,7 +35,13 @@ public class WorkoutController {
 
     @GetMapping("/create")
     public String getWorkoutCreate(Model model) {
-        WorkoutAddBindingModel workout = new WorkoutAddBindingModel(null, null, null, LocalDateTime.now());
+        WorkoutAddBindingModel workout;
+        if (!model.containsAttribute("workout")) {
+            workout = new WorkoutAddBindingModel(null, null, LocalDateTime.now());
+        } else {
+            workout = (WorkoutAddBindingModel) model.getAttribute("workout");
+        }
+
         TargetBodyPart[] targets = TargetBodyPart.values();
         model.addAttribute("workout", workout);
         model.addAttribute("targets", targets);
@@ -51,12 +58,12 @@ public class WorkoutController {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("workout", workout);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.workout", bindingResult);
-            return "redirect:/create";
+            return "redirect:/workouts/create";
         }
 
         long workoutId = workoutService.createWorkout(workout, authentication.getName());
 
-        return "redirect:/workouts/edit/" +  workoutId;
+        return "redirect:/workouts/edit/" + workoutId;
     }
 
 }

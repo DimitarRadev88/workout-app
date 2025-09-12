@@ -13,7 +13,6 @@ import static com.dimitarrradev.workoutScheduler.exception.ErrorMessage.*;
 
 public record WorkoutAddBindingModel(
         @NotNull(message = WORKOUT_TYPE_ERROR_MESSAGE) WorkoutType workoutType,
-        @NotNull(message = INTENSITY_ERROR_MESSAGE) Intensity intensity,
         @NotNull(message = TARGET_BODY_PARTS_ERROR_MESSAGE)
         @NotEmpty(message = TARGET_BODY_PARTS_ERROR_MESSAGE) List<TargetBodyPart> targetBodyParts,
         @NotNull(message = WORKOUT_DATE_ERROR_MESSAGE) LocalDateTime workoutDateTime

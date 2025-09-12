@@ -21,7 +21,6 @@ public class WorkoutService {
 
         Workout newWorkout = new Workout();
         newWorkout.setWorkoutType(workout.workoutType());
-        newWorkout.setIntensity(workout.intensity());
         newWorkout.setTargetBodyParts(workout.targetBodyParts());
         newWorkout.setWorkoutDateTime(workout.workoutDateTime());
         newWorkout.setUser(userService.getUserEntityByUsername(username));

@@ -8,15 +8,12 @@ import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
 import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.workout.enums.Intensity;
-import com.dimitarrradev.workoutScheduler.workout.enums.TimeOfDay;
 import com.dimitarrradev.workoutScheduler.workout.enums.Volume;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +35,7 @@ public class Workout extends BaseEntity {
     private Map<Exercise, TrainingSet> exerciseTrainingSets;
     @ManyToOne
     private Program program;
-    @Column(nullable = false)
+    @Basic
     @Enumerated(EnumType.STRING)
     private Intensity intensity;
     @Basic

@@ -29,7 +29,10 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="mb-3">
-                                                        <label class="form-label"><strong>Type</strong></label>
+                                                        <label class="form-label" th:if="${#fields.hasErrors('workoutType')}">
+                                                            <strong class="text-danger" th:text="${#fields.errors('workoutType').getFirst()}">Type</strong>
+                                                        </label>
+                                                        <label class="form-label" th:unless="${#fields.hasErrors('workoutType')}"><strong>Type</strong></label>
                                                         <div class="form-check">
                                                             <div id="select_complexity"
                                                                  th:each="type : ${T(com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType).values()}">
@@ -42,25 +45,15 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="mb-3">
-                                                        <label class="form-label"><strong>Intensity</strong></label>
-                                                        <div class="form-check">
-                                                            <div id="select_intensity"
-                                                                 th:each="value : ${T(com.dimitarrradev.workoutScheduler.workout.enums.Intensity).values()}">
-                                                                <input id="value" class="form-check-input"
-                                                                       th:value="${value}" th:field="*{intensity}"
-                                                                       type="radio"/>
-                                                                <label class="form-check-label" for="value"
-                                                                       th:text="${value.getName()}">Easy</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <label class="col-form-label"><strong>Target</strong></label>
+                                                    <label class="col-form-label" th:if="${#fields.hasErrors('targetBodyParts')}">
+                                                        <strong class="text-danger" th:text="${#fields.errors('targetBodyParts').getFirst()}">Target</strong>
+                                                    </label>
+                                                    <label class="col-form-label" th:unless="${#fields.hasErrors('targetBodyParts')}">
+                                                        <strong>Target</strong>
+                                                    </label>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -94,7 +87,10 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="workout_date"><strong>Date and Time</strong></label>
+                                                        <label class="form-label" th:if="${#fields.hasErrors('workoutDateTime')}" for="workout_date">
+                                                            <strong class="text-danger" th:text="${#fields.errors('workoutDateTime').getFirst()}">Date and Time</strong>
+                                                        </label>
+                                                        <label class="form-label" th:unless="${#fields.hasErrors('workoutDateTime')}" for="workout_date"><strong>Date and Time</strong></label>
                                                         <div class="form-check">
                                                             <input class='form-control' type="datetime-local"
                                                                    th:field="*{workoutDateTime}" th:value="*{workoutDateTime}" name="workout_date" id="workout_date"
