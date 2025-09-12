@@ -1,7 +1,6 @@
 package com.dimitarrradev.workoutScheduler.workout;
 
 import com.dimitarrradev.workoutScheduler.BaseEntity;
-import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
@@ -16,7 +15,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "workouts")
@@ -25,14 +23,8 @@ public class Workout extends BaseEntity {
     @FutureOrPresent
     @DateTimeFormat(pattern = "dd-MM-yyyy HH-mm")
     private LocalDateTime workoutDateTime;
-    @OneToMany
-    @MapKeyJoinColumn(name = "exercise_id")
-    @JoinColumn(name = "set_id")
-    @JoinTable(
-            name = "workouts_exercises",
-            joinColumns = @JoinColumn(name = "workout_id")
-    )
-    private Map<Exercise, TrainingSet> exerciseTrainingSets;
+    @OneToMany(mappedBy = "workout")
+    private List<TrainingSet> trainingSets;
     @ManyToOne
     private Program program;
     @Basic
@@ -62,12 +54,12 @@ public class Workout extends BaseEntity {
         this.workoutDateTime = workoutDateTime;
     }
 
-    public Map<Exercise, TrainingSet> getExerciseTrainingSets() {
-        return exerciseTrainingSets;
+    public List<TrainingSet> getTrainingSets() {
+        return trainingSets;
     }
 
-    public void setExerciseTrainingSets(Map<Exercise, TrainingSet> exerciseTrainingSets) {
-        this.exerciseTrainingSets = exerciseTrainingSets;
+    public void setTrainingSets(List<TrainingSet> trainingSets) {
+        this.trainingSets = trainingSets;
     }
 
     public Program getProgram() {

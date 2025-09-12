@@ -1,0 +1,80 @@
+<form th:fragment="workoutCreateEditForm (workout)" th:action="@{/workouts/create}" th:object="${workout}" method="post">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label class="form-label" th:if="${#fields.hasErrors('workoutType')}">
+                        <strong class="text-danger" th:text="${#fields.errors('workoutType').getFirst()}">Type</strong>
+                    </label>
+                    <label class="form-label" th:unless="${#fields.hasErrors('workoutType')}"><strong>Type</strong></label>
+                    <div class="form-check">
+                        <div id="select_complexity"
+                             th:each="type : ${T(com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType).values()}">
+                            <input id="complexity" class="form-check-input"
+                                   th:value="${type}" th:field="*{workoutType}"
+                                   type="radio"/>
+                            <label class="form-check-label" for="complexity"
+                                   th:text="${type.getName()}">Easy</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label class="col-form-label" th:if="${#fields.hasErrors('targetBodyParts')}">
+                    <strong class="text-danger" th:text="${#fields.errors('targetBodyParts').getFirst()}">Target</strong>
+                </label>
+                <label class="col-form-label" th:unless="${#fields.hasErrors('targetBodyParts')}">
+                    <strong>Target</strong>
+                </label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <div th:each="i : ${#numbers.sequence(0, targets.length / 2 - 1, 1)}" class="form-check">
+                        <div id="select_target_1">
+                            <input id="target_1" class="form-check-input"
+                                   th:value="${targets[i]}" th:field="*{targetBodyParts}"
+                                   type="checkbox"/>
+                            <label class="form-check-label" for="target_1"
+                                   th:text="${targets[i].getName()}">Easy</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="mb-3">
+                    <div th:each="i : ${#numbers.sequence(targets.length / 2, targets.length - 1, 1)}" class="form-check">
+                        <div id="select_target_2">
+                            <input id="target_2" class="form-check-input"
+                                   th:value="${targets[i]}" th:field="*{targetBodyParts}"
+                                   type="checkbox"/>
+                            <label class="form-check-label" for="target_2"
+                                   th:text="${targets[i].getName()}">Easy</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label class="form-label" th:if="${#fields.hasErrors('workoutDateTime')}" for="workout_date">
+                        <strong class="text-danger" th:text="${#fields.errors('workoutDateTime').getFirst()}">Date and Time</strong>
+                    </label>
+                    <label class="form-label" th:unless="${#fields.hasErrors('workoutDateTime')}" for="workout_date"><strong>Date and Time</strong></label>
+                    <div class="form-check">
+                        <input class='form-control' type="datetime-local"
+                               th:field="*{workoutDateTime}" th:value="*{workoutDateTime}" name="workout_date" id="workout_date"
+                               th:min="*{#temporals.format(#temporals.createNow(), 'yyyy-MM-dd''T''HH:mm')}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary btn-sm" type="submit">Create</button>
+        </div>
+    </div>
+</form>

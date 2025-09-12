@@ -22,10 +22,11 @@
                             <div class="col col-xxl-12">
                                 <div class="card shadow">
                                     <div class="card-header py-3">
-                                        <p class="text-primary m-0 fw-bold">Add Workout</p>
+                                        <p class="text-primary m-0 fw-bold">Edit Workout</p>
                                     </div>
                                     <div class="card-body">
-                                            </div>
+                                        <form th:replace="~{fragments/edit-create-workout-form :: workoutCreateEditForm (workout = ${workout})}"></form>
+                                    </div>
                                             <div class="mb-3">
                                                 <button class="btn btn-primary btn-sm" type="button" id="filter_workout_exercises" onclick="redirectAddWorkoutWithFilterForExercises()">Filter Exercises</button>
                                             </div>

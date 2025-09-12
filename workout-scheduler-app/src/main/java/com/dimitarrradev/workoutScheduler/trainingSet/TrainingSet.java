@@ -2,6 +2,7 @@ package com.dimitarrradev.workoutScheduler.trainingSet;
 
 import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
+import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
 
 import java.util.Map;
@@ -10,50 +11,55 @@ import java.util.Map;
 @Table(name = "sets")
 public class TrainingSet extends BaseEntity {
 
-    @Column(name = "exercise_target_min_reps")
-    @ElementCollection
-    @CollectionTable(name = "set_min_reps", joinColumns = @JoinColumn(name = "set_id"))
-    @MapKeyColumn(name = "exercise_id")
-    private Map<Exercise, Integer> exerciseMinRepsMap;
-    @ElementCollection
-    @CollectionTable(name = "set_max_reps", joinColumns = @JoinColumn(name = "set_id"))
-    @MapKeyColumn(name = "exercise_id")
-    @Column(name = "exercise_target_max_reps")
-    private Map<Exercise, Integer> exerciseMaxRepsMap;
-    @ElementCollection
-    @CollectionTable(name = "set_rest", joinColumns = @JoinColumn(name = "set_id"))
-    @MapKeyColumn(name = "exercise_id")
-    @Column(name = "exercise_target_rest")
-    private Map<Exercise, Integer> exerciseRestMap;
+    @ManyToOne
+    @JoinColumn(name = "workout_id")
+    private Workout workout;
+    @ManyToOne
+    @JoinColumn(name = "exercise_id")
+    private Exercise exercise;
+    @Column(name = "min_reps", nullable = false)
+    private Integer minReps;
+    @Column(name = "max_reps", nullable = false)
+    private Integer maxReps;
     @Basic
     private Integer actualReps;
     @Basic
     private Double weight;
+    @Column(nullable = false)
+    private Integer rest;
     @Basic
     private Boolean isCompleted;
 
-    public Map<Exercise, Integer> getExerciseMinRepsMap() {
-        return exerciseMinRepsMap;
+    public Workout getWorkout() {
+        return workout;
     }
 
-    public void setExerciseMinRepsMap(Map<Exercise, Integer> exerciseMinRepsMap) {
-        this.exerciseMinRepsMap = exerciseMinRepsMap;
+    public void setWorkout(Workout workout) {
+        this.workout = workout;
     }
 
-    public Map<Exercise, Integer> getExerciseMaxRepsMap() {
-        return exerciseMaxRepsMap;
+    public Exercise getExercise() {
+        return exercise;
     }
 
-    public void setExerciseMaxRepsMap(Map<Exercise, Integer> exerciseMaxRepsMap) {
-        this.exerciseMaxRepsMap = exerciseMaxRepsMap;
+    public void setExercise(Exercise exercise) {
+        this.exercise = exercise;
     }
 
-    public Map<Exercise, Integer> getExerciseRestMap() {
-        return exerciseRestMap;
+    public Integer getMinReps() {
+        return minReps;
     }
 
-    public void setExerciseRestMap(Map<Exercise, Integer> exerciseRestMap) {
-        this.exerciseRestMap = exerciseRestMap;
+    public void setMinReps(Integer minReps) {
+        this.minReps = minReps;
+    }
+
+    public Integer getMaxReps() {
+        return maxReps;
+    }
+
+    public void setMaxReps(Integer maxReps) {
+        this.maxReps = maxReps;
     }
 
     public Integer getActualReps() {
@@ -70,6 +76,14 @@ public class TrainingSet extends BaseEntity {
 
     public void setWeight(Double weight) {
         this.weight = weight;
+    }
+
+    public Integer getRest() {
+        return rest;
+    }
+
+    public void setRest(Integer rest) {
+        this.rest = rest;
     }
 
     public Boolean getCompleted() {

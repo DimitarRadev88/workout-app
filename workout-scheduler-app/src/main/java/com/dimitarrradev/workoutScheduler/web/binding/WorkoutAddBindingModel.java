@@ -1,7 +1,6 @@
 package com.dimitarrradev.workoutScheduler.web.binding;
 
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.workoutScheduler.workout.enums.Intensity;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

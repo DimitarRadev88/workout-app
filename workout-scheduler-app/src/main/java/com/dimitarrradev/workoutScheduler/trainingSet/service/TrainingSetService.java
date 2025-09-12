@@ -12,4 +12,7 @@ public class TrainingSetService {
         this.trainingSetRepository = trainingSetRepository;
     }
 
+    public int getSetCountByWorkoutIdAndExerciseName(long id, String name) {
+        return trainingSetRepository.findCountByWorkoutIdAndExerciseName(id, name);
+    }
 }

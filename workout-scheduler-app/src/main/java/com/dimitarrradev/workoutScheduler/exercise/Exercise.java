@@ -4,6 +4,7 @@ import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
+import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class Exercise extends BaseEntity {
     @Basic
     @Enumerated(EnumType.STRING)
     private Complexity complexity;
+    @OneToMany(mappedBy = "exercise")
+    private List<TrainingSet> trainingSets;
 
     public Exercise() {
         this.imageURLs = new ArrayList<>();
@@ -101,4 +104,11 @@ public class Exercise extends BaseEntity {
         this.complexity = complexity;
     }
 
+    public List<TrainingSet> getTrainingSets() {
+        return trainingSets;
+    }
+
+    public void setTrainingSets(List<TrainingSet> trainingSets) {
+        this.trainingSets = trainingSets;
+    }
 }

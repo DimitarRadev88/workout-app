@@ -4,7 +4,8 @@ import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
 import com.dimitarrradev.workoutScheduler.schedule.dao.DayScheduleRepository;
 import com.dimitarrradev.workoutScheduler.schedule.dao.WeekScheduleRepository;
 import com.dimitarrradev.workoutScheduler.schedule.service.dto.DailyScheduleServiceViewModel;
-import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutServiceViewModel;
+import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
+import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutServiceModel;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,16 +28,7 @@ public class ScheduleService {
                 .orElseThrow(() -> new IllegalArgumentException("No schedule found"));
 
         return new DailyScheduleServiceViewModel(
-                daySchedule.getWorkout().stream().map(workout -> new WorkoutServiceViewModel(
-                        workout.getExerciseTrainingSets()
-                                .keySet()
-                                .stream()
-                                .map(exercise -> exercise.getComplexity()
-                                        .getName()).distinct()
-                                .collect(Collectors.joining(", ")
-                                ),
-                        workout.getIntensity().getName(),
-                        workout.getVolume().getValue(),
+                daySchedule.getWorkout().stream().map(workout -> new WorkoutServiceModel(
                         workout.getWorkoutDateTime(),
                         daySchedule.getCompleted()
                 )).toList()

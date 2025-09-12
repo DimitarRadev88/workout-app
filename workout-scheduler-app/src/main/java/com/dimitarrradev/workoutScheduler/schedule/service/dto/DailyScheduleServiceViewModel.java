@@ -1,10 +1,11 @@
 package com.dimitarrradev.workoutScheduler.schedule.service.dto;
 
-import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutServiceViewModel;
+import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
+import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutServiceModel;
 
 import java.util.List;
 
 public record DailyScheduleServiceViewModel(
-        List<WorkoutServiceViewModel> workouts
+        List<WorkoutServiceModel> workouts
 ) {
 }
