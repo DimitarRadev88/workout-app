@@ -2,9 +2,11 @@ package com.dimitarrradev.workoutScheduler.workout.service;
 
 import com.dimitarrradev.workoutScheduler.exercise.dto.TrainingSetsServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
+import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import com.dimitarrradev.workoutScheduler.trainingSet.service.TrainingSetService;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.web.WorkoutViewServiceModel;
+import com.dimitarrradev.workoutScheduler.web.binding.ExerciseTrainingSetsBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import com.dimitarrradev.workoutScheduler.workout.dao.WorkoutRepository;
@@ -68,5 +70,15 @@ public class WorkoutService {
                                 .collect(Collectors.joining(", ")))
                 )
                 .toList();
+    }
+
+    public void addExerciseAndTrainingSetsToWorkout(Long id, ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel) {
+        Workout workout = workoutRepository.findWorkoutById(id).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+
+        List<TrainingSet> trainingSets = trainingSetService.createTrainingSets(exerciseTrainingSetsBindingModel, workout);
+
+        workout.getTrainingSets().addAll(trainingSets);
+
+        workoutRepository.save(workout);
     }
 }

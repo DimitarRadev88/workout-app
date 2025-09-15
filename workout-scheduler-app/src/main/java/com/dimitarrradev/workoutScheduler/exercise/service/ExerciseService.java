@@ -15,6 +15,8 @@ import com.dimitarrradev.workoutScheduler.web.binding.ImageUrlViewModel;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ import java.util.Optional;
 @Service
 public class ExerciseService {
 
+    private static final Logger log = LoggerFactory.getLogger(ExerciseService.class);
     private final ExerciseRepository exerciseRepository;
     private final ImageUrlRepository imageUrlRepository;
 
@@ -341,5 +344,9 @@ public class ExerciseService {
                 .stream()
                 .map(ex -> new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()))
                 .toList();
+    }
+
+    public Exercise getExercise(Long id) {
+        return exerciseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
     }
 }

@@ -22,7 +22,7 @@
                             <div class="col col-xxl-12">
                                 <div class="card shadow">
                                     <div class="card-header py-3">
-                                        <p class="text-primary m-0 fw-bold">Edit Workout</p>
+                                        <p class="text-primary m-0 fw-bold" th:text="${'Edit Workout For ' + #temporals.format(workoutDate, 'dd-MM-yyyy HH:mm')}" id="workout_date">Edit Workout For Date</p>
                                     </div>
                                     <div class="card-body">
                                         <form th:action="@{/workouts/edit/{id}(id=${workoutId})}" th:object="${workout}" method="post">
@@ -85,17 +85,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <div class="mb-3">
-                                                            <div class="form-check">
-                                                                <div>
-                                                                    <p th:field="*{workoutDateTime}" th:value="*{workoutDateTime}" th:text="*{#temporals.format(workoutDateTime, 'dd-MM-yyyy HH:mm')}" id="workout_date"></p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                                 <div class="mb-3">
                                                     <button class="btn btn-primary btn-sm" type="submit">Save</button>
                                                 </div>
@@ -113,13 +102,13 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col col-xxl-12">
-                                                <form th:action="@{/workouts/edit{id}(id=${workoutId})/addExercise}" th:object="${exerciseTrainingSetsBindingModel}" method="post">
+                                                <form th:action="@{/workouts/edit/{id}/addExercise(id=${workoutId})}" th:object="${exerciseTrainingSetsBindingModel}" method="post">
                                                         <div class="row">
                                                             <div class="col">
                                                                 <div class="mb-3">
                                                                     <label class="form-label" for="exercises"><strong>Exercises</strong></label>
-                                                                    <select class="form-select" id="exercises" th:field="*{exerciseNameAndId}">
-                                                                        <option th:each="ex : ${exercises}" th:value='${ex}' th:text="${ex.name()}">Bench Press</option>
+                                                                    <select class="form-select" id="exercises" th:field="*{exerciseId}">
+                                                                        <option th:each="ex : ${exercises}" th:value='${ex.id}' th:text="${ex.name()}">Bench Press</option>
                                                                     </select>
                                                                 </div>
                                                             </div>

@@ -5,6 +5,6 @@ public record TrainingSetBindingModel(
         Integer minReps,
         Integer maxReps,
         Integer rest,
-        Integer weight
+        Double weight
 ) {
 }
