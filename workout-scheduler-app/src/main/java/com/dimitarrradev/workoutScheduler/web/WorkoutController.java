@@ -1,12 +1,17 @@
 package com.dimitarrradev.workoutScheduler.web;
 
+import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseNameAndIdViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
+import com.dimitarrradev.workoutScheduler.web.binding.ExerciseNameAndIdBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.ExerciseTrainingSetsBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.TrainingSetBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
-import com.dimitarrradev.workoutScheduler.workout.Workout;
 import com.dimitarrradev.workoutScheduler.workout.service.WorkoutService;
 import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,10 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/workouts")
 public class WorkoutController {
+    private static final Logger log = LoggerFactory.getLogger(WorkoutController.class);
     private final WorkoutService workoutService;
     private final ExerciseService exerciseService;
 
@@ -68,12 +75,28 @@ public class WorkoutController {
         return "redirect:/workouts/edit/" + workoutId;
     }
 
-    @GetMapping("/edit/{id}")
-    public String getWorkoutEdit(@PathVariable long id, Model model) {
-        WorkoutEditServiceModel workoutServiceModel = workoutService.getWorkout(id);
-        WorkoutAddBindingModel workout = new WorkoutAddBindingModel(workoutServiceModel.workoutType(), workoutServiceModel.targetBodyParts(), workoutServiceModel.workoutDateTime());
+    @GetMapping("/view")
+    public String getWorkoutView(Model model, Authentication authentication) {
+        List<WorkoutViewServiceModel> workouts = workoutService.getAllByUserUsername(authentication.getName());
+        model.addAttribute("workouts", workouts);
 
+        return "workouts-view";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String getWorkoutEdit(@PathVariable Long id, Model model) {
+        WorkoutEditServiceModel workoutEditServiceModel = workoutService.getWorkout(id);
+        WorkoutAddBindingModel workout = new WorkoutAddBindingModel(workoutEditServiceModel.workoutType(), workoutEditServiceModel.targetBodyParts(), workoutEditServiceModel.workoutDateTime());
+        List<ExerciseNameAndIdViewModel> exercises = exerciseService.getExercisesForTargetBodyParts(workout.targetBodyParts());
+        TargetBodyPart[] targets = TargetBodyPart.values();
+
+        ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel = new ExerciseTrainingSetsBindingModel(new ExerciseNameAndIdBindingModel(null, null), new TrainingSetBindingModel(null, null, null, null, null));
+        model.addAttribute("workoutId", id);
         model.addAttribute("workout", workout);
+        model.addAttribute("targets", targets);
+        model.addAttribute("exercises", exercises);
+        model.addAttribute("workoutExercises", workoutEditServiceModel.exercises());
+        model.addAttribute("exerciseTrainingSetsBindingModel", exerciseTrainingSetsBindingModel);
 
         return "workout-edit";
     }

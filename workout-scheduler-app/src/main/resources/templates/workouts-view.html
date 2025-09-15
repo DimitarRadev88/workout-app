@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Edit Workout')}"></head>
+
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+                <div class="container">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Workouts</h3>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mb-2">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">View Workouts</p>
+                                    </div>
+                                    <div class="card-body">
+                                    </div>
+                                    <div class="row d-flex justify-content-center ms-0 me-0">
+                                        <div class="col">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <div class="col-md-6 text-nowrap">
+                                                                <p>Workouts</p>
+                                                            </div>
+                                                            <div class="col-md-6 text-nowrap">
+                                                                <button type="button" id="filter_show_exercise_button" onclick="showFilters()" class="btn btn-primary">Show Filters</button>
+                                                            </div>
+                                                            <div class="col-md-6 text-nowrap">
+                                                                <button type="button" id="filter_hide_exercise_button" style="display: none" onclick="hideFilters()" class="btn btn-primary">Hide Filters</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="table-responsive mt-2 table" id="dataTable-1" role="grid"
+                                                                     aria-describedby="dataTable_info">
+                                                                    <table class="table my-0" id="dataTable">
+                                                                        <thead>
+                                                                        <tr>
+                                                                            <th>Type</th>
+                                                                            <th>Target</th>
+                                                                            <th>Date</th>
+                                                                            <th>Action</th>
+                                                                        </tr>
+                                                                        </thead>
+                                                                        <tbody th:each="workout : ${workouts}">
+                                                                        <tr>
+                                                                            <td th:text="*{workout.workoutType.name()}">Bench Press</td>
+                                                                            <td th:text="*{workout.targetBodyParts}">Chest</td>
+                                                                            <td th:text="*{#temporals.format(workout.date(), 'dd-MM-yyyy''T''HH:mm')}">12.12.2012 8:30</td>
+                                                                            <td>
+                                                                                <a class="btn btn-primary text-white"
+                                                                                   th:href="@{/workouts/edit/{id}(id=${workout.id})}">Edit</a>
+                                                                            </td>
+                                                                        </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
+</body>
+
+</html>

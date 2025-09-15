@@ -25,95 +25,177 @@
                                         <p class="text-primary m-0 fw-bold">Edit Workout</p>
                                     </div>
                                     <div class="card-body">
-                                        <form th:replace="~{fragments/edit-create-workout-form :: workoutCreateEditForm (workout = ${workout})}"></form>
-                                    </div>
-                                            <div class="mb-3">
-                                                <button class="btn btn-primary btn-sm" type="button" id="filter_workout_exercises" onclick="redirectAddWorkoutWithFilterForExercises()">Filter Exercises</button>
-                                            </div>
-                                        <form>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="exercises"><strong>Exercises</strong></label>
-                                                        <select class="form-select" id="exercises" th:field="${exerciseTrainingSetsBindingModel.exerciseIdAndName}">
-                                                                <option th:each="ex : ${exercises}" th:value='${ex}' th:text="${ex.name()}">Bench Press</option>
-                                                        </select>
+                                        <form th:action="@{/workouts/edit/{id}(id=${workoutId})}" th:object="${workout}" method="post">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" th:if="${#fields.hasErrors('workoutType')}">
+                                                                <strong class="text-danger" th:text="${#fields.errors('workoutType').getFirst()}">Type</strong>
+                                                            </label>
+                                                            <label class="form-label" th:unless="${#fields.hasErrors('workoutType')}"><strong>Type</strong></label>
+                                                            <div class="form-check">
+                                                                <div id="select_complexity"
+                                                                     th:each="type : ${T(com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType).values()}">
+                                                                    <input id="complexity" class="form-check-input"
+                                                                           th:value="${type}" th:field="*{workoutType}"
+                                                                           type="radio"/>
+                                                                    <label class="form-check-label" for="complexity"
+                                                                           th:text="${type.getName()}">Easy</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="sets"><strong>Sets</strong></label>
-                                                        <input class="form-control" type="number" th:field="*{trainingSets.sets}" id="sets">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label class="col-form-label" th:if="${#fields.hasErrors('targetBodyParts')}">
+                                                            <strong class="text-danger" th:text="${#fields.errors('targetBodyParts').getFirst()}">Target</strong>
+                                                        </label>
+                                                        <label class="col-form-label" th:unless="${#fields.hasErrors('targetBodyParts')}">
+                                                            <strong>Target</strong>
+                                                        </label>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="min_reps"><strong>Min Reps</strong></label>
-                                                        <input class="form-control" type="number" th:field="*{trainingSets.minReps}" id="min_reps">
-                                                        <label class="form-label" for="max_reps"><strong>Max Reps</strong></label>
-                                                        <input class="form-control" type="number" th:field="*{trainingSets.maxReps}" id="max_reps">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <div th:each="i : ${#numbers.sequence(0, targets.length / 2 - 1, 1)}" class="form-check">
+                                                                <div id="select_target_1">
+                                                                    <input id="target_1" class="form-check-input"
+                                                                           th:value="${targets[i]}" th:field="*{targetBodyParts}"
+                                                                           type="checkbox"/>
+                                                                    <label class="form-check-label" for="target_1"
+                                                                           th:text="${targets[i].getName()}">Easy</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <div th:each="i : ${#numbers.sequence(targets.length / 2, targets.length - 1, 1)}" class="form-check">
+                                                                <div id="select_target_2">
+                                                                    <input id="target_2" class="form-check-input"
+                                                                           th:value="${targets[i]}" th:field="*{targetBodyParts}"
+                                                                           type="checkbox"/>
+                                                                    <label class="form-check-label" for="target_2"
+                                                                           th:text="${targets[i].getName()}">Easy</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="rest"><strong>Rest</strong></label>
-                                                        <input class="form-control" type="number" th:field="*{trainingSets.rest}" id="rest">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <div class="form-check">
+                                                                <div>
+                                                                    <p th:field="*{workoutDateTime}" th:value="*{workoutDateTime}" th:text="*{#temporals.format(workoutDateTime, 'dd-MM-yyyy HH:mm')}" id="workout_date"></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="weight"><strong>Weight</strong></label>
-                                                        <input class="form-control" type="number" step=".25" th:field="*{trainingSets.weight}" id="weight">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col col-xxl-12">
-                                                    <div class="mb-3">
-                                                        <button class="btn btn-primary btn-sm" type="submit">Add Exercise</button>
-                                                    </div>
-                                                    <div class="mb-3"></div>
+                                                <div class="mb-3">
+                                                    <button class="btn btn-primary btn-sm" type="submit">Save</button>
                                                 </div>
                                             </div>
                                         </form>
-                                            <div class="row">
-                                                <div class="col col-xxl-12">
-                                                    <div class="mb-3"></div>
-                                                    <div class="table-responsive mt-2 table" id="dataTable-2" role="grid" aria-describedby="dataTable_info">
-                                                        <table class="table my-0" id="dataTable">
-                                                            <thead>
-                                                                <tr >
-                                                                    <th>Exercise</th>
-                                                                    <th>Sets</th>
-                                                                    <th>Rep-range</th>
-                                                                    <th>Weight</th>
-                                                                    <th>Rest</th>
-                                                                    <th></th>
-                                                                    <th></th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr th:each="ex : ${workout.exerciseTrainingSets}">
-                                                                    <td th:text="${ex.exerciseIdAndName}">Bench Press</td>
-                                                                    <td th:text="${ex.trainingSets.size()}">4</td>
-                                                                    <td th:text="${ex.trainingSets.getFirst().minReps() + ' - ' + ex.trainingSets().getFirst().maxReps()}">10</td>
-                                                                    <td th:text="${ex.trainingSets.getFirst().weight()}">60</td>
-                                                                    <td th:text="${ex.trainingSets.getFirst().rest()}">60</td>
-                                                                    <td><button class="btn btn-primary" type="button">Edit</button></td>
-                                                                    <td><button class="btn btn-danger" type="button">Delete</button></td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button class="btn btn-primary" type="submit">Create Workout</button>
-                                        </form>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Add Exercise</p></div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col col-xxl-12">
+                                                <form th:action="@{/workouts/edit{id}(id=${workoutId})/addExercise}" th:object="${exerciseTrainingSetsBindingModel}" method="post">
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label" for="exercises"><strong>Exercises</strong></label>
+                                                                    <select class="form-select" id="exercises" th:field="*{exerciseNameAndId}">
+                                                                        <option th:each="ex : ${exercises}" th:value='${ex}' th:text="${ex.name()}">Bench Press</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label" for="sets"><strong>Sets</strong></label>
+                                                                    <input class="form-control" type="number" th:field="*{trainingSet.sets}" id="sets">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label" for="min_reps"><strong>Min Reps</strong></label>
+                                                                    <input class="form-control" type="number" th:field="*{trainingSet.minReps}" id="min_reps">
+                                                                    <label class="form-label" for="max_reps"><strong>Max Reps</strong></label>
+                                                                    <input class="form-control" type="number" th:field="*{trainingSet.maxReps}" id="max_reps">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label" for="rest"><strong>Rest</strong></label>
+                                                                    <input class="form-control" type="number" th:field="*{trainingSet.rest}" id="rest">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label" for="weight"><strong>Weight</strong></label>
+                                                                    <input class="form-control" type="number" step=".25" th:field="*{trainingSet.weight}" id="weight">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col col-xxl-12">
+                                                                <div class="mb-3">
+                                                                    <button class="btn btn-primary btn-sm" type="submit">Add Exercise</button>
+                                                                </div>
+                                                                <div class="mb-3"></div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                            </div>
+                                        </div>
+                                        <div class="col col-xxl-12">
+                                        <div class="mb-3"></div>
+                                             <div class="table-responsive mt-2 table" id="dataTable-2" role="grid" aria-describedby="dataTable_info">
+                                                 <table class="table my-0" id="dataTable">
+                                                     <thead>
+                                                         <tr >
+                                                             <th>Exercise</th>
+                                                             <th>Sets</th>
+                                                             <th>Rep-range</th>
+                                                             <th>Weight</th>
+                                                             <th>Rest</th>
+                                                             <th></th>
+                                                             <th></th>
+                                                         </tr>
+                                                     </thead>
+                                                     <tbody>
+                                                         <tr th:each="ex : ${workoutExercises}">
+                                                             <td th:text="${ex.exerciseName}">Bench Press</td>
+                                                             <td th:text="${ex.sets}">4</td>
+                                                             <td th:text="${ex.minReps + ' - ' + ex.maxReps}">10</td>
+                                                             <td th:text="${ex.weight}">60</td>
+                                                             <td th:text="${ex.rest}">60</td>
+                                                             <td><button class="btn btn-primary" type="button">Edit</button></td>
+                                                             <td><button class="btn btn-danger" type="button">Delete</button></td>
+                                                         </tr>
+                                                     </tbody>
+                                                 </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm" type="submit">Confirm</button>
                                 </div>
                             </div>
                         </div>

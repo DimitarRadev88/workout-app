@@ -1,14 +1,18 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
 import com.dimitarrradev.workoutScheduler.exercise.dto.TrainingSetsServiceModel;
-import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
+import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.trainingSet.service.TrainingSetService;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
+import com.dimitarrradev.workoutScheduler.web.WorkoutViewServiceModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import com.dimitarrradev.workoutScheduler.workout.dao.WorkoutRepository;
 import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class WorkoutService {
@@ -49,5 +53,20 @@ public class WorkoutService {
                         )).toList()
                 )
         ).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+    }
+
+    public List<WorkoutViewServiceModel> getAllByUserUsername(String username) {
+        return workoutRepository.findAllByUser_UsernameOrderByWorkoutDateTimeDesc(username)
+                .stream()
+                .map(workout -> new WorkoutViewServiceModel(
+                        workout.getId(),
+                        workout.getWorkoutType(),
+                        workout.getWorkoutDateTime(),
+                        workout.getTargetBodyParts()
+                                .stream()
+                                .map(TargetBodyPart::getName)
+                                .collect(Collectors.joining(", ")))
+                )
+                .toList();
     }
 }

@@ -13,6 +13,8 @@ import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ImageUrlViewModel;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -329,6 +331,13 @@ public class ExerciseService {
 
         return exerciseRepository
                 .findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyPartList)
+                .stream()
+                .map(ex -> new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()))
+                .toList();
+    }
+
+    public List<ExerciseNameAndIdViewModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
+        return exerciseRepository.findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyParts)
                 .stream()
                 .map(ex -> new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()))
                 .toList();
