@@ -5,7 +5,7 @@ import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import com.dimitarrradev.workoutScheduler.trainingSet.service.TrainingSetService;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
-import com.dimitarrradev.workoutScheduler.web.WorkoutViewServiceModel;
+import com.dimitarrradev.workoutScheduler.web.binding.WorkoutViewServiceModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseTrainingSetsBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;

@@ -84,10 +84,23 @@ public class WorkoutController {
     public String getWorkoutEdit(@PathVariable Long id, Model model) {
         WorkoutEditServiceModel workoutEditServiceModel = workoutService.getWorkout(id);
         WorkoutEditBindingModel workout = new WorkoutEditBindingModel(workoutEditServiceModel.workoutType(), workoutEditServiceModel.targetBodyParts());
+
         List<ExerciseNameAndIdViewModel> exercises = exerciseService.getExercisesForTargetBodyParts(workout.targetBodyParts());
         TargetBodyPart[] targets = TargetBodyPart.values();
 
-        ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel = new ExerciseTrainingSetsBindingModel(null, new TrainingSetBindingModel(null, null, null, null, null));
+        ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel;
+        if (!model.containsAttribute("exerciseTrainingSetsBindingModel")) {
+            TrainingSetBindingModel trainingSetBindingModel;
+            if (!model.containsAttribute("trainingSetBindingModel")) {
+                trainingSetBindingModel = new TrainingSetBindingModel(null, null, null, null, null);
+            } else {
+                trainingSetBindingModel = (TrainingSetBindingModel) model.getAttribute("trainingSet");
+            }
+            exerciseTrainingSetsBindingModel = new ExerciseTrainingSetsBindingModel(null, trainingSetBindingModel);
+        } else {
+            exerciseTrainingSetsBindingModel = (ExerciseTrainingSetsBindingModel) model.getAttribute("exerciseTrainingSetsBindingModel");
+        }
+
         model.addAttribute("workoutId", id);
         model.addAttribute("workout", workout);
         model.addAttribute("targets", targets);
@@ -102,13 +115,14 @@ public class WorkoutController {
     @PostMapping("/edit/{id}/addExercise")
     public String postBindExerciseToWorkout(
             @PathVariable Long id,
-            ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel,
+            @Valid ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("exerciseTrainingSetsBindingModel", exerciseTrainingSetsBindingModel);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseTrainingSetsBindingModel", bindingResult);
+            redirectAttributes.addFlashAttribute("trainingSetBindingModel", exerciseTrainingSetsBindingModel.trainingSet());
         } else {
             workoutService.addExerciseAndTrainingSetsToWorkout(id, exerciseTrainingSetsBindingModel);
         }
