@@ -27,8 +27,8 @@ public class TrainingSet extends BaseEntity {
     private Double weight;
     @Column(nullable = false)
     private Integer rest;
-    @Basic
-    private Boolean isCompleted;
+    @Column(nullable = false)
+    private Integer count;
 
     public Workout getWorkout() {
         return workout;
@@ -86,11 +86,11 @@ public class TrainingSet extends BaseEntity {
         this.rest = rest;
     }
 
-    public Boolean getCompleted() {
-        return isCompleted;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setCompleted(Boolean completed) {
-        isCompleted = completed;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

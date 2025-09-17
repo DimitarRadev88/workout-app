@@ -47,7 +47,7 @@ public class WorkoutService {
                         workout.getTrainingSets().stream().map(trainingSet -> new TrainingSetsServiceModel(
                                 trainingSet.getId(),
                                 trainingSet.getExercise().getName(),
-                                trainingSetService.getSetCountByWorkoutIdAndExerciseName(id, trainingSet.getExercise().getName()),
+                                trainingSet.getCount(),
                                 trainingSet.getMinReps(),
                                 trainingSet.getMaxReps(),
                                 trainingSet.getWeight(),
@@ -75,9 +75,9 @@ public class WorkoutService {
     public void addExerciseAndTrainingSetsToWorkout(Long id, ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel) {
         Workout workout = workoutRepository.findWorkoutById(id).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
 
-        List<TrainingSet> trainingSets = trainingSetService.createTrainingSets(exerciseTrainingSetsBindingModel, workout);
+        TrainingSet trainingSet = trainingSetService.createTrainingSet(exerciseTrainingSetsBindingModel, workout);
 
-        workout.getTrainingSets().addAll(trainingSets);
+        workout.getTrainingSets().add(trainingSet);
 
         workoutRepository.save(workout);
     }

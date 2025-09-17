@@ -7,10 +7,6 @@ import com.dimitarrradev.workoutScheduler.web.binding.ExerciseTrainingSetsBindin
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
-
 @Service
 public class TrainingSetService {
 
@@ -22,29 +18,25 @@ public class TrainingSetService {
         this.exerciseService = exerciseService;
     }
 
-    public long getSetCountByWorkoutIdAndExerciseName(long id, String name) {
-        return trainingSetRepository.countTrainingSetByWorkoutIdAndExerciseName(id, name);
+    public long getSetCountByWorkoutIdAndExerciseName(long id, String name, Integer minReps, Integer maxReps, Double weight) {
+        return trainingSetRepository.countTrainingSetByWorkoutIdAndExerciseNameAndMinRepsAndMaxRepsAndWeight(id, name, minReps, maxReps, weight);
     }
 
 
-    public List<TrainingSet> createTrainingSets(ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel, Workout workout) {
+    public TrainingSet createTrainingSet(ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel, Workout workout) {
         TrainingSet trainingSet = new TrainingSet();
         trainingSet.setExercise(exerciseService.getExercise(exerciseTrainingSetsBindingModel.exerciseId()));
         trainingSet.setMinReps(exerciseTrainingSetsBindingModel.trainingSet().minReps());
         trainingSet.setMaxReps(exerciseTrainingSetsBindingModel.trainingSet().maxReps());
         trainingSet.setRest(exerciseTrainingSetsBindingModel.trainingSet().rest());
         trainingSet.setWeight(exerciseTrainingSetsBindingModel.trainingSet().weight());
-        trainingSet.setCompleted(Boolean.FALSE);
+        trainingSet.setCount(exerciseTrainingSetsBindingModel.trainingSet().count());
         trainingSet.setWorkout(workout);
 
-        List<TrainingSet> trainingSetViewModels = new ArrayList<>();
+        return trainingSetRepository.save(trainingSet);
+    }
 
-        IntStream.range(0, exerciseTrainingSetsBindingModel.trainingSet().sets())
-                .forEach(i -> {
-                    trainingSetViewModels.add(trainingSetRepository.save(trainingSet));
-                });
-
-        return trainingSetViewModels;
-
+    public void delete(long id) {
+        trainingSetRepository.deleteById(id);
     }
 }

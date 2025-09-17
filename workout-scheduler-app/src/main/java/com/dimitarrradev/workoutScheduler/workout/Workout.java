@@ -20,7 +20,6 @@ import java.util.List;
 @Table(name = "workouts")
 public class Workout extends BaseEntity {
     @Column(nullable = false, name = "workout_date_time")
-    @FutureOrPresent
     @DateTimeFormat(pattern = "dd-MM-yyyy HH-mm")
     private LocalDateTime workoutDateTime;
     @OneToMany(mappedBy = "workout")

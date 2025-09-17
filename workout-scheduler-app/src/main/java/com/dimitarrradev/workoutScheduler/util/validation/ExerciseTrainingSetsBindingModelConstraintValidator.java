@@ -8,7 +8,7 @@ public class ExerciseTrainingSetsBindingModelConstraintValidator implements Cons
     @Override
     public boolean isValid(TrainingSetBindingModel trainingSetBindingModel, ConstraintValidatorContext constraintValidatorContext) {
         return trainingSetBindingModel != null &&
-                trainingSetBindingModel.sets() != null && trainingSetBindingModel.sets() > 0 &&
+                trainingSetBindingModel.count() != null && trainingSetBindingModel.count() > 0 &&
                 trainingSetBindingModel.minReps() != null && trainingSetBindingModel.minReps() > 0 &&
                 trainingSetBindingModel.maxReps() != null && trainingSetBindingModel.maxReps() > 0 &&
                 trainingSetBindingModel.minReps() <= trainingSetBindingModel.maxReps() &&

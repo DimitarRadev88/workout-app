@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TrainingSetRepository extends JpaRepository<TrainingSet, Long> {
-    long countTrainingSetByWorkoutIdAndExerciseName(Long workoutId, String exerciseName);
+    long countTrainingSetByWorkoutIdAndExerciseNameAndMinRepsAndMaxRepsAndWeight(Long workoutID, String exerciseName, Integer minReps, Integer maxReps, Double weight);
 }

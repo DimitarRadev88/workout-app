@@ -3,6 +3,7 @@ package com.dimitarrradev.workoutScheduler.web;
 import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseNameAndIdViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
+import com.dimitarrradev.workoutScheduler.trainingSet.service.TrainingSetService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
 import com.dimitarrradev.workoutScheduler.workout.service.WorkoutService;
 import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
@@ -13,10 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
@@ -28,10 +26,12 @@ public class WorkoutController {
     private static final Logger log = LoggerFactory.getLogger(WorkoutController.class);
     private final WorkoutService workoutService;
     private final ExerciseService exerciseService;
+    private final TrainingSetService trainingSetService;
 
-    public WorkoutController(WorkoutService workoutService, ExerciseService exerciseService) {
+    public WorkoutController(WorkoutService workoutService, ExerciseService exerciseService, TrainingSetService trainingSetService) {
         this.workoutService = workoutService;
         this.exerciseService = exerciseService;
+        this.trainingSetService = trainingSetService;
     }
 
     @GetMapping
@@ -113,7 +113,7 @@ public class WorkoutController {
     }
 
     @PostMapping("/edit/{id}/addExercise")
-    public String postBindExerciseToWorkout(
+    public String postAddExerciseToWorkout(
             @PathVariable Long id,
             @Valid ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel,
             BindingResult bindingResult,
@@ -128,6 +128,13 @@ public class WorkoutController {
         }
 
         return  "redirect:/workouts/edit/" + id;
+    }
+
+    @DeleteMapping("/edit/{workoutId}/deleteSet/{setId}")
+    public String deleteSet(@PathVariable Long workoutId, @PathVariable Long setId) {
+        trainingSetService.delete(setId);
+
+        return "redirect:/workouts/edit/" + workoutId;
     }
 
 }

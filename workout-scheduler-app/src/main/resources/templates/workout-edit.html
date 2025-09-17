@@ -30,10 +30,10 @@
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3">
-                                                            <label class="form-label" th:if="${#fields.hasErrors('workoutType')}">
-                                                                <strong class="text-danger" th:text="${#fields.errors('workoutType').getFirst()}">Type</strong>
+                                                            <label class="form-label" >
+                                                                <strong class="text-danger" th:if="${#fields.hasErrors('workoutType')}" th:text="${#fields.errors('workoutType').getFirst()}">Type</strong>
+                                                                <strong th:unless="${#fields.hasErrors('workoutType')}">Type</strong>
                                                             </label>
-                                                            <label class="form-label" th:unless="${#fields.hasErrors('workoutType')}"><strong>Type</strong></label>
                                                             <div class="form-check">
                                                                 <div id="select_complexity"
                                                                      th:each="type : ${T(com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType).values()}">
@@ -49,11 +49,9 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label class="col-form-label" th:if="${#fields.hasErrors('targetBodyParts')}">
-                                                            <strong class="text-danger" th:text="${#fields.errors('targetBodyParts').getFirst()}">Target</strong>
-                                                        </label>
-                                                        <label class="col-form-label" th:unless="${#fields.hasErrors('targetBodyParts')}">
-                                                            <strong>Target</strong>
+                                                        <label class="col-form-label">
+                                                            <strong class="text-danger" th:if="${#fields.hasErrors('targetBodyParts')}" th:text="${#fields.errors('targetBodyParts').getFirst()}">Target</strong>
+                                                            <strong th:unless="${#fields.hasErrors('targetBodyParts')}">Target</strong>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -106,13 +104,9 @@
                                                     <div class="row">
                                                         <div class="col">
                                                             <div class="mb-3">
-                                                                <label class="form-label" th:unless="${#fields.hasErrors('exerciseId')}"
-                                                                       for="exercises">
-                                                                    <strong>Exercise</strong><span class="text-danger" th:if="*{exerciseId == null}">*</span>
-                                                                </label>
-                                                                <label class="form-label text-danger" th:if="${#fields.hasErrors('exerciseId')}"
-                                                                       for="exercises">
-                                                                    <strong th:text="${#fields.errors('exerciseId').getFirst()}">Exercises</strong>
+                                                                <label class="form-label" for="exercises">
+                                                                    <strong th:unless="${#fields.hasErrors('exerciseId')}">Exercise</strong><span class="text-danger" th:if="*{exerciseId == null}">*</span>
+                                                                    <strong th:if="${#fields.hasErrors('exerciseId')}" th:text="${#fields.errors('exerciseId').getFirst()}">Exercises</strong>
                                                                 </label>
                                                                 <select class="form-select" id="exercises" th:field="*{exerciseId}">
                                                                     <option selected th:value="${null}">Select exercise</option>
@@ -124,17 +118,16 @@
                                                     <div class="row">
                                                         <div class="col">
                                                             <div class="mb-3">
-                                                                <label class="form-label" for="sets"><strong>Sets</strong><span class="text-danger" th:if="*{trainingSet.sets == null}">*</span></label>
-                                                                <input class="form-control" type="number" th:field="*{trainingSet.sets}" id="sets" min="1" required>
+                                                                <label class="form-label" for="sets"><strong>Sets</strong><span class="text-danger" th:if="*{trainingSet.count == null}">*</span></label>
+                                                                <input class="form-control" type="number" th:field="*{trainingSet.count}" id="sets" min="1" required>
                                                             </div>
                                                         </div>
                                                         <div class="col">
                                                             <div class="mb-3">
-                                                                <label class="form-label text-danger" th:if="*{trainingSet.minReps != null && trainingSet.maxReps != null && trainingSet.minReps > trainingSet.maxReps}">
-                                                                    <strong>Min reps must be less or equal to Max reps</strong>
-                                                                </label>
-                                                                <label class="form-label" th:unless="*{trainingSet.minReps != null && trainingSet.maxReps != null && trainingSet.minReps > trainingSet.maxReps}">
-                                                                    <strong>Reps</strong><span class="text-danger" th:if="*{trainingSet.minReps == null || trainingSet.maxReps == null}">*</span>
+                                                                <label class="form-label">
+                                                                    <strong class="text-danger" th:if="*{trainingSet.minReps > trainingSet.maxReps}">Min reps must be less or equal to Max reps</strong>
+                                                                    <strong th:unless="*{trainingSet.minReps != null && trainingSet.maxReps != null && trainingSet.minReps > trainingSet.maxReps}">Reps</strong>
+                                                                    <span class="text-danger" th:if="*{trainingSet.minReps == null || trainingSet.maxReps == null}">*</span>
                                                                 </label>
                                                                 <input class="form-control" type="number" th:field="*{trainingSet.minReps}" placeholder="Min reps" id="min_reps" min="1" required>
                                                                 <input class="form-control" type="number" th:field="*{trainingSet.maxReps}" placeholder="Max reps" id="max_reps" min="1" required>
@@ -184,12 +177,16 @@
                                                      <tbody>
                                                          <tr th:each="ex : ${workoutExercises}">
                                                              <td th:text="${ex.exerciseName}">Bench Press</td>
-                                                             <td th:text="${ex.sets}">4</td>
+                                                             <td th:text="${ex.count}">4</td>
                                                              <td th:text="${ex.minReps + ' - ' + ex.maxReps}">10</td>
                                                              <td th:text="${ex.weight}">60</td>
                                                              <td th:text="${ex.rest}">60</td>
-                                                             <td><button class="btn btn-primary" type="button">Edit</button></td>
-                                                             <td><button class="btn btn-danger" type="button">Delete</button></td>
+                                                             <td><a class="btn btn-primary" type="button">Edit</a></td>
+                                                             <td>
+                                                                 <form th:action="@{/workouts/edit/{workoutId}/deleteSet/{setId}(workoutId=${workoutId}, setId=${ex.id})}" th:method="@{DELETE}">
+                                                                     <button class="btn btn-danger"  type="submit">Delete</button>
+                                                                 </form>
+                                                             </td>
                                                          </tr>
                                                      </tbody>
                                                  </table>
