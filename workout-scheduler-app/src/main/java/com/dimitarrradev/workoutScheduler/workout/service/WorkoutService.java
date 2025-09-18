@@ -5,12 +5,14 @@ import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import com.dimitarrradev.workoutScheduler.trainingSet.service.TrainingSetService;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
+import com.dimitarrradev.workoutScheduler.web.binding.WorkoutEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutViewServiceModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseTrainingSetsBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import com.dimitarrradev.workoutScheduler.workout.dao.WorkoutRepository;
 import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -78,6 +80,15 @@ public class WorkoutService {
         TrainingSet trainingSet = trainingSetService.createTrainingSet(exerciseTrainingSetsBindingModel, workout);
 
         workout.getTrainingSets().add(trainingSet);
+
+        workoutRepository.save(workout);
+    }
+
+    public void doEdit(Long id, WorkoutEditBindingModel workoutEdit) {
+        Workout workout = workoutRepository.findWorkoutById(id).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+
+        workout.setWorkoutType(workoutEdit.workoutType());
+        workout.setTargetBodyParts(workoutEdit.targetBodyParts());
 
         workoutRepository.save(workout);
     }

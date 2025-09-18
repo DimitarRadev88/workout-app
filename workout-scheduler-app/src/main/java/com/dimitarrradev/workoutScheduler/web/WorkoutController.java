@@ -112,6 +112,18 @@ public class WorkoutController {
         return "workout-edit";
     }
 
+    @PatchMapping("/edit/{id}")
+    public String postWorkoutEdit(
+            @PathVariable Long id,
+            @Valid WorkoutEditBindingModel workout,
+            BindingResult bindingResult) {
+        if (!bindingResult.hasErrors()) {
+            workoutService.doEdit(id, workout);
+        }
+
+        return "redirect:/workouts/edit/" + id;
+    }
+
     @PostMapping("/edit/{id}/addExercise")
     public String postAddExerciseToWorkout(
             @PathVariable Long id,
