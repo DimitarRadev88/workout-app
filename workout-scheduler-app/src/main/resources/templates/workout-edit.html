@@ -161,39 +161,41 @@
                                         </div>
                                         <div class="col col-xxl-12">
                                         <div class="mb-3"></div>
-                                             <div class="table-responsive mt-2 table" id="dataTable-2" role="grid" aria-describedby="dataTable_info">
-                                                 <table class="table my-0" id="dataTable">
-                                                     <thead>
-                                                         <tr >
-                                                             <th>Exercise</th>
-                                                             <th>Sets</th>
-                                                             <th>Rep-range</th>
-                                                             <th>Weight</th>
-                                                             <th>Rest</th>
-                                                             <th></th>
-                                                             <th></th>
-                                                         </tr>
-                                                     </thead>
-                                                     <tbody>
-                                                         <tr th:each="ex : ${workoutExercises}">
-                                                             <td th:text="${ex.exerciseName}">Bench Press</td>
-                                                             <td th:text="${ex.count}">4</td>
-                                                             <td th:text="${ex.minReps + ' - ' + ex.maxReps}">10</td>
-                                                             <td th:text="${ex.weight}">60</td>
-                                                             <td th:text="${ex.rest}">60</td>
-                                                             <td><a class="btn btn-primary" type="button">Edit</a></td>
-                                                             <td>
-                                                                 <form th:action="@{/workouts/edit/{workoutId}/deleteSet/{setId}(workoutId=${workoutId}, setId=${ex.id})}" th:method="@{DELETE}">
-                                                                     <button class="btn btn-danger"  type="submit">Delete</button>
-                                                                 </form>
-                                                             </td>
-                                                         </tr>
-                                                     </tbody>
-                                                 </table>
-                                            </div>
+                                            <table class="table w-100 text-center" id="dataTable" style="table-layout: fixed;">
+                                                <thead>
+                                                <tr>
+                                                    <th>Exercise</th>
+                                                    <th>Sets</th>
+                                                    <th>Min reps</th>
+                                                    <th>Max reps</th>
+                                                    <th>Weight</th>
+                                                    <th>Rest</th>
+                                                    <th>Edit</th>
+                                                    <th>Delete</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr th:each="exercise : ${workoutExercises}">
+                                                    <form th:action="@{/workouts/{workoutId}/editExercise/{exerciseId}(workoutId=${workoutId}, exerciseId=${exercise.id})}" th:method="@{PATCH}">
+                                                        <td th:text="${exercise.exerciseName}">Bench Press</td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="1" required name="count" th:value="${exercise.count}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="1" required name="minReps" th:value="${exercise.minReps}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="1" required name="maxReps" th:value="${exercise.maxReps}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="0.5" step="0.25" required name="weight" th:value="${exercise.weight}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="15" required name="rest" th:value="${exercise.rest}"></td>
+                                                        <td><button class="btn btn-primary btn-sm" type="submit">Edit</button></td>
+                                                    </form>
+                                                    <td>
+                                                        <form th:action="@{/workouts/edit/{workoutId}/deleteSet/{setId}(workoutId=${workoutId}, setId=${exercise.id})}" th:method="@{DELETE}">
+                                                            <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+
                                         </div>
                                     </div>
-                                    <button class="btn btn-primary btn-sm" type="submit">Confirm</button>
                                 </div>
                             </div>
                         </div>

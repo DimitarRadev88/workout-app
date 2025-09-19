@@ -149,4 +149,15 @@ public class WorkoutController {
         return "redirect:/workouts/edit/" + workoutId;
     }
 
+    @PatchMapping("/{workoutId}/editExercise/{exerciseId}")
+    public String editExerciseInWorkout(
+            @PathVariable Long workoutId,
+            @PathVariable Long exerciseId,
+            ExerciseInWorkoutEditBidingModel exerciseEdit) {
+
+        trainingSetService.doEdit(exerciseId, exerciseEdit);
+
+        return "redirect:/workouts/edit/" + workoutId;
+    }
+
 }
