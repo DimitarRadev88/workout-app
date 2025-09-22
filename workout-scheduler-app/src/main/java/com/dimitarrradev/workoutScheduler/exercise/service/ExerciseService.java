@@ -8,15 +8,15 @@ import com.dimitarrradev.workoutScheduler.exercise.dto.*;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
+import com.dimitarrradev.workoutScheduler.util.mapping.WorkoutSchedulerMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.ImageUrlViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.ImageUrlViewModel;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,10 +34,13 @@ public class ExerciseService {
     private static final Logger log = LoggerFactory.getLogger(ExerciseService.class);
     private final ExerciseRepository exerciseRepository;
     private final ImageUrlRepository imageUrlRepository;
+    @Qualifier("exerciseMapper")
+    private final WorkoutSchedulerMapper<Exercise> mapper;
 
-    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository) {
+    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository, WorkoutSchedulerMapper<Exercise> workoutSchedulerMapper) {
         this.exerciseRepository = exerciseRepository;
         this.imageUrlRepository = imageUrlRepository;
+        this.mapper = workoutSchedulerMapper;
     }
 
     public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
@@ -45,14 +48,7 @@ public class ExerciseService {
             throw new IllegalArgumentException("Exercise already exists");
         }
 
-        Exercise exercise = new Exercise();
-        exercise.setName(exerciseAdd.exerciseName());
-        exercise.setDescription(exerciseAdd.description());
-        exercise.setTargetBodyPart(exerciseAdd.bodyPart());
-        exercise.setApproved(false);
-        exercise.setAddedBy(exerciseAdd.addedBy());
-        exercise.setComplexity(exerciseAdd.complexity());
-        exercise.setMovementType(exerciseAdd.movementType());
+        Exercise exercise = mapper.mapFrom(exerciseAdd);
 
         exerciseRepository.save(exercise);
     }
@@ -264,7 +260,7 @@ public class ExerciseService {
                 exercise.getMovementType().getName(),
                 exercise.getDescription(),
                 exercise.getImageURLs().stream()
-                        .map(imageUrl -> new com.dimitarrradev.workoutScheduler.exercise.dto.ImageUrlViewModel(
+                        .map(imageUrl -> new ImageUrlViewModel(
                                 imageUrl.getId(),
                                 imageUrl.getUrl()
                         ))
@@ -292,6 +288,8 @@ public class ExerciseService {
                     }).toList();
             exercise.getImageURLs().addAll(list);
         }
+
+        exercise.setApproved(exerciseEdit.isApproved());
 
         exerciseRepository.save(exercise);
     }

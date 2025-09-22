@@ -80,7 +80,7 @@
                                                         <input class="form-control" th:value="*{exerciseName}" type="text" id="exerciseName" placeholder="Bench Press" name="exerciseName"></div>
                                                 </div>
                                                 <div class="col" hidden disabled>
-                                                    <input class="form-control" th:value="${username}" th:field="*{addedBy}" type="text" id="username" placeholder="Bench, Barbell" name="username">
+                                                    <input class="form-control" th:value="${#authentication.getName()}" th:field="*{addedBy}" type="text" id="username" placeholder="Bench, Barbell" name="username">
                                                 </div>
                                             </div>
                                             <div class="row">
