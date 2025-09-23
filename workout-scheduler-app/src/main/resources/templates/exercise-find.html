@@ -170,13 +170,13 @@
                                                     <ul class="pagination">
                                                         <li class="page-item">
                                                             <a class="page-link" th:if="${pageNumber > 1}" aria-label="First"
-                                                               th:href="@{/exercises/for-review(pageNumber=${1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
+                                                               th:href="@{/exercises/find/{targetBodyParts}(targetBodyParts=${exerciseFind.targetBodyPart()}, pageNumber=${1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
                                                                <span aria-hidden="true">«</span>
                                                             </a>
                                                         </li>
                                                         <li class="page-item">
                                                             <a class="page-link" th:if="${pageNumber > 1}" aria-label="Previous"
-                                                               th:href="@{/exercises/for-review(pageNumber=${pageNumber - 1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
+                                                               th:href="@{/exercises/find/{targetBodyParts}(targetBodyParts=${exerciseFind.targetBodyPart()}, pageNumber=${pageNumber - 1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
                                                                 <span aria-hidden="true">‹</span>
                                                             </a>
                                                         </li>
@@ -185,13 +185,13 @@
                                                         </li>
                                                         <li class="page-item">
                                                             <a class="page-link" th:if="${pageNumber < pagesCount}" aria-label="Next"
-                                                               th:href="@{/exercises/for-review(pageNumber=${pageNumber + 1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
+                                                               th:href="@{/exercises/find/{targetBodyParts}(targetBodyParts=${exerciseFind.targetBodyPart()}, pageNumber=${pageNumber + 1}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
                                                                <span aria-hidden="true">›</span>
                                                             </a>
                                                         </li>
                                                         <li class="page-item">
                                                             <a class="page-link" th:if="${pageNumber < pagesCount}" aria-label="Last"
-                                                               th:href="@{/exercises/for-review(pageNumber=${pagesCount}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
+                                                               th:href="@{/exercises/find/{targetBodyParts}(targetBodyParts=${exerciseFind.targetBodyPart()}, pageNumber=${pagesCount}, sortDirection=${sortDirection}, pageSize=${pageSize})}">
                                                                <span aria-hidden="true">»</span>
                                                             </a>
                                                         </li>

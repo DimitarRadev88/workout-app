@@ -45,13 +45,14 @@ public class ExerciseController {
         model.addAttribute("sortDirection", sortDirection);
         model.addAttribute("muscleGroup", muscleGroup);
 
-        PageAndExerciseFindServiceView dataAndExerciseViewModel = exerciseService.getPaginatedAndSortedDataAndExerciseActiveTrue(exerciseFind, pageNumber, pageSize, sortDirection);
+        Page<ExerciseFindViewModel> activeExercisesPage = exerciseService.findActiveExercisesPage(exerciseFind, pageNumber, pageSize, sortDirection);
+        PageInformation pageInformation = exerciseService.getPageInfo(activeExercisesPage);
 
-        model.addAttribute("pageSizes", dataAndExerciseViewModel.pageSizes());
-        model.addAttribute("elementsCount", dataAndExerciseViewModel.totalElements());
-        model.addAttribute("pagesCount", dataAndExerciseViewModel.totalPages());
-        model.addAttribute("exercises", dataAndExerciseViewModel.exercises());
-        model.addAttribute("shownElements", dataAndExerciseViewModel.shownElementsRangeAndTotalCountString());
+        model.addAttribute("pageSizes", pageInformation.pageSizes());
+        model.addAttribute("elementsCount", activeExercisesPage.getTotalElements());
+        model.addAttribute("pagesCount", activeExercisesPage.getTotalPages());
+        model.addAttribute("exercises", activeExercisesPage.getContent());
+        model.addAttribute("shownElements", pageInformation.shownElementsRangeAndTotalCountString());
         model.addAttribute("exerciseFind", exerciseFind);
 
         return "exercise-find";

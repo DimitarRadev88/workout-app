@@ -1,7 +1,6 @@
 package com.dimitarrradev.workoutScheduler.exercise.dao;
 
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
-import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseNameAndIdViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
@@ -40,5 +39,7 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     List<Exercise> findAllByApprovedTrue();
 
     List<Exercise> findAllByApprovedTrueAndTargetBodyPartIsIn(Collection<TargetBodyPart> targetBodyParts);
+
+    Page<Exercise> findAllByApprovedTrueAndNameContainingIgnoreCase(Pageable approved, String name);
 }
 

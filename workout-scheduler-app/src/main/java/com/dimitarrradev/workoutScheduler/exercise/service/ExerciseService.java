@@ -12,7 +12,6 @@ import com.dimitarrradev.workoutScheduler.util.mapping.WorkoutSchedulerMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
-import com.dimitarrradev.workoutScheduler.exercise.dto.ImageUrlViewModel;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,6 +235,138 @@ public class ExerciseService {
         );
     }
 
+    public Page<ExerciseFindViewModel> findActiveExercisesPage(ExerciseFindBindingModel exerciseFind, int pageNumber, int pageSize, String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase("asc") ?
+                Sort.by("name").ascending() :
+                Sort.by("name").descending();
+
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
+
+        if (exerciseFind.name() != null && !exerciseFind.name().isEmpty()) {
+            return exerciseRepository
+                    .findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, exerciseFind.name())
+                    .map(exercise -> new ExerciseFindViewModel(
+                            exercise.getId(),
+                            exercise.getName(),
+                            exercise.getComplexity(),
+                            exercise.getMovementType()
+                    ));
+        }
+
+        TargetBodyPart targetBodyPart = exerciseFind.targetBodyPart() == null ? TargetBodyPart.ALL : exerciseFind.targetBodyPart();
+
+        Complexity complexity = exerciseFind.complexity() == null ? Complexity.ALL : exerciseFind.complexity();
+
+        MovementType movementType = exerciseFind.movementType() == null ? MovementType.All : exerciseFind.movementType();
+
+        if (!targetBodyPart.equals(TargetBodyPart.ALL)) {
+            if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
+                return exerciseRepository
+                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementType(
+                                pageable,
+                                targetBodyPart,
+                                complexity,
+                                movementType
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            } else if (!complexity.equals(Complexity.ALL)) {
+                return exerciseRepository
+                        .findAllByApprovedTrueAndTargetBodyPartAndComplexity(
+                                pageable,
+                                targetBodyPart,
+                                complexity
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            } else if (!movementType.equals(MovementType.All)) {
+                return exerciseRepository
+                        .findAllByApprovedTrueAndTargetBodyPartAndMovementType(
+                                pageable,
+                                targetBodyPart,
+                                movementType
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            } else {
+                return exerciseRepository
+                        .findAllByApprovedTrueAndTargetBodyPart(
+                                pageable,
+                                exerciseFind.targetBodyPart()
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            }
+        } else {
+            if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
+                return exerciseRepository
+                        .findAllByApprovedTrueAndComplexityAndMovementType(
+                                pageable,
+                                complexity,
+                                movementType
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            } else if (!complexity.equals(Complexity.ALL)) {
+                return exerciseRepository
+                        .findAllByApprovedTrueAndComplexity(
+                                pageable,
+                                complexity
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+
+            } else if (!movementType.equals(MovementType.All)) {
+                return exerciseRepository
+                        .findAllByApprovedTrueAndMovementType(
+                                pageable,
+                                movementType
+                        )
+                        .map(exercise -> new ExerciseFindViewModel(
+                                exercise.getId(),
+                                exercise.getName(),
+                                exercise.getComplexity(),
+                                exercise.getMovementType()
+                        ));
+            }
+            return exerciseRepository
+                    .findAllByApprovedTrue(
+                            pageable
+                    )
+                    .map(exercise -> new ExerciseFindViewModel(
+                            exercise.getId(),
+                            exercise.getName(),
+                            exercise.getComplexity(),
+                            exercise.getMovementType()
+                    ));
+        }
+
+    }
+
     @Transactional
     public ExerciseViewModel getExerciseView(Long id) {
         Exercise exercise = exerciseRepository
@@ -317,14 +448,18 @@ public class ExerciseService {
         return exerciseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
     }
 
-    public PageInformation getPageInfo(Page<ExerciseForReviewViewModel> page) {
+    public <T> PageInformation getPageInfo(Page<T> page) {
+        long elementsShownFrom = page.getTotalElements() == 0 ? 0 : Math.min(page.getTotalElements(), (long) (page.getNumber() + 1) * page.getSize());
+        long elementsShownTo = (page.getNumber() + 1) < page.getTotalPages() ? (long) (page.getNumber() + 1) * page.getSize() : page.getTotalElements();
+        List<Integer> pageSizes = List.of(5, 10, 25, 50);
+
         return new PageInformation(
                 String.format("Showing %d to %d of %d exercises",
-                        page.getTotalElements() == 0 ? 0 : Math.min(page.getTotalElements(), (long) (page.getNumber() + 1) * page.getSize()),
-                        (page.getNumber() + 1) < page.getTotalPages() ? (long) (page.getNumber() + 1) * page.getSize() : page.getTotalElements(),
+                        elementsShownFrom,
+                        elementsShownTo,
                         page.getTotalElements()
                 ),
-                List.of(5, 10, 25, 50)
+                pageSizes
         );
     }
 }

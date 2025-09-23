@@ -2,10 +2,7 @@ package com.dimitarrradev.workoutScheduler.exercise;
 
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlRepository;
-import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseForReviewViewModel;
-import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseNameAndIdViewModel;
-import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseViewModel;
-import com.dimitarrradev.workoutScheduler.exercise.dto.ImageUrlViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.*;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
@@ -343,6 +340,52 @@ public class ExerciseServiceUnitTests {
         ));
 
         assertThat(exerciseService.getExercisesForReviewPage(1, 10, "asc")).isEqualTo(expected);
+    }
+
+    @Test
+    void testApproveExerciseSetsExerciseToApprovedAndSavesItWhenFoundInRepository() {
+        Mockito
+                .when(exerciseRepository.findById(exercise.getId()))
+                .thenReturn(Optional.of(exercise));
+
+        exerciseService.approveExercise(exercise.getId());
+
+        assertThat(exercise.getApproved()).isEqualTo(true);
+        Mockito
+                .verify(exerciseRepository, Mockito.times(1))
+                .save(exercise);
+    }
+
+    @Test
+    void testApproveExerciseThrowsWhenExerciseNotFoundInRepository() {
+        Mockito
+                .when(exerciseRepository.findById(exercise.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> exerciseService.approveExercise(exercise.getId()));
+    }
+
+    @Test
+    void testGetPageInfoReturnsCorrectPageInformation() {
+        Page<ExerciseForReviewViewModel> page = new PageImpl<>(List.of(new ExerciseForReviewViewModel(
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getDescription(),
+                exercise.getComplexity(),
+                exercise.getMovementType(),
+                exercise.getAddedBy()
+        )));
+
+        PageInformation expected = new PageInformation(
+                String.format("Showing %d to %d of %d exercises",
+                page.getTotalElements() == 0 ? 0 : Math.min(page.getTotalElements(), (long) (page.getNumber() + 1) * page.getSize()),
+                (page.getNumber() + 1) < page.getTotalPages() ? (long) (page.getNumber() + 1) * page.getSize() : page.getTotalElements(),
+                page.getTotalElements()
+                ),
+                List.of(5, 10, 25, 50)
+        );
+
+        assertThat(exerciseService.getPageInfo(page)).isEqualTo(expected);
     }
 
 }
