@@ -57,14 +57,14 @@ public class ExerciseService {
         return exerciseRepository.countAllByApprovedFalse();
     }
 
-    public PageAndExerciseReviewServiceView getPaginatedAndSortedDataAndExerciseActiveFalse(int pageNumber, int pageSize, String sortDirection) {
+    public Page<ExerciseForReviewViewModel> getExercisesForReviewPage(int pageNumber, int pageSize, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("asc") ?
                 Sort.by("name").ascending() :
                 Sort.by("name").descending();
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 
-        Page<ExerciseForReviewViewModel> page = exerciseRepository
+        return exerciseRepository
                 .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
                 .map(exercise -> new ExerciseForReviewViewModel(
                         exercise.getId(),
@@ -74,18 +74,6 @@ public class ExerciseService {
                         exercise.getMovementType(),
                         exercise.getAddedBy()
                 ));
-
-        return new PageAndExerciseReviewServiceView(
-                page.getContent(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                String.format("Showing %d to %d of %d exercises",
-                        page.getTotalElements() == 0 ? 0 : (pageNumber - 1) * pageSize + 1,
-                        pageNumber < page.getTotalPages() ? (long) pageNumber * pageSize : page.getTotalElements(),
-                        page.getTotalElements()
-                ),
-                List.of(5, 10, 25, 50)
-        );
     }
 
     public void approveExercise(Long id) {
@@ -327,5 +315,16 @@ public class ExerciseService {
 
     public Exercise getExercise(Long id) {
         return exerciseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+    }
+
+    public PageInformation getPageInfo(Page<ExerciseForReviewViewModel> page) {
+        return new PageInformation(
+                String.format("Showing %d to %d of %d exercises",
+                        page.getTotalElements() == 0 ? 0 : Math.min(page.getTotalElements(), (long) (page.getNumber() + 1) * page.getSize()),
+                        (page.getNumber() + 1) < page.getTotalPages() ? (long) (page.getNumber() + 1) * page.getSize() : page.getTotalElements(),
+                        page.getTotalElements()
+                ),
+                List.of(5, 10, 25, 50)
+        );
     }
 }

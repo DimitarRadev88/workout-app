@@ -2,6 +2,7 @@ package com.dimitarrradev.workoutScheduler.exercise;
 
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlRepository;
+import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseForReviewViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseNameAndIdViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.ImageUrlViewModel;
@@ -19,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -320,6 +322,27 @@ public class ExerciseServiceUnitTests {
                 .thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> exerciseService.getExercise(1L));
+    }
+
+    @Test
+    void testGetExercisesForReviewPageReturnsCorrectListOfExercisesForReviewViewModel() {
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
+
+        Page<Exercise> page = new PageImpl<>(List.of(exercise));
+        Mockito
+                .when(exerciseRepository.findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, ""))
+                .thenReturn(page);
+
+        Page<ExerciseForReviewViewModel> expected = page.map(exercise -> new ExerciseForReviewViewModel(
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getDescription(),
+                exercise.getComplexity(),
+                exercise.getMovementType(),
+                exercise.getAddedBy()
+        ));
+
+        assertThat(exerciseService.getExercisesForReviewPage(1, 10, "asc")).isEqualTo(expected);
     }
 
 }

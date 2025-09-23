@@ -1,12 +1,11 @@
 package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseViewModel;
-import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseFindServiceView;
-import com.dimitarrradev.workoutScheduler.exercise.dto.PageAndExerciseReviewServiceView;
+import com.dimitarrradev.workoutScheduler.exercise.dto.*;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -166,13 +165,14 @@ public class ExerciseController {
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sortDirection", sortDirection);
 
-        PageAndExerciseReviewServiceView dataAndExercise = exerciseService.getPaginatedAndSortedDataAndExerciseActiveFalse(pageNumber, pageSize, sortDirection);
+        Page<ExerciseForReviewViewModel> exercises = exerciseService.getExercisesForReviewPage(pageNumber, pageSize, sortDirection);
+        PageInformation pageInfo = exerciseService.getPageInfo(exercises);
 
-        model.addAttribute("pageSizes", dataAndExercise.pageSizes());
-        model.addAttribute("elementsCount", dataAndExercise.totalElements());
-        model.addAttribute("pagesCount", dataAndExercise.totalPages());
-        model.addAttribute("exercisesForReview", dataAndExercise.exercises());
-        model.addAttribute("shownElements", dataAndExercise.shownElementsRangeAndTotalCountString());
+        model.addAttribute("pageSizes", pageInfo.pageSizes());
+        model.addAttribute("elementsCount", exercises.getTotalElements());
+        model.addAttribute("pagesCount", exercises.getTotalPages());
+        model.addAttribute("exercisesForReview", exercises.getContent());
+        model.addAttribute("shownElements", pageInfo.shownElementsRangeAndTotalCountString());
 
         return "exercises-for-review";
     }
