@@ -14,6 +14,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/exercises")
 public class ExerciseController {
@@ -40,6 +42,7 @@ public class ExerciseController {
             exerciseFind = (ExerciseFindBindingModel) model.getAttribute("exerciseFind");
         }
 
+        model.addAttribute("name", name);
         model.addAttribute("pageNumber", pageNumber);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sortDirection", sortDirection);
@@ -48,10 +51,13 @@ public class ExerciseController {
         Page<ExerciseFindViewModel> activeExercisesPage = exerciseService.findActiveExercisesPage(exerciseFind, pageNumber, pageSize, sortDirection);
         PageInformation pageInformation = exerciseService.getPageInfo(activeExercisesPage);
 
+        List<ExerciseFindViewModel> allActiveExercises = exerciseService.getAllActiveExercises();
+
         model.addAttribute("pageSizes", pageInformation.pageSizes());
         model.addAttribute("elementsCount", activeExercisesPage.getTotalElements());
         model.addAttribute("pagesCount", activeExercisesPage.getTotalPages());
         model.addAttribute("exercises", activeExercisesPage.getContent());
+        model.addAttribute("activeExercises", allActiveExercises);
         model.addAttribute("shownElements", pageInformation.shownElementsRangeAndTotalCountString());
         model.addAttribute("exerciseFind", exerciseFind);
 

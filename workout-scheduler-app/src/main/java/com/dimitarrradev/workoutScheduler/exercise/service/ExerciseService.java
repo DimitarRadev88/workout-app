@@ -119,6 +119,8 @@ public class ExerciseService {
             return getExerciseFindViewModelPageByTargetBodyPartComplexityAndActiveTrue(pageable, targetBodyPart, complexity);
         } else if (!targetBodyPart.equals(TargetBodyPart.ALL) && !movementType.equals(MovementType.ALL)) {
             return getExerciseFindViewModelPageByTargetBodyPartMovementTypeAndActiveTrue(pageable, targetBodyPart, movementType);
+        } else if (!targetBodyPart.equals(TargetBodyPart.ALL)) {
+            return getExerciseFindViewModelPageByTargetBodyPartAndActiveTrue(pageable, targetBodyPart);
         } else if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.ALL)) {
             return getExerciseFindViewModelPageByComplexityMovementTypeAndActiveTrue(pageable, complexity, movementType);
         } else if (!complexity.equals(Complexity.ALL)) {
@@ -128,6 +130,20 @@ public class ExerciseService {
         }
 
         return getExerciseFindViewModelPageByActiveTrue(pageable);
+    }
+
+    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart) {
+        return exerciseRepository
+                .findAllByApprovedTrueAndTargetBodyPart(
+                        pageable,
+                        targetBodyPart
+                )
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
     }
 
     private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByActiveTrue(Pageable pageable) {
@@ -315,14 +331,17 @@ public class ExerciseService {
     }
 
     public List<ExerciseNameAndIdViewModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
-        return exerciseRepository.findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyParts)
+        return exerciseRepository
+                .findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyParts)
                 .stream()
                 .map(ex -> new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()))
                 .toList();
     }
 
     public Exercise getExercise(Long id) {
-        return exerciseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+        return exerciseRepository
+                .findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
     }
 
     public <T> PageInformation getPageInfo(Page<T> page) {
@@ -338,5 +357,18 @@ public class ExerciseService {
                 ),
                 pageSizes
         );
+    }
+
+    public List<ExerciseFindViewModel> getAllActiveExercises() {
+        return exerciseRepository
+                .findAllByApprovedTrue()
+                .stream()
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ))
+                .toList();
     }
 }

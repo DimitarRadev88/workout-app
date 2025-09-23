@@ -287,7 +287,9 @@ public class ExerciseServiceUnitTests {
         crunches.setTargetBodyPart(TargetBodyPart.ABS);
         crunches.setMovementType(MovementType.ISOLATION);
 
-        List<Exercise> exercises = List.of(crunches);
+
+        List<Exercise> exercises = getExerciseList(10);
+
 
         Mockito
                 .when(exerciseRepository.findAllByApprovedTrueAndTargetBodyPartIsIn(List.of(TargetBodyPart.ABS)))
@@ -325,7 +327,7 @@ public class ExerciseServiceUnitTests {
     void testGetExercisesForReviewPageReturnsCorrectListOfExercisesForReviewViewModel() {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        Page<Exercise> page = new PageImpl<>(List.of(exercise));
+        Page<Exercise> page = new PageImpl<>(getExerciseList(6));
         Mockito
                 .when(exerciseRepository.findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, ""))
                 .thenReturn(page);
@@ -386,6 +388,50 @@ public class ExerciseServiceUnitTests {
         );
 
         assertThat(exerciseService.getPageInfo(page)).isEqualTo(expected);
+    }
+
+    @Test
+    void testGetAllActiveExercisesReturnsCorrectListOfActiveExercises() {
+        List<Exercise> exerciseList = getExerciseList(5)
+                .stream()
+                .filter(exercise -> exercise.getApproved().equals(Boolean.TRUE))
+                .toList();
+
+        List<ExerciseFindViewModel> expected = exerciseList.stream().map(exercise -> new ExerciseFindViewModel(
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getComplexity(),
+                exercise.getMovementType()
+        )).toList();
+
+        Mockito.when(exerciseRepository.findAllByApprovedTrue())
+                .thenReturn(exerciseList);
+
+        assertThat(exerciseService.getAllActiveExercises()).isEqualTo(expected);
+    }
+
+    private List<Exercise> getExerciseList(int count) {
+        List<Exercise> exercises = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Exercise e = new Exercise();
+            e.setId((long) (i + 1));
+            e.setAddedBy("user" + i);
+            e.setName("Exercise " + i);
+            e.setDescription("Exercise description" + i);
+            if (i % 2 == 0) {
+                e.setApproved(true);
+                e.setComplexity(Complexity.EASY);
+                e.setMovementType(MovementType.ISOLATION);
+            } else {
+                e.setApproved(false);
+                e.setComplexity(Complexity.MEDIUM);
+                e.setMovementType(MovementType.ALL);
+            }
+
+            exercises.add(e);
+        }
+
+        return exercises;
     }
 
 }

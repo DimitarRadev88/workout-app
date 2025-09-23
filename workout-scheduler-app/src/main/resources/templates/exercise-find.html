@@ -119,7 +119,8 @@
                                                     <input id="exercise-search"
                                                            type="search"
                                                            class="form-control form-control-sm"
-                                                           placeholder="Search exercise"
+                                                           placeholder="Quick search"
+                                                           th:value="${name}"
                                                            onkeyup="handleKeyUp(event)"
                                                            onclick="showDropdown()"
                                                            onblur="hideDropdown()">
@@ -127,10 +128,10 @@
                                                         class="list-group position-absolute w-100"
                                                         style="top: 100%; left: 0; z-index: 1000; display: none; max-height: 200px; overflow-y: auto;">
                                                         <li class="list-group-item list-group-item-action"
-                                                            th:each="exercise : ${exercises}"
+                                                            th:each="exercise : ${activeExercises}"
                                                             th:attr="data-name=${exercise.name}"
                                                             onclick="handleExerciseClick(this)">
-                                                            <p th:text="${exercise.name()}"></p>
+                                                            <p th:text="${exercise.name}"></p>
                                                         </li>
                                                     </ul>
                                                 </div>
