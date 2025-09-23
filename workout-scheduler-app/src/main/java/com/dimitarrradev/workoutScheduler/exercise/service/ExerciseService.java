@@ -106,128 +106,142 @@ public class ExerciseService {
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 
         if (exerciseFind.name() != null && !exerciseFind.name().isEmpty()) {
-            return exerciseRepository
-                    .findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, exerciseFind.name())
-                    .map(exercise -> new ExerciseFindViewModel(
-                            exercise.getId(),
-                            exercise.getName(),
-                            exercise.getComplexity(),
-                            exercise.getMovementType()
-                    ));
+            return getActiveExercisesWithNameContaining(exerciseFind.name(), pageable);
         }
 
         TargetBodyPart targetBodyPart = exerciseFind.targetBodyPart() == null ? TargetBodyPart.ALL : exerciseFind.targetBodyPart();
-
         Complexity complexity = exerciseFind.complexity() == null ? Complexity.ALL : exerciseFind.complexity();
+        MovementType movementType = exerciseFind.movementType() == null ? MovementType.ALL : exerciseFind.movementType();
 
-        MovementType movementType = exerciseFind.movementType() == null ? MovementType.All : exerciseFind.movementType();
-
-        if (!targetBodyPart.equals(TargetBodyPart.ALL)) {
-            if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
-                return exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementType(
-                                pageable,
-                                targetBodyPart,
-                                complexity,
-                                movementType
-                        )
-                        .map(exercise -> new ExerciseFindViewModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getMovementType()
-                        ));
-            } else if (!complexity.equals(Complexity.ALL)) {
-                return exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPartAndComplexity(
-                                pageable,
-                                targetBodyPart,
-                                complexity
-                        )
-                        .map(exercise -> new ExerciseFindViewModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getMovementType()
-                        ));
-            } else if (!movementType.equals(MovementType.All)) {
-                return exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPartAndMovementType(
-                                pageable,
-                                targetBodyPart,
-                                movementType
-                        )
-                        .map(exercise -> new ExerciseFindViewModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getMovementType()
-                        ));
-            } else {
-                return exerciseRepository
-                        .findAllByApprovedTrueAndTargetBodyPart(
-                                pageable,
-                                exerciseFind.targetBodyPart()
-                        )
-                        .map(exercise -> new ExerciseFindViewModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getMovementType()
-                        ));
-            }
-        } else {
-            if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.All)) {
-                return exerciseRepository
-                        .findAllByApprovedTrueAndComplexityAndMovementType(
-                                pageable,
-                                complexity,
-                                movementType
-                        )
-                        .map(exercise -> new ExerciseFindViewModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getMovementType()
-                        ));
-            } else if (!complexity.equals(Complexity.ALL)) {
-                return exerciseRepository
-                        .findAllByApprovedTrueAndComplexity(
-                                pageable,
-                                complexity
-                        )
-                        .map(exercise -> new ExerciseFindViewModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getMovementType()
-                        ));
-
-            } else if (!movementType.equals(MovementType.All)) {
-                return exerciseRepository
-                        .findAllByApprovedTrueAndMovementType(
-                                pageable,
-                                movementType
-                        )
-                        .map(exercise -> new ExerciseFindViewModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getMovementType()
-                        ));
-            }
-            return exerciseRepository
-                    .findAllByApprovedTrue(
-                            pageable
-                    )
-                    .map(exercise -> new ExerciseFindViewModel(
-                            exercise.getId(),
-                            exercise.getName(),
-                            exercise.getComplexity(),
-                            exercise.getMovementType()
-                    ));
+        if (!targetBodyPart.equals(TargetBodyPart.ALL) && !complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.ALL)) {
+            return getExerciseFindViewModelPageByTargetBodyPartComplexityMovementTypeAndActiveTrue(pageable, targetBodyPart, complexity, movementType);
+        } else if (!targetBodyPart.equals(TargetBodyPart.ALL) && !complexity.equals(Complexity.ALL)) {
+            return getExerciseFindViewModelPageByTargetBodyPartComplexityAndActiveTrue(pageable, targetBodyPart, complexity);
+        } else if (!targetBodyPart.equals(TargetBodyPart.ALL) && !movementType.equals(MovementType.ALL)) {
+            return getExerciseFindViewModelPageByTargetBodyPartMovementTypeAndActiveTrue(pageable, targetBodyPart, movementType);
+        } else if (!complexity.equals(Complexity.ALL) && !movementType.equals(MovementType.ALL)) {
+            return getExerciseFindViewModelPageByComplexityMovementTypeAndActiveTrue(pageable, complexity, movementType);
+        } else if (!complexity.equals(Complexity.ALL)) {
+            return getExerciseFindViewModelPageByComplexityAndActiveTrue(pageable, complexity);
+        } else if (!movementType.equals(MovementType.ALL)) {
+            return getExerciseFindViewModelPageByMovementTypeAndActiveTrue(pageable, movementType);
         }
 
+        return getExerciseFindViewModelPageByActiveTrue(pageable);
+    }
+
+    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByActiveTrue(Pageable pageable) {
+        return exerciseRepository
+                .findAllByApprovedTrue(
+                        pageable
+                )
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
+    }
+
+    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByMovementTypeAndActiveTrue(Pageable pageable, MovementType movementType) {
+        return exerciseRepository
+                .findAllByApprovedTrueAndMovementType(
+                        pageable,
+                        movementType
+                )
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
+    }
+
+    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByComplexityAndActiveTrue(Pageable pageable, Complexity complexity) {
+        return exerciseRepository
+                .findAllByApprovedTrueAndComplexity(
+                        pageable,
+                        complexity
+                )
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
+    }
+
+    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByComplexityMovementTypeAndActiveTrue(Pageable pageable, Complexity complexity, MovementType movementType) {
+        return exerciseRepository
+                .findAllByApprovedTrueAndComplexityAndMovementType(
+                        pageable,
+                        complexity,
+                        movementType
+                )
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
+    }
+
+    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType) {
+        return exerciseRepository
+                .findAllByApprovedTrueAndTargetBodyPartAndMovementType(
+                        pageable,
+                        targetBodyPart,
+                        movementType
+                )
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
+    }
+
+    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartComplexityAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity) {
+        return exerciseRepository
+                .findAllByApprovedTrueAndTargetBodyPartAndComplexity(
+                        pageable,
+                        targetBodyPart,
+                        complexity
+                )
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
+    }
+
+    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartComplexityMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType) {
+        return exerciseRepository
+                .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementType(
+                        pageable,
+                        targetBodyPart,
+                        complexity,
+                        movementType
+                )
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
+    }
+
+
+    private Page<ExerciseFindViewModel> getActiveExercisesWithNameContaining(String exerciseName, Pageable pageable) {
+        return exerciseRepository
+                .findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, exerciseName)
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                ));
     }
 
     @Transactional

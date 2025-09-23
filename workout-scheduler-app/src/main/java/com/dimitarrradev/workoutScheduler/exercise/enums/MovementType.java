@@ -3,7 +3,7 @@ package com.dimitarrradev.workoutScheduler.exercise.enums;
 public enum MovementType {
     COMPOUND("Compound"),
     ISOLATION("Isolation"),
-    All("All");
+    ALL("All");
 
     private final String name;
     MovementType(String name) {
