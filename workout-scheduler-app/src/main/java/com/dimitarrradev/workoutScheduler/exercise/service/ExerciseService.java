@@ -1,21 +1,20 @@
 package com.dimitarrradev.workoutScheduler.exercise.service;
 
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
-import com.dimitarrradev.workoutScheduler.exercise.ImageUrl;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dto.*;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.workoutScheduler.util.mapping.WorkoutSchedulerMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.ExerciseFromBindingModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.ExerciseToViewModelMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,13 +31,14 @@ public class ExerciseService {
     private static final Logger log = LoggerFactory.getLogger(ExerciseService.class);
     private final ExerciseRepository exerciseRepository;
     private final ImageUrlRepository imageUrlRepository;
-    @Qualifier("exerciseMapper")
-    private final WorkoutSchedulerMapper<Exercise> mapper;
+    private final ExerciseFromBindingModelMapper mapperFrom;
+    private final ExerciseToViewModelMapper mapperTo;
 
-    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository, WorkoutSchedulerMapper<Exercise> workoutSchedulerMapper) {
+    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository, ExerciseFromBindingModelMapper mapperFrom, ExerciseToViewModelMapper mapperTo) {
         this.exerciseRepository = exerciseRepository;
         this.imageUrlRepository = imageUrlRepository;
-        this.mapper = workoutSchedulerMapper;
+        this.mapperFrom = mapperFrom;
+        this.mapperTo = mapperTo;
     }
 
     public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
@@ -47,7 +46,7 @@ public class ExerciseService {
             throw new IllegalArgumentException("Exercise already exists");
         }
 
-        Exercise exercise = mapper.mapFrom(exerciseAdd);
+        Exercise exercise = mapperFrom.fromExerciseAddBindingModel(exerciseAdd);
 
         exerciseRepository.save(exercise);
     }
@@ -65,14 +64,7 @@ public class ExerciseService {
 
         return exerciseRepository
                 .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
-                .map(exercise -> new ExerciseForReviewViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.description(),
-                        exercise.complexity(),
-                        exercise.movementType(),
-                        exercise.addedBy()
-                ));
+                .map(mapperTo::toExerciseForReviewViewModel);
     }
 
     public void approveExercise(Long id) {
@@ -83,17 +75,7 @@ public class ExerciseService {
         }
 
         exerciseOptional.ifPresent(exercise -> exerciseRepository.save(
-                new Exercise(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.targetBodyPart(),
-                        exercise.movementType(),
-                        exercise.description(),
-                        exercise.imageURLs(),
-                        Boolean.TRUE,
-                        exercise.addedBy(),
-                        exercise.complexity()
-                )
+                mapperFrom.fromExerciseToApprovedExerecise(exercise)
         ));
 
     }
@@ -147,26 +129,14 @@ public class ExerciseService {
                 .findAllByApprovedTrueAndTargetBodyPart(
                         pageable,
                         targetBodyPart
-                )
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                ).map(mapperTo::toExerciseFindViewModel);
     }
 
     private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByActiveTrue(Pageable pageable) {
         return exerciseRepository
                 .findAllByApprovedTrue(
                         pageable
-                )
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                ).map(mapperTo::toExerciseFindViewModel);
     }
 
     private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByMovementTypeAndActiveTrue(Pageable pageable, MovementType movementType) {
@@ -174,13 +144,7 @@ public class ExerciseService {
                 .findAllByApprovedTrueAndMovementType(
                         pageable,
                         movementType
-                )
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                ).map(mapperTo::toExerciseFindViewModel);
     }
 
     private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByComplexityAndActiveTrue(Pageable pageable, Complexity complexity) {
@@ -188,13 +152,7 @@ public class ExerciseService {
                 .findAllByApprovedTrueAndComplexity(
                         pageable,
                         complexity
-                )
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                ).map(mapperTo::toExerciseFindViewModel);
     }
 
     private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByComplexityMovementTypeAndActiveTrue(Pageable pageable, Complexity complexity, MovementType movementType) {
@@ -203,13 +161,7 @@ public class ExerciseService {
                         pageable,
                         complexity,
                         movementType
-                )
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                ).map(mapperTo::toExerciseFindViewModel);
     }
 
     private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType) {
@@ -218,13 +170,7 @@ public class ExerciseService {
                         pageable,
                         targetBodyPart,
                         movementType
-                )
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                ).map(mapperTo::toExerciseFindViewModel);
     }
 
     private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartComplexityAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity) {
@@ -233,13 +179,7 @@ public class ExerciseService {
                         pageable,
                         targetBodyPart,
                         complexity
-                )
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                ).map(mapperTo::toExerciseFindViewModel);
     }
 
     private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartComplexityMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType) {
@@ -249,25 +189,14 @@ public class ExerciseService {
                         targetBodyPart,
                         complexity,
                         movementType
-                )
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                ).map(mapperTo::toExerciseFindViewModel);
     }
 
 
     private Page<ExerciseFindViewModel> getActiveExercisesWithNameContaining(String exerciseName, Pageable pageable) {
         return exerciseRepository
                 .findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, exerciseName)
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ));
+                .map(mapperTo::toExerciseFindViewModel);
     }
 
     @Transactional
@@ -276,18 +205,7 @@ public class ExerciseService {
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
-        return new ExerciseViewModel(
-                exercise.name(),
-                exercise.complexity().getName(),
-                exercise.movementType().getName(),
-                exercise.description(),
-                exercise.imageURLs().stream()
-                        .map(imageUrl -> new ImageUrlViewModel(
-                                imageUrl.getId(),
-                                imageUrl.getUrl()
-                        ))
-                        .toList()
-        );
+        return mapperTo.toExerciseViewModel(exercise);
     }
 
     @Transactional
@@ -296,28 +214,7 @@ public class ExerciseService {
                 .findById(exerciseEdit.id())
                 .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
-        if (exerciseEdit.addImageUrls() != null && !exerciseEdit.addImageUrls().isBlank()) {
-            List<ImageUrl> list = Arrays.stream(exerciseEdit.addImageUrls().split(System.lineSeparator()))
-                    .map(url -> {
-                        ImageUrl imageUrl = new ImageUrl();
-                        imageUrl.setUrl(url.trim());
-                        imageUrl.setExercise(exercise);
-                        return imageUrl;
-                    }).toList();
-            exercise.imageURLs().addAll(list);
-        }
-
-        exerciseRepository.save(new Exercise(
-                exercise.id(),
-                exerciseEdit.name(),
-                exercise.targetBodyPart(),
-                exercise.movementType(),
-                exerciseEdit.description(),
-                exercise.imageURLs(),
-                exerciseEdit.approved(),
-                exercise.addedBy(),
-                exercise.complexity()
-        ));
+        exerciseRepository.save(mapperFrom.fromExerciseEditBindingModel(exercise, exerciseEdit));
     }
 
     public void deleteImageUrl(long id) {
@@ -327,13 +224,7 @@ public class ExerciseService {
     public ExerciseEditBindingModel getExerciseEditBindingModel(long id) {
         Exercise exercise = exerciseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
-        return new ExerciseEditBindingModel(
-                exercise.id(),
-                exercise.name(),
-                exercise.description(),
-                null,
-                exercise.approved()
-        );
+        return mapperTo.toExerciseEditBindingModel(exercise);
     }
 
     public List<ImageUrlViewModel> getExerciseImages(long exerciseId) {
@@ -349,7 +240,7 @@ public class ExerciseService {
         return exerciseRepository
                 .findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyParts)
                 .stream()
-                .map(ex -> new ExerciseNameAndIdViewModel(ex.id(), ex.name()))
+                .map(mapperTo::toExerciseNameAndIdViewModel)
                 .toList();
     }
 
@@ -378,12 +269,7 @@ public class ExerciseService {
         return exerciseRepository
                 .findAllByApprovedTrue()
                 .stream()
-                .map(exercise -> new ExerciseFindViewModel(
-                        exercise.id(),
-                        exercise.name(),
-                        exercise.complexity(),
-                        exercise.movementType()
-                ))
+                .map(mapperTo::toExerciseFindViewModel)
                 .toList();
     }
 }
