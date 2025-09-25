@@ -3,7 +3,7 @@ package com.dimitarrradev.workoutScheduler;
 import jakarta.persistence.*;
 
 @MappedSuperclass
-public abstract class BaseEntity {
+public class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -15,5 +15,4 @@ public abstract class BaseEntity {
     public void setId(Long id) {
         this.id = id;
     }
-
 }

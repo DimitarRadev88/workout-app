@@ -14,6 +14,6 @@ public record ExerciseEditBindingModel(
                 regexp = "^https?://[^\\s/$.?#].[^\\s]*(\\r?\\nhttps?://[^\\s/$.?#].[^\\s]*)*$",
                 message = IMAGE_URL_MESSAGE
         ) String addImageUrls,
-        Boolean isApproved
+        Boolean approved
 ) {
 }

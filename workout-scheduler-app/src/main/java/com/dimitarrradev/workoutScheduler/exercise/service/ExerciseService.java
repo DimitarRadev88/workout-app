@@ -66,12 +66,12 @@ public class ExerciseService {
         return exerciseRepository
                 .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
                 .map(exercise -> new ExerciseForReviewViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getDescription(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType(),
-                        exercise.getAddedBy()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.description(),
+                        exercise.complexity(),
+                        exercise.movementType(),
+                        exercise.addedBy()
                 ));
     }
 
@@ -82,10 +82,20 @@ public class ExerciseService {
             throw new IllegalArgumentException("Exercise not found");
         }
 
-        exerciseOptional.ifPresent(exercise -> {
-            exercise.setApproved(true);
-            exerciseRepository.save(exercise);
-        });
+        exerciseOptional.ifPresent(exercise -> exerciseRepository.save(
+                new Exercise(
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.targetBodyPart(),
+                        exercise.movementType(),
+                        exercise.description(),
+                        exercise.imageURLs(),
+                        Boolean.TRUE,
+                        exercise.addedBy(),
+                        exercise.complexity()
+                )
+        ));
+
     }
 
     public void deleteExercise(Long id) {
@@ -139,10 +149,10 @@ public class ExerciseService {
                         targetBodyPart
                 )
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -152,10 +162,10 @@ public class ExerciseService {
                         pageable
                 )
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -166,10 +176,10 @@ public class ExerciseService {
                         movementType
                 )
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -180,10 +190,10 @@ public class ExerciseService {
                         complexity
                 )
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -195,10 +205,10 @@ public class ExerciseService {
                         movementType
                 )
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -210,10 +220,10 @@ public class ExerciseService {
                         movementType
                 )
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -225,10 +235,10 @@ public class ExerciseService {
                         complexity
                 )
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -241,10 +251,10 @@ public class ExerciseService {
                         movementType
                 )
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -253,10 +263,10 @@ public class ExerciseService {
         return exerciseRepository
                 .findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, exerciseName)
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ));
     }
 
@@ -267,11 +277,11 @@ public class ExerciseService {
                 .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
         return new ExerciseViewModel(
-                exercise.getName(),
-                exercise.getComplexity().getName(),
-                exercise.getMovementType().getName(),
-                exercise.getDescription(),
-                exercise.getImageURLs().stream()
+                exercise.name(),
+                exercise.complexity().getName(),
+                exercise.movementType().getName(),
+                exercise.description(),
+                exercise.imageURLs().stream()
                         .map(imageUrl -> new ImageUrlViewModel(
                                 imageUrl.getId(),
                                 imageUrl.getUrl()
@@ -286,9 +296,6 @@ public class ExerciseService {
                 .findById(exerciseEdit.id())
                 .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
-        exercise.setName(exerciseEdit.name());
-        exercise.setDescription(exerciseEdit.description());
-
         if (exerciseEdit.addImageUrls() != null && !exerciseEdit.addImageUrls().isBlank()) {
             List<ImageUrl> list = Arrays.stream(exerciseEdit.addImageUrls().split(System.lineSeparator()))
                     .map(url -> {
@@ -297,12 +304,20 @@ public class ExerciseService {
                         imageUrl.setExercise(exercise);
                         return imageUrl;
                     }).toList();
-            exercise.getImageURLs().addAll(list);
+            exercise.imageURLs().addAll(list);
         }
 
-        exercise.setApproved(exerciseEdit.isApproved());
-
-        exerciseRepository.save(exercise);
+        exerciseRepository.save(new Exercise(
+                exercise.id(),
+                exerciseEdit.name(),
+                exercise.targetBodyPart(),
+                exercise.movementType(),
+                exerciseEdit.description(),
+                exercise.imageURLs(),
+                exerciseEdit.approved(),
+                exercise.addedBy(),
+                exercise.complexity()
+        ));
     }
 
     public void deleteImageUrl(long id) {
@@ -313,11 +328,11 @@ public class ExerciseService {
         Exercise exercise = exerciseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
         return new ExerciseEditBindingModel(
-                exercise.getId(),
-                exercise.getName(),
-                exercise.getDescription(),
+                exercise.id(),
+                exercise.name(),
+                exercise.description(),
                 null,
-                exercise.getApproved()
+                exercise.approved()
         );
     }
 
@@ -334,7 +349,7 @@ public class ExerciseService {
         return exerciseRepository
                 .findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyParts)
                 .stream()
-                .map(ex -> new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()))
+                .map(ex -> new ExerciseNameAndIdViewModel(ex.id(), ex.name()))
                 .toList();
     }
 
@@ -364,10 +379,10 @@ public class ExerciseService {
                 .findAllByApprovedTrue()
                 .stream()
                 .map(exercise -> new ExerciseFindViewModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getMovementType()
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.complexity(),
+                        exercise.movementType()
                 ))
                 .toList();
     }

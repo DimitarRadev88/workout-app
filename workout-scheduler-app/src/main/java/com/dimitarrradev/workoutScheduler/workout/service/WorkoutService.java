@@ -48,7 +48,7 @@ public class WorkoutService {
                         workout.getWorkoutDateTime(),
                         workout.getTrainingSets().stream().map(trainingSet -> new TrainingSetsServiceModel(
                                 trainingSet.getId(),
-                                trainingSet.getExercise().getName(),
+                                trainingSet.getExercise().name(),
                                 trainingSet.getCount(),
                                 trainingSet.getMinReps(),
                                 trainingSet.getMaxReps(),

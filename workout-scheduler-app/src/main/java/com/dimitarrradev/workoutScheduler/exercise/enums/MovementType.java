@@ -6,6 +6,7 @@ public enum MovementType {
     ALL("All");
 
     private final String name;
+
     MovementType(String name) {
         this.name = name;
     }
