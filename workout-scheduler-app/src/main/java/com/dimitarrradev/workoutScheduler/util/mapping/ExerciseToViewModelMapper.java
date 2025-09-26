@@ -10,20 +10,20 @@ public class ExerciseToViewModelMapper {
 
     public ExerciseFindViewModel toExerciseFindViewModel(Exercise exercise) {
         return new ExerciseFindViewModel(
-                exercise.id(),
-                exercise.name(),
-                exercise.complexity(),
-                exercise.movementType()
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getComplexity(),
+                exercise.getMovementType()
         );
     }
 
     public ExerciseViewModel toExerciseViewModel(Exercise exercise) {
         return new ExerciseViewModel(
-                exercise.name(),
-                exercise.complexity().getName(),
-                exercise.movementType().getName(),
-                exercise.description(),
-                exercise.imageURLs().stream()
+                exercise.getName(),
+                exercise.getComplexity().getName(),
+                exercise.getMovementType().getName(),
+                exercise.getDescription(),
+                exercise.getImageURLs().stream()
                         .map(imageUrl -> new ImageUrlViewModel(
                                 imageUrl.getId(),
                                 imageUrl.getUrl()
@@ -34,29 +34,29 @@ public class ExerciseToViewModelMapper {
 
     public ExerciseEditBindingModel toExerciseEditBindingModel(Exercise exercise) {
         return new ExerciseEditBindingModel(
-                exercise.id(),
-                exercise.name(),
-                exercise.description(),
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getDescription(),
                 null,
-                exercise.approved()
+                exercise.getApproved()
         );
     }
 
     public ExerciseNameAndIdViewModel toExerciseNameAndIdViewModel(Exercise exercise) {
         return new ExerciseNameAndIdViewModel(
-                exercise.id(),
-                exercise.name()
+                exercise.getId(),
+                exercise.getName()
         );
     }
 
     public ExerciseForReviewViewModel toExerciseForReviewViewModel(Exercise exercise) {
         return new ExerciseForReviewViewModel(
-                exercise.id(),
-                exercise.name(),
-                exercise.description(),
-                exercise.complexity(),
-                exercise.movementType(),
-                exercise.addedBy()
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getDescription(),
+                exercise.getComplexity(),
+                exercise.getMovementType(),
+                exercise.getAddedBy()
         );
     }
 

@@ -128,15 +128,15 @@ public class ExerciseServiceUnitTests {
                 .thenReturn(Optional.of(exercise));
 
         Exercise toSave = new Exercise(
-                exercise.id(),
-                exercise.name(),
-                exercise.targetBodyPart(),
-                exercise.movementType(),
-                exercise.description(),
-                exercise.imageURLs(),
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getTargetBodyPart(),
+                exercise.getMovementType(),
+                exercise.getDescription(),
+                exercise.getImageURLs(),
                 Boolean.TRUE,
-                exercise.addedBy(),
-                exercise.complexity()
+                exercise.getAddedBy(),
+                exercise.getComplexity()
         );
         when(mapperFrom.fromExerciseToApprovedExerecise(exercise))
                 .thenReturn(toSave);
@@ -180,11 +180,11 @@ public class ExerciseServiceUnitTests {
                 .thenReturn(Optional.of(exercise));
 
         ExerciseViewModel expected = new ExerciseViewModel(
-                exercise.name(),
-                exercise.complexity().getName(),
-                exercise.movementType().getName(),
-                exercise.description(),
-                exercise.imageURLs().stream().map(imageUrl -> new ImageUrlViewModel(
+                exercise.getName(),
+                exercise.getComplexity().getName(),
+                exercise.getMovementType().getName(),
+                exercise.getDescription(),
+                exercise.getImageURLs().stream().map(imageUrl -> new ImageUrlViewModel(
                         imageUrl.getId(),
                         imageUrl.getUrl()
                 )).toList()
@@ -219,19 +219,19 @@ public class ExerciseServiceUnitTests {
                     return imageUrl;
                 }).toList();
 
-        List<ImageUrl> imageUrls = new ArrayList<>(exercise.imageURLs());
+        List<ImageUrl> imageUrls = new ArrayList<>(exercise.getImageURLs());
         imageUrls.addAll(exerciseEditImageUrls);
 
         Exercise toSave = new Exercise(
-                exercise.id(),
+                exercise.getId(),
                 exerciseEdit.name(),
-                exercise.targetBodyPart(),
-                exercise.movementType(),
+                exercise.getTargetBodyPart(),
+                exercise.getMovementType(),
                 exerciseEdit.description(),
                 imageUrls,
                 exerciseEdit.approved(),
-                exercise.addedBy(),
-                exercise.complexity()
+                exercise.getAddedBy(),
+                exercise.getComplexity()
         );
 
         when(mapperFrom.fromExerciseEditBindingModel(exercise, exerciseEdit))
@@ -265,11 +265,11 @@ public class ExerciseServiceUnitTests {
                 .thenReturn(Optional.of(exercise));
 
         ExerciseEditBindingModel expected = new ExerciseEditBindingModel(
-                exercise.id(),
-                exercise.name(),
-                exercise.description(),
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getDescription(),
                 null,
-                exercise.approved()
+                exercise.getApproved()
         );
 
         when(mapperTo.toExerciseEditBindingModel(exercise))
@@ -290,10 +290,10 @@ public class ExerciseServiceUnitTests {
     @Test
     void testGetExerciseImagesReturnsCorrectListOfImageUrlViewModel() {
         when(imageUrlRepository.findByExercise_Id(1L))
-                .thenReturn(exercise.imageURLs());
+                .thenReturn(exercise.getImageURLs());
 
         List<ImageUrlViewModel> imageUrlViewModels = exercise
-                .imageURLs().
+                .getImageURLs().
                 stream()
                 .map(image -> new ImageUrlViewModel(image.getId(), image.getUrl()))
                 .toList();
@@ -319,7 +319,7 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exercises = getExerciseList(20)
                 .stream()
-                .filter(ex -> ex.targetBodyPart().equals(randomTargetBodyPart))
+                .filter(ex -> ex.getTargetBodyPart().equals(randomTargetBodyPart))
                 .toList();
 
         when(exerciseRepository.findAllByApprovedTrueAndTargetBodyPartIsIn(List.of(randomTargetBodyPart)))
@@ -327,12 +327,12 @@ public class ExerciseServiceUnitTests {
 
         List<ExerciseNameAndIdViewModel> expectedExercises = exercises
                 .stream()
-                .map(ex -> new ExerciseNameAndIdViewModel(ex.id(), ex.name()))
+                .map(ex -> new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()))
                 .toList();
 
         exercises.forEach(ex -> {
             when(mapperTo.toExerciseNameAndIdViewModel(ex))
-                    .thenReturn(new ExerciseNameAndIdViewModel(ex.id(), ex.name()));
+                    .thenReturn(new ExerciseNameAndIdViewModel(ex.getId(), ex.getName()));
         });
 
         List<ExerciseNameAndIdViewModel> exercisesViewByTargets = exerciseService.getExercisesForTargetBodyParts(List.of(randomTargetBodyPart));
@@ -367,23 +367,23 @@ public class ExerciseServiceUnitTests {
                 .thenReturn(page);
 
         Page<ExerciseForReviewViewModel> expected = page.map(exercise -> new ExerciseForReviewViewModel(
-                exercise.id(),
-                exercise.name(),
-                exercise.description(),
-                exercise.complexity(),
-                exercise.movementType(),
-                exercise.addedBy()
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getDescription(),
+                exercise.getComplexity(),
+                exercise.getMovementType(),
+                exercise.getAddedBy()
         ));
 
         page.getContent().forEach(exercise -> {
             when(mapperTo.toExerciseForReviewViewModel(exercise))
                     .thenReturn(new ExerciseForReviewViewModel(
-                            exercise.id(),
-                            exercise.name(),
-                            exercise.description(),
-                            exercise.complexity(),
-                            exercise.movementType(),
-                            exercise.addedBy()
+                            exercise.getId(),
+                            exercise.getName(),
+                            exercise.getDescription(),
+                            exercise.getComplexity(),
+                            exercise.getMovementType(),
+                            exercise.getAddedBy()
                     ));
         });
 
@@ -393,21 +393,21 @@ public class ExerciseServiceUnitTests {
 
     @Test
     void testApproveExerciseThrowsWhenExerciseNotFoundInRepository() {
-        when(exerciseRepository.findById(exercise.id()))
+        when(exerciseRepository.findById(exercise.getId()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.approveExercise(exercise.id()));
+        assertThrows(IllegalArgumentException.class, () -> exerciseService.approveExercise(exercise.getId()));
     }
 
     @Test
     void testGetPageInfoReturnsCorrectPageInformation() {
         Page<ExerciseForReviewViewModel> page = new PageImpl<>(List.of(new ExerciseForReviewViewModel(
-                exercise.id(),
-                exercise.name(),
-                exercise.description(),
-                exercise.complexity(),
-                exercise.movementType(),
-                exercise.addedBy()
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getDescription(),
+                exercise.getComplexity(),
+                exercise.getMovementType(),
+                exercise.getAddedBy()
         )));
 
         PageInformation expected = new PageInformation(
@@ -427,15 +427,10 @@ public class ExerciseServiceUnitTests {
     void testGetAllActiveExercisesReturnsCorrectListOfActiveExercises() {
         List<Exercise> exerciseList = getExerciseList(5)
                 .stream()
-                .filter(exercise -> exercise.approved().equals(Boolean.TRUE))
+                .filter(exercise -> exercise.getApproved().equals(Boolean.TRUE))
                 .toList();
 
-        List<ExerciseFindViewModel> expected = exerciseList.stream().map(exercise -> new ExerciseFindViewModel(
-                exercise.id(),
-                exercise.name(),
-                exercise.complexity(),
-                exercise.movementType()
-        )).toList();
+        List<ExerciseFindViewModel> expected = mapToExerciseFindViewModelLst(exerciseList);
 
         when(exerciseRepository.findAllByApprovedTrue())
                 .thenReturn(exerciseList);
@@ -451,15 +446,12 @@ public class ExerciseServiceUnitTests {
         ExerciseFindBindingModel exerciseFind = new ExerciseFindBindingModel("1", TargetBodyPart.ALL, Complexity.ALL, MovementType.ALL);
 
         List<Exercise> exerciseList = getExerciseList(12).stream()
-                .filter(exercise -> exercise.name().contains(exerciseFind.name())
-                        && exercise.approved().equals(Boolean.TRUE))
-                .sorted(Comparator.comparing(Exercise::name))
+                .filter(exercise -> exercise.getName().contains(exerciseFind.name())
+                        && exercise.getApproved().equals(Boolean.TRUE))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(e.id(), e.name(), e.complexity(), e.movementType()))
-                .toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
@@ -480,15 +472,12 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = getExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.targetBodyPart().equals(exerciseFind.targetBodyPart())
-                                && exercise.approved().equals(Boolean.TRUE))
-                .sorted(Comparator.comparing(Exercise::name))
+                        exercise.getTargetBodyPart().equals(exerciseFind.targetBodyPart())
+                                && exercise.getApproved().equals(Boolean.TRUE))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(e.id(), e.name(), e.complexity(), e.movementType()))
-                .toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
@@ -511,16 +500,13 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = getExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.targetBodyPart().equals(exerciseFind.targetBodyPart())
-                                && exercise.complexity().equals(exerciseFind.complexity())
-                                && exercise.approved().equals(Boolean.TRUE))
-                .sorted(Comparator.comparing(Exercise::name))
+                        exercise.getTargetBodyPart().equals(exerciseFind.targetBodyPart())
+                                && exercise.getComplexity().equals(exerciseFind.complexity())
+                                && exercise.getApproved().equals(Boolean.TRUE))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(e.id(), e.name(), e.complexity(), e.movementType()))
-                .toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
@@ -544,20 +530,13 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = getExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.targetBodyPart().equals(exerciseFind.targetBodyPart())
-                                && exercise.movementType().equals(exerciseFind.movementType())
-                                && exercise.approved().equals(Boolean.TRUE))
-                .sorted(Comparator.comparing(Exercise::name))
+                        exercise.getTargetBodyPart().equals(exerciseFind.targetBodyPart())
+                                && exercise.getMovementType().equals(exerciseFind.movementType())
+                                && exercise.getApproved().equals(Boolean.TRUE))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(
-                        e.id(),
-                        e.name(),
-                        e.complexity(),
-                        e.movementType())
-                ).toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
@@ -581,18 +560,15 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = getExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.targetBodyPart().equals(exerciseFind.targetBodyPart())
-                                && exercise.complexity().equals(exerciseFind.complexity())
-                                && exercise.movementType().equals(exerciseFind.movementType())
-                                && exercise.approved().equals(Boolean.TRUE)
+                        exercise.getTargetBodyPart().equals(exerciseFind.targetBodyPart())
+                                && exercise.getComplexity().equals(exerciseFind.complexity())
+                                && exercise.getMovementType().equals(exerciseFind.movementType())
+                                && exercise.getApproved().equals(Boolean.TRUE)
                 )
-                .sorted(Comparator.comparing(Exercise::name))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(e.id(), e.name(), e.complexity(), e.movementType()))
-                .toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
@@ -617,17 +593,14 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = getExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.complexity().equals(exerciseFind.complexity())
-                                && exercise.movementType().equals(exerciseFind.movementType())
-                                && exercise.approved().equals(Boolean.TRUE)
+                        exercise.getComplexity().equals(exerciseFind.complexity())
+                                && exercise.getMovementType().equals(exerciseFind.movementType())
+                                && exercise.getApproved().equals(Boolean.TRUE)
                 )
-                .sorted(Comparator.comparing(Exercise::name))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(e.id(), e.name(), e.complexity(), e.movementType()))
-                .toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
@@ -651,16 +624,13 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = getExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.complexity().equals(exerciseFind.complexity())
-                                && exercise.approved().equals(Boolean.TRUE)
+                        exercise.getComplexity().equals(exerciseFind.complexity())
+                                && exercise.getApproved().equals(Boolean.TRUE)
                 )
-                .sorted(Comparator.comparing(Exercise::name))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(e.id(), e.name(), e.complexity(), e.movementType()))
-                .toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
@@ -683,16 +653,13 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = getExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.movementType().equals(exerciseFind.movementType())
-                                && exercise.approved().equals(Boolean.TRUE)
+                        exercise.getMovementType().equals(exerciseFind.movementType())
+                                && exercise.getApproved().equals(Boolean.TRUE)
                 )
-                .sorted(Comparator.comparing(Exercise::name))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(e.id(), e.name(), e.complexity(), e.movementType()))
-                .toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
@@ -713,10 +680,10 @@ public class ExerciseServiceUnitTests {
         exerciseList.forEach(exercise -> {
             when(mapperTo.toExerciseFindViewModel(exercise))
                     .thenReturn(new ExerciseFindViewModel(
-                            exercise.id(),
-                            exercise.name(),
-                            exercise.complexity(),
-                            exercise.movementType())
+                            exercise.getId(),
+                            exercise.getName(),
+                            exercise.getComplexity(),
+                            exercise.getMovementType())
                     );
         });
     }
@@ -727,15 +694,12 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = getExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.approved().equals(Boolean.TRUE)
+                        exercise.getApproved().equals(Boolean.TRUE)
                 )
-                .sorted(Comparator.comparing(Exercise::name))
+                .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseFindViewModel> exerciseFindList = exerciseList
-                .stream()
-                .map(e -> new ExerciseFindViewModel(e.id(), e.name(), e.complexity(), e.movementType()))
-                .toList();
+        List<ExerciseFindViewModel> exerciseFindList = mapToExerciseFindViewModelLst(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
@@ -749,6 +713,16 @@ public class ExerciseServiceUnitTests {
 
         assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "asc").getContent())
                 .isEqualTo(expected.getContent());
+    }
+
+    private static List<ExerciseFindViewModel> mapToExerciseFindViewModelLst(List<Exercise> exerciseList) {
+        return exerciseList.stream()
+                .map(exercise -> new ExerciseFindViewModel(
+                        exercise.getId(),
+                        exercise.getName(),
+                        exercise.getComplexity(),
+                        exercise.getMovementType()
+                )).toList();
     }
 
     private List<Exercise> getExerciseList(int count) {

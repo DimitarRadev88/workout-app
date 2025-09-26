@@ -29,7 +29,7 @@ public class ExerciseFromBindingModelMapper {
     }
 
     public Exercise fromExerciseEditBindingModel(Exercise exercise, ExerciseEditBindingModel exerciseEdit) {
-        List<ImageUrl> list = new ArrayList<>(exercise.imageURLs());
+        List<ImageUrl> list = new ArrayList<>(exercise.getImageURLs());
 
         if (exerciseEdit.addImageUrls() != null && !exerciseEdit.addImageUrls().isBlank()) {
             Arrays
@@ -43,29 +43,29 @@ public class ExerciseFromBindingModelMapper {
         }
 
         return new Exercise(
-                exercise.id(),
+                exercise.getId(),
                 exerciseEdit.name(),
-                exercise.targetBodyPart(),
-                exercise.movementType(),
+                exercise.getTargetBodyPart(),
+                exercise.getMovementType(),
                 exerciseEdit.description(),
                 list,
                 exerciseEdit.approved(),
-                exercise.addedBy(),
-                exercise.complexity()
+                exercise.getAddedBy(),
+                exercise.getComplexity()
         );
     }
 
     public Exercise fromExerciseToApprovedExerecise(Exercise exercise) {
         return new Exercise(
-                exercise.id(),
-                exercise.name(),
-                exercise.targetBodyPart(),
-                exercise.movementType(),
-                exercise.description(),
-                exercise.imageURLs(),
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getTargetBodyPart(),
+                exercise.getMovementType(),
+                exercise.getDescription(),
+                exercise.getImageURLs(),
                 Boolean.TRUE,
-                exercise.addedBy(),
-                exercise.complexity()
+                exercise.getAddedBy(),
+                exercise.getComplexity()
         );
     }
 }
