@@ -1,18 +1,24 @@
 package com.dimitarrradev.workoutScheduler.program;
 
-import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.program.enums.ProgramGoal;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "programs")
-public class Program extends BaseEntity {
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Program {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(unique = true, nullable = false)
     private String title;
     @Column(unique = true, nullable = false)
@@ -28,61 +34,5 @@ public class Program extends BaseEntity {
     private List<Workout> workouts;
     @ManyToMany(mappedBy = "programs")
     private List<User> users;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public Integer getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Integer duration) {
-        this.duration = duration;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public ProgramGoal getProgramGoal() {
-        return programGoal;
-    }
-
-    public void setProgramGoal(ProgramGoal programGoal) {
-        this.programGoal = programGoal;
-    }
-
-    public Integer getWorkoutsPerWeek() {
-        return workoutsPerWeek;
-    }
-
-    public void setWorkoutsPerWeek(Integer workoutsPerWeek) {
-        this.workoutsPerWeek = workoutsPerWeek;
-    }
-
-    public List<Workout> getWorkouts() {
-        return workouts;
-    }
-
-    public void setWorkouts(List<Workout> workouts) {
-        this.workouts = workouts;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
 
 }

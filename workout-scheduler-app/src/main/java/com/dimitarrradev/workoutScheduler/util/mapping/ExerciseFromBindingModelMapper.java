@@ -55,7 +55,7 @@ public class ExerciseFromBindingModelMapper {
         );
     }
 
-    public Exercise fromExerciseToApprovedExerecise(Exercise exercise) {
+    public Exercise fromExerciseToApprovedExercise(Exercise exercise) {
         return new Exercise(
                 exercise.getId(),
                 exercise.getName(),

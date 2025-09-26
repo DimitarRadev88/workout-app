@@ -75,7 +75,7 @@ public class ExerciseService {
         }
 
         exerciseOptional.ifPresent(exercise -> exerciseRepository.save(
-                mapperFrom.fromExerciseToApprovedExerecise(exercise)
+                mapperFrom.fromExerciseToApprovedExercise(exercise)
         ));
 
     }

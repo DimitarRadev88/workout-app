@@ -30,7 +30,7 @@ public class ScheduleService {
         return new DailyScheduleServiceViewModel(
                 daySchedule.getWorkout().stream().map(workout -> new WorkoutServiceModel(
                         workout.getWorkoutDateTime(),
-                        daySchedule.getCompleted()
+                        daySchedule.getIsCompleted()
                 )).toList()
         );
     }

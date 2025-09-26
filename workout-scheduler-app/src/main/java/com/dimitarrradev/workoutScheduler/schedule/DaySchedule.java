@@ -2,11 +2,20 @@ package com.dimitarrradev.workoutScheduler.schedule;
 
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+
 @Entity
 @Table(name = "day_schedules")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class DaySchedule extends Schedule {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "daySchedule")
@@ -17,28 +26,5 @@ public class DaySchedule extends Schedule {
     @Basic
     private Boolean isCompleted;
 
-    public List<Workout> getWorkout() {
-        return workout;
-    }
-
-    public void setWorkout(List<Workout> workout) {
-        this.workout = workout;
-    }
-
-    public WeekSchedule getWeekSchedule() {
-        return weekSchedule;
-    }
-
-    public void setWeekSchedule(WeekSchedule weekSchedule) {
-        this.weekSchedule = weekSchedule;
-    }
-
-    public Boolean getCompleted() {
-        return isCompleted;
-    }
-
-    public void setCompleted(Boolean completed) {
-        isCompleted = completed;
-    }
-
 }
+

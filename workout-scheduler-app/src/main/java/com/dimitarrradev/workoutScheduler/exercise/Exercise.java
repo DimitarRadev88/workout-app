@@ -1,17 +1,13 @@
 package com.dimitarrradev.workoutScheduler.exercise;
 
-import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity

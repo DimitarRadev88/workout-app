@@ -138,7 +138,7 @@ public class ExerciseServiceUnitTests {
                 exercise.getAddedBy(),
                 exercise.getComplexity()
         );
-        when(mapperFrom.fromExerciseToApprovedExerecise(exercise))
+        when(mapperFrom.fromExerciseToApprovedExercise(exercise))
                 .thenReturn(toSave);
 
         exerciseService.approveExercise(1L);

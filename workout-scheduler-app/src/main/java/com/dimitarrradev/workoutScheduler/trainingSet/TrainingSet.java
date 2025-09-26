@@ -1,16 +1,20 @@
 package com.dimitarrradev.workoutScheduler.trainingSet;
 
-import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
-
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "sets")
-public class TrainingSet extends BaseEntity {
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrainingSet {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @ManyToOne
     @JoinColumn(name = "workout_id")
     private Workout workout;
@@ -30,67 +34,4 @@ public class TrainingSet extends BaseEntity {
     @Column(nullable = false)
     private Integer count;
 
-    public Workout getWorkout() {
-        return workout;
-    }
-
-    public void setWorkout(Workout workout) {
-        this.workout = workout;
-    }
-
-    public Exercise getExercise() {
-        return exercise;
-    }
-
-    public void setExercise(Exercise exercise) {
-        this.exercise = exercise;
-    }
-
-    public Integer getMinReps() {
-        return minReps;
-    }
-
-    public void setMinReps(Integer minReps) {
-        this.minReps = minReps;
-    }
-
-    public Integer getMaxReps() {
-        return maxReps;
-    }
-
-    public void setMaxReps(Integer maxReps) {
-        this.maxReps = maxReps;
-    }
-
-    public Integer getActualReps() {
-        return actualReps;
-    }
-
-    public void setActualReps(Integer actualReps) {
-        this.actualReps = actualReps;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
-
-    public Integer getRest() {
-        return rest;
-    }
-
-    public void setRest(Integer rest) {
-        this.rest = rest;
-    }
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
 }

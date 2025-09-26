@@ -1,6 +1,5 @@
 package com.dimitarrradev.workoutScheduler.workout;
 
-import com.dimitarrradev.workoutScheduler.BaseEntity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
@@ -10,7 +9,9 @@ import com.dimitarrradev.workoutScheduler.workout.enums.Intensity;
 import com.dimitarrradev.workoutScheduler.workout.enums.Volume;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,13 @@ import java.util.List;
 
 @Entity
 @Table(name = "workouts")
-public class Workout extends BaseEntity {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Workout {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(nullable = false, name = "workout_date_time")
     @DateTimeFormat(pattern = "dd-MM-yyyy HH-mm")
     private LocalDateTime workoutDateTime;
@@ -45,75 +52,4 @@ public class Workout extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private List<TargetBodyPart> targetBodyParts;
 
-    public LocalDateTime getWorkoutDateTime() {
-        return workoutDateTime;
-    }
-
-    public void setWorkoutDateTime(LocalDateTime workoutDateTime) {
-        this.workoutDateTime = workoutDateTime;
-    }
-
-    public List<TrainingSet> getTrainingSets() {
-        return trainingSets;
-    }
-
-    public void setTrainingSets(List<TrainingSet> trainingSets) {
-        this.trainingSets = trainingSets;
-    }
-
-    public Program getProgram() {
-        return program;
-    }
-
-    public void setProgram(Program program) {
-        this.program = program;
-    }
-
-    public Intensity getIntensity() {
-        return intensity;
-    }
-
-    public void setIntensity(Intensity intensity) {
-        this.intensity = intensity;
-    }
-
-    public Volume getVolume() {
-        return volume;
-    }
-
-    public void setVolume(Volume volume) {
-        this.volume = volume;
-    }
-
-    public WorkoutType getWorkoutType() {
-        return workoutType;
-    }
-
-    public void setWorkoutType(WorkoutType workoutType) {
-        this.workoutType = workoutType;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public DaySchedule getDaySchedule() {
-        return daySchedule;
-    }
-
-    public void setDaySchedule(DaySchedule daySchedule) {
-        this.daySchedule = daySchedule;
-    }
-
-    public List<TargetBodyPart> getTargetBodyParts() {
-        return targetBodyParts;
-    }
-
-    public void setTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
-        this.targetBodyParts = targetBodyParts;
-    }
 }

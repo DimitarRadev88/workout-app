@@ -1,30 +1,22 @@
 package com.dimitarrradev.workoutScheduler.exercise;
 
-import com.dimitarrradev.workoutScheduler.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "image_urls")
-public class ImageUrl extends BaseEntity {
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ImageUrl {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(nullable = false)
     private String url;
     @ManyToOne(fetch = FetchType.LAZY)
     private Exercise exercise;
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Exercise getExercise() {
-        return exercise;
-    }
-
-    public void setExercise(Exercise exercise) {
-        this.exercise = exercise;
-    }
 }

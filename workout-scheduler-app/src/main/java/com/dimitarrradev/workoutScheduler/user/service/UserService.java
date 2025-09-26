@@ -114,7 +114,7 @@ public class UserService {
         user.setWeight(profileInfoEdit.weight());
         user.setHeight(profileInfoEdit.height());
         user.setGym(profileInfoEdit.gym());
-        user.setTrainingStyle(profileInfoEdit.workoutType());
+        user.setWorkoutType(profileInfoEdit.workoutType());
 
         userRepository.save(user);
     }
