@@ -76,23 +76,27 @@ public class UserService {
     }
 
     public UserProfileAccountViewModel getUserProfileAccountView(String username) {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
-        return new UserProfileAccountViewModel(
-                user.getUsername(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName()
-        );
+        return userRepository
+                .findUserByUsername(username)
+                .map(user ->
+                        new UserProfileAccountViewModel(
+                                user.getUsername(),
+                                user.getEmail(),
+                                user.getFirstName(),
+                                user.getLastName()
+                        )).orElseThrow(() -> new UsernameNotFoundException(username));
+
     }
 
     public UserProfileInfoViewModel getUserProfileInfoView(String username) {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
-        return new UserProfileInfoViewModel(
-                user.getWeight(),
-                user.getHeight(),
-                user.getGym(),
-                user.getWorkoutType() != null ? user.getWorkoutType() : WorkoutType.CARDIO
-        );
+        return userRepository.findUserByUsername(username)
+                .map(user -> new UserProfileInfoViewModel(
+                        user.getWeight(),
+                        user.getHeight(),
+                        user.getGym(),
+                        user.getWorkoutType() != null ? user.getWorkoutType() : WorkoutType.CARDIO)
+                )
+                .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     public void doPasswordChange(String username, @Valid UserProfilePasswordChangeBindingModel profilePasswordChange) {
