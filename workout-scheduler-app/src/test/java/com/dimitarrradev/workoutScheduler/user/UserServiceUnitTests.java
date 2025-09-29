@@ -7,8 +7,12 @@ import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
+import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.UserProfilePasswordChangeBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,7 +21,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +44,31 @@ public class UserServiceUnitTests {
     @InjectMocks
     private UserService userService;
 
+    private User user;
+
+    @BeforeEach
+    void setUp() {
+        user = new User(
+                1L,
+                "existing",
+                "first",
+                "last",
+                "user@email",
+                "old-password",
+                90,
+                181,
+                30,
+                "Gym",
+                WorkoutType.BODYBUILDING,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                List.of(new Role(1L, RoleType.USER, Collections.emptyList())),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                LocalDateTime.now(), LocalDateTime.now()
+        );
+    }
+
     @Test
     void testGetUserCountShouldReturnCorrectCountOfUsersInRepository() {
         when(userRepository.count())
@@ -52,10 +83,15 @@ public class UserServiceUnitTests {
         when(userRepository.existsUserByUsername("existing"))
                 .thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class,
-                () -> userService.doRegister(
-                        new UserRegisterBindingModel("existing", null, null, null)
-                ));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.doRegister(new UserRegisterBindingModel(
+                        "existing",
+                        null,
+                        null,
+                        null)
+                )
+        );
     }
 
     @Test
@@ -63,10 +99,15 @@ public class UserServiceUnitTests {
         when(userRepository.existsUserByEmail("existing@email"))
                 .thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class,
-                () -> userService.doRegister(
-                        new UserRegisterBindingModel("valid username", "existing@email", null, null)
-                ));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.doRegister(new UserRegisterBindingModel(
+                        "valid username",
+                        "existing@email",
+                        null,
+                        null)
+                )
+        );
     }
 
     @Test
@@ -98,7 +139,9 @@ public class UserServiceUnitTests {
 
         userService.doRegister(bindingModel);
 
-        verify(userRepository, times(1))
+        verify(
+                userRepository,
+                times(1))
                 .save(expected);
     }
 
@@ -124,7 +167,10 @@ public class UserServiceUnitTests {
         when(userRepository.findUserByUsername("not existing"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> userService.getUserProfileAccountView("not existing"));
+        assertThrows(
+                UsernameNotFoundException.class,
+                () -> userService.getUserProfileAccountView("not existing")
+        );
     }
 
     @Test
@@ -175,8 +221,207 @@ public class UserServiceUnitTests {
         when(userRepository.findUserByUsername("not existing"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> userService.getUserProfileInfoView("not existing"));
+        assertThrows(
+                UsernameNotFoundException.class,
+                () -> userService.getUserProfileInfoView("not existing")
+        );
     }
 
+    @Test
+    void testDoPasswordChangeThrowsWhenUserNotFoundInRepository() {
+        when(userRepository.findUserByUsername("not existing"))
+                .thenReturn(Optional.empty());
+
+        UserProfilePasswordChangeBindingModel bindingModel = new UserProfilePasswordChangeBindingModel(
+                "old-password",
+                "new-password",
+                "new-password"
+        );
+
+        assertThrows(
+                UsernameNotFoundException.class,
+                () -> userService.doPasswordChange("not existing", bindingModel)
+        );
+    }
+
+    @Test
+    void testDoPasswordChangeThrowsWhenOldPasswordDoesNotMatch() {
+        when(userRepository.findUserByUsername("existing"))
+                .thenReturn(Optional.of(user));
+
+        UserProfilePasswordChangeBindingModel bindingModel = new UserProfilePasswordChangeBindingModel(
+                "not-matching-password",
+                "new-password",
+                "new-password"
+        );
+
+        when(passwordEncoder.matches(bindingModel.oldPassword(), user.getPassword()))
+                .thenReturn(Boolean.FALSE);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.doPasswordChange("existing", bindingModel)
+        );
+    }
+
+    @Test
+    void testDoPasswordChangeThrowsWhenOldPasswordMatchesNewPassword() {
+        when(userRepository.findUserByUsername("existing"))
+                .thenReturn(Optional.of(user));
+
+        UserProfilePasswordChangeBindingModel bindingModel = new UserProfilePasswordChangeBindingModel(
+                "old-password",
+                "old-password",
+                "old-password"
+        );
+
+        when(passwordEncoder.matches(bindingModel.oldPassword(), user.getPassword()))
+                .thenReturn(Boolean.TRUE);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.doPasswordChange("existing", bindingModel)
+        );
+    }
+
+    @Test
+    void testDoPasswordChangeSavesUserWithNewEncodedPasswordInRepository() {
+        when(userRepository.findUserByUsername("existing"))
+                .thenReturn(Optional.of(user));
+
+        UserProfilePasswordChangeBindingModel bindingModel = new UserProfilePasswordChangeBindingModel(
+                "old-password",
+                "new-password",
+                "new-password"
+        );
+
+        when(passwordEncoder.matches(bindingModel.oldPassword(), user.getPassword()))
+                .thenReturn(Boolean.TRUE);
+
+        String encodedPassword = "Encoded" + bindingModel.newPassword() + bindingModel.newPassword().hashCode() / 0.88888;
+
+        when(passwordEncoder.encode(bindingModel.newPassword()))
+                .thenReturn(encodedPassword);
+
+        userService.doPasswordChange("existing", bindingModel);
+
+        assertThat(user.getPassword())
+                .isEqualTo(encodedPassword);
+        verify(userRepository,
+                times(1))
+                .save(user);
+    }
+
+    @Test
+    void testDoInfoEditThrowsWhenUserNotFoundInRepository() {
+        when(userRepository.findUserByUsername("not-existing"))
+                .thenReturn(Optional.empty());
+
+        UserProfileInfoEditBindingModel bindingModel = new UserProfileInfoEditBindingModel(
+                90,
+                181,
+                "gym",
+                WorkoutType.CARDIO
+        );
+
+        assertThrows(
+                UsernameNotFoundException.class,
+                () -> userService.doInfoEdit("not-existing", bindingModel)
+        );
+    }
+
+    @Test
+    void testDoInfoEditSavesUserWithNewProfileInformationInRepository() {
+        when(userRepository.findUserByUsername("existing"))
+                .thenReturn(Optional.of(user));
+
+        UserProfileInfoEditBindingModel bindingModel = new UserProfileInfoEditBindingModel(
+                user.getWeight() + 1,
+                user.getHeight() - 1,
+                "new-gym",
+                WorkoutType.WEIGHTLIFTING
+        );
+
+        userService.doInfoEdit("existing", bindingModel);
+
+        assertThat(user.getWeight())
+                .isEqualTo(bindingModel.weight());
+        assertThat(user.getHeight())
+                .isEqualTo(bindingModel.height());
+        assertThat(user.getGym())
+                .isEqualTo(bindingModel.gym());
+        assertThat(user.getWorkoutType())
+                .isEqualTo(bindingModel.workoutType());
+
+        verify(
+                userRepository,
+                times(1))
+                .save(user);
+    }
+
+    @Test
+    void testDoAccountEditThrowsWhenUserNotFoundInRepository() {
+        when(userRepository.findUserByUsername("not-existing"))
+                .thenReturn(Optional.empty());
+
+
+        UserProfileAccountEditBindingModel bindingModel = new UserProfileAccountEditBindingModel(
+                "not-existing",
+                user.getEmail(),
+                "new" + user.getFirstName(),
+                "new" + user.getLastName(),
+                Boolean.FALSE);
+
+        assertThrows(
+                UsernameNotFoundException.class,
+                () -> userService.doAccountEdit(bindingModel)
+        );
+    }
+
+    @Test
+    void testDoAccountEditSavesUserWithNewAccountInformationInRepository() {
+        when(userRepository.findUserByUsername("existing"))
+                .thenReturn(Optional.of(user));
+
+
+        UserProfileAccountEditBindingModel bindingModel = new UserProfileAccountEditBindingModel(
+                "existing",
+                user.getEmail(),
+                "new" + user.getFirstName(),
+                "new" + user.getLastName(),
+                Boolean.FALSE);
+
+        userService.doAccountEdit(bindingModel);
+
+        assertThat(user.getFirstName())
+                .isEqualTo(bindingModel.firstName());
+        assertThat(user.getLastName())
+                .isEqualTo(bindingModel.lastName());
+
+        verify(
+                userRepository,
+                times(1))
+                .save(user);
+    }
+
+    @Test
+    void testGetUserEntityByUsernameThrowsWhenUserNotFoundInRepository() {
+        when(userRepository.findUserByUsername("not-existing"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                UsernameNotFoundException.class,
+                ()  -> userService.getUserEntityByUsername("not-existing")
+        );
+    }
+
+    @Test
+    void testGetUserEntityByUsernameReturnsCorrectUserEntity() {
+        when(userRepository.findUserByUsername("not-existing"))
+                .thenReturn(Optional.of(user));
+
+        assertThat(userService.getUserEntityByUsername("not-existing"))
+                .isEqualTo(user);
+    }
 
 }

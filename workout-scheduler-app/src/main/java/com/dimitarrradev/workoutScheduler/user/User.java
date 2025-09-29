@@ -10,7 +10,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -43,7 +49,7 @@ public class User {
     @Basic
     @Enumerated(EnumType.STRING)
     private WorkoutType workoutType;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<Workout> workouts;
     @ManyToMany
     @JoinTable(name = "users_programs",
@@ -61,5 +67,9 @@ public class User {
     private List<DaySchedule> daySchedules;
     @OneToMany(mappedBy = "user")
     private List<WeekSchedule> weekSchedules;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
 }

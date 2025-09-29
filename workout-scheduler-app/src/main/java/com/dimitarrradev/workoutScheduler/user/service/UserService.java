@@ -35,17 +35,13 @@ public class UserService {
     }
 
     @Transactional
-    public void addFirstUser(String username, String password) {
-        if (userRepository.existsUserByUsername(username)) {
-            throw new IllegalArgumentException("Username is already in use");
-        }
-
+    public void addFirstUserAsAdmin(String username, String password) {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
         user.setEmail(username + "@email.com");
-        Role role = roleService.getRoles().getFirst();
-        user.setRoles(new ArrayList<>(List.of(role)));
+        List<Role> roles = roleService.getRoles();
+        user.setRoles(roles);
 
         userRepository.save(user);
     }
@@ -100,11 +96,15 @@ public class UserService {
     }
 
     public void doPasswordChange(String username, @Valid UserProfilePasswordChangeBindingModel profilePasswordChange) {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        User user = userRepository
+                .findUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
 
         if (!passwordEncoder.matches(profilePasswordChange.oldPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Old password is incorrect");
-        } else if (passwordEncoder.matches(profilePasswordChange.newPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect password");
+        }
+
+        if (profilePasswordChange.newPassword().equals(profilePasswordChange.oldPassword())) {
             throw new IllegalArgumentException("New password cannot be the same as the old");
         }
 
@@ -124,8 +124,10 @@ public class UserService {
     }
 
 
-    public void doAccountEdit(String username, UserProfileAccountEditBindingModel profileAccountEdit) {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+    public void doAccountEdit(UserProfileAccountEditBindingModel profileAccountEdit) {
+        User user = userRepository
+                .findUserByUsername(profileAccountEdit.username())
+                .orElseThrow(() -> new UsernameNotFoundException(profileAccountEdit.username()));
 
         user.setFirstName(profileAccountEdit.firstName());
         user.setLastName(profileAccountEdit.lastName());

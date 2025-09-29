@@ -106,7 +106,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("profileAccountEdit", profileAccountEdit);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.profileAccountEdit", bindingResult);
         } else {
-            userService.doAccountEdit(authentication.getName(), profileAccountEdit);
+            userService.doAccountEdit(profileAccountEdit);
         }
 
         return "redirect:/users/profile";
