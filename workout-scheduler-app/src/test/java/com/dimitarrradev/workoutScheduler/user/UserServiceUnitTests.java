@@ -7,6 +7,8 @@ import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
+import com.dimitarrradev.workoutScheduler.util.mapping.user.UserFromBindingModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.user.UserToBindingModelMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfilePasswordChangeBindingModel;
@@ -39,7 +41,9 @@ public class UserServiceUnitTests {
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
-    private RoleService roleService;
+    private UserFromBindingModelMapper mapperFrom;
+    @Mock
+    private UserToBindingModelMapper mapperTo;
 
     @InjectMocks
     private UserService userService;
@@ -120,19 +124,16 @@ public class UserServiceUnitTests {
         when(userRepository.existsUserByEmail(bindingModel.email()))
                 .thenReturn(false);
 
-        when(passwordEncoder.encode(bindingModel.password()))
-                .thenReturn(encodedPassword);
-
         Role userRole = new Role(1L, RoleType.USER, new ArrayList<>());
-
-        when(roleService.getRoleByType(RoleType.USER))
-                .thenReturn(userRole);
 
         User expected = new User();
         expected.setUsername(bindingModel.username());
         expected.setEmail(bindingModel.email());
         expected.setPassword(encodedPassword);
         expected.setRoles(new ArrayList<>(List.of(userRole)));
+
+        when(mapperFrom.fromUserRegisterBindingModel(bindingModel))
+                .thenReturn(expected);
 
         when(userRepository.save(expected))
                 .thenReturn(expected);
@@ -157,6 +158,9 @@ public class UserServiceUnitTests {
 
         when(userRepository.findUserByUsername(user.getUsername()))
                 .thenReturn(Optional.of(user));
+
+        when(mapperTo.toUserProfileAccountViewModel(user))
+                .thenReturn(expected);
 
         assertThat(userService.getUserProfileAccountView(user.getUsername()))
                 .isEqualTo(expected);
@@ -191,6 +195,9 @@ public class UserServiceUnitTests {
                 user.getWorkoutType()
         );
 
+        when(mapperTo.toUserProfileInfoViewModel(user))
+                .thenReturn(expected);
+
         assertThat(userService.getUserProfileInfoView(user.getUsername()))
                 .isEqualTo(expected);
     }
@@ -211,6 +218,9 @@ public class UserServiceUnitTests {
                 user.getGym(),
                 WorkoutType.CARDIO
         );
+
+        when(mapperTo.toUserProfileInfoViewModel(user))
+                .thenReturn(expected);
 
         assertThat(userService.getUserProfileInfoView(user.getUsername()))
                 .isEqualTo(expected);
@@ -411,7 +421,7 @@ public class UserServiceUnitTests {
 
         assertThrows(
                 UsernameNotFoundException.class,
-                ()  -> userService.getUserEntityByUsername("not-existing")
+                () -> userService.getUserEntityByUsername("not-existing")
         );
     }
 

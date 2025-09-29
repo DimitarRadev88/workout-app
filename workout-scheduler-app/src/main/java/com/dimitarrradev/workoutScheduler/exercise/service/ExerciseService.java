@@ -7,8 +7,8 @@ import com.dimitarrradev.workoutScheduler.exercise.dto.*;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.workoutScheduler.util.mapping.ExerciseFromBindingModelMapper;
-import com.dimitarrradev.workoutScheduler.util.mapping.ExerciseToViewModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.exercise.ExerciseFromBindingModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.exercise.ExerciseToViewModelMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ExerciseService {
@@ -68,26 +67,21 @@ public class ExerciseService {
     }
 
     public void approveExercise(Long id) {
-        Optional<Exercise> exerciseOptional = exerciseRepository.findById(id);
-
-        if (exerciseOptional.isEmpty()) {
-            throw new IllegalArgumentException("Exercise not found");
-        }
-
-        exerciseOptional.ifPresent(exercise -> exerciseRepository.save(
-                mapperFrom.fromExerciseToApprovedExercise(exercise)
-        ));
-
+        exerciseRepository.findById(id).map(exercise -> {
+            exercise.setApproved(true);
+            exerciseRepository.save(exercise);
+            return exercise;
+        }).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
     }
 
     public void deleteExercise(Long id) {
-        Optional<Exercise> exerciseOptional = exerciseRepository.findById(id);
-
-        if (exerciseOptional.isEmpty()) {
-            throw new IllegalArgumentException("Exercise not found");
-        }
-
-        exerciseOptional.ifPresent(exerciseRepository::delete);
+        exerciseRepository.findById(id)
+                .ifPresentOrElse(
+                        exerciseRepository::delete,
+                        () -> {
+                            throw new IllegalArgumentException("Exercise not found");
+                        }
+                );
     }
 
     public Page<ExerciseFindViewModel> findActiveExercisesPage(ExerciseFindBindingModel exerciseFind, int pageNumber, int pageSize, String sortDirection) {

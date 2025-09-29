@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.util.mapping;
+package com.dimitarrradev.workoutScheduler.util.mapping.exercise;
 
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.dto.*;

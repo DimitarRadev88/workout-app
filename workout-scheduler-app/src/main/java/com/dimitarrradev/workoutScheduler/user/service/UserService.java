@@ -1,38 +1,35 @@
 package com.dimitarrradev.workoutScheduler.user.service;
 
 import com.dimitarrradev.workoutScheduler.role.Role;
-import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
 import com.dimitarrradev.workoutScheduler.role.service.RoleService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
+import com.dimitarrradev.workoutScheduler.util.mapping.user.UserFromBindingModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.user.UserToBindingModelMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfilePasswordChangeBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
-import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.roleService = roleService;
-    }
+    private final UserFromBindingModelMapper mapperFrom;
+    private final UserToBindingModelMapper mapperTo;
 
     @Transactional
     public void addFirstUserAsAdmin(String username, String password) {
@@ -60,11 +57,7 @@ public class UserService {
             throw new IllegalArgumentException("Email is already in use");
         }
 
-        User user = new User();
-        user.setUsername(userRegisterBindingModel.username());
-        user.setEmail(userRegisterBindingModel.email());
-        user.setPassword(passwordEncoder.encode(userRegisterBindingModel.password()));
-        user.setRoles(new ArrayList<>(List.of(roleService.getRoleByType(RoleType.USER))));
+        User user = mapperFrom.fromUserRegisterBindingModel(userRegisterBindingModel);
 
         User saved = userRepository.save(user);
 
@@ -74,24 +67,14 @@ public class UserService {
     public UserProfileAccountViewModel getUserProfileAccountView(String username) {
         return userRepository
                 .findUserByUsername(username)
-                .map(user ->
-                        new UserProfileAccountViewModel(
-                                user.getUsername(),
-                                user.getEmail(),
-                                user.getFirstName(),
-                                user.getLastName()
-                        )).orElseThrow(() -> new UsernameNotFoundException(username));
+                .map(mapperTo::toUserProfileAccountViewModel)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
 
     }
 
     public UserProfileInfoViewModel getUserProfileInfoView(String username) {
         return userRepository.findUserByUsername(username)
-                .map(user -> new UserProfileInfoViewModel(
-                        user.getWeight(),
-                        user.getHeight(),
-                        user.getGym(),
-                        user.getWorkoutType() != null ? user.getWorkoutType() : WorkoutType.CARDIO)
-                )
+                .map(mapperTo::toUserProfileInfoViewModel)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 

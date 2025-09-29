@@ -7,8 +7,8 @@ import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
-import com.dimitarrradev.workoutScheduler.util.mapping.ExerciseFromBindingModelMapper;
-import com.dimitarrradev.workoutScheduler.util.mapping.ExerciseToViewModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.exercise.ExerciseFromBindingModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.exercise.ExerciseToViewModelMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
@@ -124,7 +124,7 @@ public class ExerciseServiceUnitTests {
 
     @Test
     void testApproveExerciseSavesApprovedExerciseWhenFoundInRepository() {
-        when(exerciseRepository.findById(1L))
+        when(exerciseRepository.findById(exercise.getId()))
                 .thenReturn(Optional.of(exercise));
 
         Exercise toSave = new Exercise(
@@ -138,10 +138,8 @@ public class ExerciseServiceUnitTests {
                 exercise.getAddedBy(),
                 exercise.getComplexity()
         );
-        when(mapperFrom.fromExerciseToApprovedExercise(exercise))
-                .thenReturn(toSave);
 
-        exerciseService.approveExercise(1L);
+        exerciseService.approveExercise(exercise.getId());
 
         verify(exerciseRepository, Mockito.times(1))
                 .save(toSave);

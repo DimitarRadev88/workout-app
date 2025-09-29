@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.util.mapping;
+package com.dimitarrradev.workoutScheduler.util.mapping.exercise;
 
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.ImageUrl;
@@ -55,17 +55,4 @@ public class ExerciseFromBindingModelMapper {
         );
     }
 
-    public Exercise fromExerciseToApprovedExercise(Exercise exercise) {
-        return new Exercise(
-                exercise.getId(),
-                exercise.getName(),
-                exercise.getTargetBodyPart(),
-                exercise.getMovementType(),
-                exercise.getDescription(),
-                exercise.getImageURLs(),
-                Boolean.TRUE,
-                exercise.getAddedBy(),
-                exercise.getComplexity()
-        );
-    }
 }
