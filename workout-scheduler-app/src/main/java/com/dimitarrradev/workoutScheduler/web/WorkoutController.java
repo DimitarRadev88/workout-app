@@ -81,8 +81,8 @@ public class WorkoutController {
     }
 
     @GetMapping("/edit/{id}")
-    public String getWorkoutEdit(@PathVariable Long id, Model model) {
-        WorkoutEditServiceModel workoutEditServiceModel = workoutService.getWorkout(id);
+    public String getWorkoutEdit(@PathVariable Long id, Model model, Authentication authentication) {
+        WorkoutEditServiceModel workoutEditServiceModel = workoutService.getWorkout(id, authentication.getName());
         WorkoutEditBindingModel workout = new WorkoutEditBindingModel(workoutEditServiceModel.workoutType(), workoutEditServiceModel.targetBodyParts());
 
         List<ExerciseNameAndIdViewModel> exercises = exerciseService.getExercisesForTargetBodyParts(workout.targetBodyParts());

@@ -1,5 +1,7 @@
-package com.dimitarrradev.workoutScheduler.exercise;
+package com.dimitarrradev.workoutScheduler.exercise.service;
 
+import com.dimitarrradev.workoutScheduler.exercise.Exercise;
+import com.dimitarrradev.workoutScheduler.exercise.ImageUrl;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dto.*;

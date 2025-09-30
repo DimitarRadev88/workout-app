@@ -1,11 +1,11 @@
-package com.dimitarrradev.workoutScheduler.user;
+package com.dimitarrradev.workoutScheduler.user.service;
 
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
+import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
-import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.util.mapping.user.UserFromBindingModelMapper;
 import com.dimitarrradev.workoutScheduler.util.mapping.user.UserToViewModelMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
