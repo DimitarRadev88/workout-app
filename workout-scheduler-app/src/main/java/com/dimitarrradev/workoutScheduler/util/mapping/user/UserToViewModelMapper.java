@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserToBindingModelMapper {
+public class UserToViewModelMapper {
 
     public UserProfileAccountViewModel toUserProfileAccountViewModel(User user) {
         return new UserProfileAccountViewModel(

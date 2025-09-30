@@ -7,7 +7,7 @@ import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
 import com.dimitarrradev.workoutScheduler.util.mapping.user.UserFromBindingModelMapper;
-import com.dimitarrradev.workoutScheduler.util.mapping.user.UserToBindingModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.user.UserToViewModelMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfilePasswordChangeBindingModel;
@@ -29,7 +29,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserFromBindingModelMapper mapperFrom;
-    private final UserToBindingModelMapper mapperTo;
+    private final UserToViewModelMapper mapperTo;
 
     @Transactional
     public void addFirstUserAsAdmin(String username, String password) {

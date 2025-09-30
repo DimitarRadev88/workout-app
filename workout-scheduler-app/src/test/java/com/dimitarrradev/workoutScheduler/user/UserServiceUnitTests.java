@@ -2,13 +2,12 @@ package com.dimitarrradev.workoutScheduler.user;
 
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
-import com.dimitarrradev.workoutScheduler.role.service.RoleService;
 import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.util.mapping.user.UserFromBindingModelMapper;
-import com.dimitarrradev.workoutScheduler.util.mapping.user.UserToBindingModelMapper;
+import com.dimitarrradev.workoutScheduler.util.mapping.user.UserToViewModelMapper;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileAccountEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfilePasswordChangeBindingModel;
@@ -43,7 +42,7 @@ public class UserServiceUnitTests {
     @Mock
     private UserFromBindingModelMapper mapperFrom;
     @Mock
-    private UserToBindingModelMapper mapperTo;
+    private UserToViewModelMapper mapperTo;
 
     @InjectMocks
     private UserService userService;
