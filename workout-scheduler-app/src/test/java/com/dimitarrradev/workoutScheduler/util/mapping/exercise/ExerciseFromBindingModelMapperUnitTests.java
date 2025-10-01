@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,12 +31,12 @@ public class ExerciseFromBindingModelMapperUnitTests {
     @Test
     void testFromExerciseAddBindingModelReturnsCorrectExercise() {
         ExerciseAddBindingModel exerciseAddBindingModel = new ExerciseAddBindingModel(
-                "exercise-name",
-                "exercise-description",
-                getRandomTargetBodyPart(),
+                randomExerciseName(),
+                randomDescription(),
+                randomTargetBodyPart(),
                 "user",
-                getRandomComplexity(),
-                getRandomMovementType()
+                randomComplexity(),
+                randomMovementType()
         );
 
         Exercise expected = new Exercise(
@@ -59,20 +60,20 @@ public class ExerciseFromBindingModelMapperUnitTests {
     void testFromExerciseEditBindingModelReturnsCorrectExerciseWithNewImageUrls() {
         Exercise exercise = new Exercise(
                 1L,
-                "exercise-name",
-                getRandomTargetBodyPart(),
-                getRandomMovementType(),
-                "exercise-description",
+                randomExerciseName(),
+                randomTargetBodyPart(),
+                randomMovementType(),
+                randomDescription(),
                 new ArrayList<>(List.of(new ImageUrl(1L, "existing-url", null))),
                 Boolean.FALSE,
                 "user",
-                getRandomComplexity()
+                randomComplexity()
         );
 
         ExerciseEditBindingModel exerciseEditBindingModel = new ExerciseEditBindingModel(
                 1L,
-                "new-exercise-name",
-                "new-exercise-description",
+                randomExerciseName(),
+                randomDescription(),
                 String.format("%s%n%s", "imageUrl", "imageUrl2"),
                 Boolean.TRUE
         );
@@ -102,18 +103,6 @@ public class ExerciseFromBindingModelMapperUnitTests {
         assertThat(exerciseFrom.fromExerciseEditBindingModel(exercise, exerciseEditBindingModel))
                 .isEqualTo(expected);
 
-    }
-
-    private Complexity getRandomComplexity() {
-        return Complexity.values()[ThreadLocalRandom.current().nextInt(Complexity.values().length - 1)];
-    }
-
-    private MovementType getRandomMovementType() {
-        return MovementType.values()[ThreadLocalRandom.current().nextInt(MovementType.values().length - 1)];
-    }
-
-    private TargetBodyPart getRandomTargetBodyPart() {
-        return TargetBodyPart.values()[ThreadLocalRandom.current().nextInt(TargetBodyPart.values().length - 1)];
     }
 
 }

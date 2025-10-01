@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.randomWorkoutType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +39,7 @@ public class UserToViewModelMapperUnitTests {
                 181,
                 30,
                 "Gym",
-                WorkoutType.BODYBUILDING,
+                randomWorkoutType(),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 List.of(new Role(1L, RoleType.USER, null)),

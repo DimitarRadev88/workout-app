@@ -18,17 +18,20 @@ public class WorkoutExerciseService {
     private final ExerciseService exerciseService;
 
     @Transactional
-    public WorkoutExercise createWorkoutExercise(ExerciseWorkoutExerciseBindingModel exerciseTrainingSetsBindingModel, Workout workout) {
-        WorkoutExercise trainingSet = new WorkoutExercise();
-        trainingSet.setExercise(exerciseService.getExercise(exerciseTrainingSetsBindingModel.exerciseId()));
-        trainingSet.setMinReps(exerciseTrainingSetsBindingModel.workoutExerciseBindingModel().minReps());
-        trainingSet.setMaxReps(exerciseTrainingSetsBindingModel.workoutExerciseBindingModel().maxReps());
-        trainingSet.setRest(exerciseTrainingSetsBindingModel.workoutExerciseBindingModel().rest());
-        trainingSet.setWeight(exerciseTrainingSetsBindingModel.workoutExerciseBindingModel().weight());
-        trainingSet.setSets(exerciseTrainingSetsBindingModel.workoutExerciseBindingModel().sets());
-        trainingSet.setWorkout(workout);
+    public WorkoutExercise createWorkoutExercise(ExerciseWorkoutExerciseBindingModel exerciseWorkoutExerciseBindingModel, Workout workout) {
+        WorkoutExercise workoutExercise = new WorkoutExercise(
+                null,
+                workout,
+                exerciseService.getExercise(exerciseWorkoutExerciseBindingModel.exerciseId()),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().minReps(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().maxReps(),
+                0,
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().weight(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().rest(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().sets()
+        );
 
-        return workoutExerciseRepository.save(trainingSet);
+        return workoutExerciseRepository.save(workoutExercise);
     }
 
     public void delete(long id) {
@@ -36,18 +39,18 @@ public class WorkoutExerciseService {
     }
 
     public void doEdit(Long id, ExerciseInWorkoutEditBidingModel exerciseEdit) {
-        WorkoutExercise trainingSet = workoutExerciseRepository.findById(id)
+        WorkoutExercise workoutExercise = workoutExerciseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Exercise " + id + " for current workout: not found"));
 
-        trainingSet.setSets(exerciseEdit.count());
-        trainingSet.setMinReps(exerciseEdit.minReps());
-        trainingSet.setMaxReps(exerciseEdit.maxReps());
+        workoutExercise.setSets(exerciseEdit.count());
+        workoutExercise.setMinReps(exerciseEdit.minReps());
+        workoutExercise.setMaxReps(exerciseEdit.maxReps());
         if (exerciseEdit.minReps() > exerciseEdit.maxReps()) {
-            trainingSet.setMaxReps(exerciseEdit.minReps());
+            workoutExercise.setMaxReps(exerciseEdit.minReps());
         }
-        trainingSet.setWeight(exerciseEdit.weight());
-        trainingSet.setRest(exerciseEdit.rest());
+        workoutExercise.setWeight(exerciseEdit.weight());
+        workoutExercise.setRest(exerciseEdit.rest());
 
-        workoutExerciseRepository.save(trainingSet);
+        workoutExerciseRepository.save(workoutExercise);
     }
 }

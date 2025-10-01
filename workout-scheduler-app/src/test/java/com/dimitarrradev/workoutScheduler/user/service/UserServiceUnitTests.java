@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.randomId;
+import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.randomWorkoutType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -52,7 +54,7 @@ public class UserServiceUnitTests {
     @BeforeEach
     void setUp() {
         user = new User(
-                1L,
+                randomId(),
                 "existing",
                 "first",
                 "last",
@@ -62,7 +64,7 @@ public class UserServiceUnitTests {
                 181,
                 30,
                 "Gym",
-                WorkoutType.BODYBUILDING,
+                randomWorkoutType(),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 List.of(new Role(1L, RoleType.USER, Collections.emptyList())),

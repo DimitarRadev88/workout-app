@@ -3,9 +3,6 @@ package com.dimitarrradev.workoutScheduler.util.mapping.exercise;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.ImageUrl;
 import com.dimitarrradev.workoutScheduler.exercise.dto.*;
-import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
-import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
-import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,8 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
+import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,14 +27,14 @@ public class ExerciseToViewModelMapperUnitTests {
     void setup() {
         exercise = new Exercise(
                 11L,
-                "Test Exercise",
-                getRandomTargetBodyPart(),
-                getRandomMovementType(),
-                "Test Exercise Description",
+                randomExerciseName(),
+                randomTargetBodyPart(),
+                randomMovementType(),
+                randomDescription(),
                 List.of(new ImageUrl(22L, "http://exercise.img", null)),
                 Boolean.FALSE,
                 "Test user",
-                getRandomComplexity()
+                randomComplexity()
         );
     }
 
@@ -115,15 +112,4 @@ public class ExerciseToViewModelMapperUnitTests {
         assertThat(actual).isEqualTo(expected);
     }
 
-    private Complexity getRandomComplexity() {
-        return Complexity.values()[ThreadLocalRandom.current().nextInt(Complexity.values().length - 1)];
-    }
-
-    private MovementType getRandomMovementType() {
-        return MovementType.values()[ThreadLocalRandom.current().nextInt(MovementType.values().length - 1)];
-    }
-
-    private TargetBodyPart getRandomTargetBodyPart() {
-        return TargetBodyPart.values()[ThreadLocalRandom.current().nextInt(TargetBodyPart.values().length - 1)];
-    }
 }

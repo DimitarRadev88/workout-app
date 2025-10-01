@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
+import com.dimitarrradev.workoutScheduler.RandomValueGenerator;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -60,10 +62,10 @@ class WorkoutServiceUnitTests {
         user.setUsername("test-user");
 
         exercise = new Exercise();
-        exercise.setName("test exercise");
+        exercise.setName(randomExerciseName());
 
         workoutExercise = new WorkoutExercise(
-                1L,
+                randomId(),
                 null,
                 exercise,
                 5,
@@ -75,16 +77,16 @@ class WorkoutServiceUnitTests {
         );
 
         workout = new Workout(
-                ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE),
+                randomId(),
                 LocalDateTime.now(),
                 new ArrayList<>(List.of(workoutExercise)),
                 new Program(),
                 Intensity.HIGH,
                 Volume.HIGH,
-                WorkoutType.BODYBUILDING,
+                randomWorkoutType(),
                 user,
                 new DaySchedule(),
-                getRandomTargetBodyPartsList()
+                randomTargetBodyPartsList()
         );
 
 
@@ -93,8 +95,8 @@ class WorkoutServiceUnitTests {
     @Test
     void testCreateWorkoutCreatesWorkoutWithCorrectDataAndSavesItInRepositoryAndReturnsCorrectId() {
         WorkoutAddBindingModel bindingModel = new WorkoutAddBindingModel(
-                getRandomWorkoutType(),
-                getRandomTargetBodyPartsList(),
+                randomWorkoutType(),
+                randomTargetBodyPartsList(),
                 LocalDateTime.now().plusDays(1L)
         );
 
@@ -107,7 +109,7 @@ class WorkoutServiceUnitTests {
         expected.setUser(user);
 
         Workout workoutWithId = new Workout();
-        workoutWithId.setId(1L);
+        workoutWithId.setId(randomId());
         when(workoutRepository.save(expected)).thenReturn(workoutWithId);
 
         long id = workoutService.createWorkout(bindingModel, user.getUsername());
@@ -146,16 +148,18 @@ class WorkoutServiceUnitTests {
 
     @Test
     void testGetWorkoutThrowsWhenWorkoutDoesNotExistInRepository() {
-        when(workoutRepository.findWorkoutByIdAndUser_Username(1L, "test-user"))
+        long randomId = randomId();
+        when(workoutRepository.findWorkoutByIdAndUser_Username(randomId, "test-user"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> workoutService.getWorkout(1L, "test-user"));
+        assertThrows(IllegalArgumentException.class, () -> workoutService.getWorkout(randomId, "test-user"));
     }
 
     @Test
     void testGetAllByUserUsernameReturnsListOfWorkoutViewServiceModelWithCorrectData() {
         when(workoutRepository.findAllByUser_UsernameOrderByWorkoutDateTimeDesc(user.getUsername()))
                 .thenReturn(List.of(workout));
+
         List<WorkoutViewServiceModel> expected = List.of(
                 new WorkoutViewServiceModel(
                         workout.getId(),
@@ -175,24 +179,24 @@ class WorkoutServiceUnitTests {
     @Test
     void testAddWorkoutExerciseAddsAWorkoutExerciseInWorkoutExercisesListAndSavesItInRepositoryWhenWorkoutExistsInRepository() {
         Exercise exercise = new Exercise(
-                234L,
-                "test-exercise",
+                randomId(),
+                randomExerciseName(),
                 workout.getTargetBodyParts().getFirst(),
-                MovementType.COMPOUND,
-                "exercise description",
+                randomMovementType(),
+                randomDescription(),
                 Collections.emptyList(),
                 Boolean.TRUE,
                 user.getUsername(),
-                Complexity.EASY
+                randomComplexity()
         );
 
         ExerciseWorkoutExerciseBindingModel exerciseWorkoutExerciseBindingModel = new ExerciseWorkoutExerciseBindingModel(
-                234L,
+                randomId(),
                 new WorkoutExerciseBindingModel(3, 10, 12, 60, 50.0)
         );
 
         WorkoutExercise workoutExercise = new WorkoutExercise(
-                123L,
+                randomId(),
                 null,
                 exercise,
                 exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().minReps(),
@@ -226,7 +230,7 @@ class WorkoutServiceUnitTests {
                 () -> workoutService
                         .addWorkoutExercise(
                                 workout.getId(),
-                                new ExerciseWorkoutExerciseBindingModel(null, null),
+                                new ExerciseWorkoutExerciseBindingModel(randomId(), null),
                                 user.getUsername()
                         )
         );
@@ -239,7 +243,7 @@ class WorkoutServiceUnitTests {
 
         WorkoutEditBindingModel workoutEditBindingModel = new WorkoutEditBindingModel(
                 WorkoutType.CARDIO,
-                getRandomTargetBodyPartsList()
+                randomTargetBodyPartsList()
         );
 
         workoutService.doEdit(workout.getId(), workoutEditBindingModel, user.getUsername());
@@ -260,28 +264,6 @@ class WorkoutServiceUnitTests {
                         new WorkoutEditBindingModel(null, null),
                         user.getUsername())
         );
-    }
-
-    private WorkoutType getRandomWorkoutType() {
-        return WorkoutType.values()[ThreadLocalRandom.current().nextInt(WorkoutType.values().length - 1)];
-    }
-
-    private List<TargetBodyPart> getRandomTargetBodyPartsList() {
-        int count = ThreadLocalRandom.current().nextInt(TargetBodyPart.values().length - 1);
-
-        List<TargetBodyPart> targetBodyPartNames = new ArrayList<>();
-
-        for (int i = 0; i < count; i++) {
-            int randomIndex = ThreadLocalRandom.current().nextInt(TargetBodyPart.values().length - 1);
-            TargetBodyPart targetBodyPart = TargetBodyPart.values()[randomIndex];
-            if (targetBodyPartNames.contains(targetBodyPart)) {
-                i--;
-            } else {
-                targetBodyPartNames.add(targetBodyPart);
-            }
-        }
-
-        return targetBodyPartNames;
     }
 
 }
