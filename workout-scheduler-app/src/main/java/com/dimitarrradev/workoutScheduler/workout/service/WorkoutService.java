@@ -1,12 +1,12 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
-import com.dimitarrradev.workoutScheduler.exercise.dto.TrainingSetsServiceModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
-import com.dimitarrradev.workoutScheduler.trainingSet.service.TrainingSetService;
+import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
+import com.dimitarrradev.workoutScheduler.workoutExercise.service.WorkoutExerciseService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
-import com.dimitarrradev.workoutScheduler.web.binding.ExerciseTrainingSetsBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.ExerciseWorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutViewServiceModel;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final UserService userService;
-    private final TrainingSetService trainingSetService;
+    private final WorkoutExerciseService workoutExerciseService;
 
     public long createWorkout(WorkoutAddBindingModel workout, String username) {
         User user = userService.getUserEntityByUsername(username);
@@ -45,14 +45,14 @@ public class WorkoutService {
                                 workout.getWorkoutType(),
                                 workout.getTargetBodyParts(),
                                 workout.getWorkoutDateTime(),
-                                workout.getTrainingSets().stream().map(trainingSet -> new TrainingSetsServiceModel(
-                                        trainingSet.getId(),
-                                        trainingSet.getExercise().getName(),
-                                        trainingSet.getCount(),
-                                        trainingSet.getMinReps(),
-                                        trainingSet.getMaxReps(),
-                                        trainingSet.getWeight(),
-                                        trainingSet.getRest()
+                                workout.getWorkoutExercises().stream().map(workoutExercise -> new WorkoutExerciseServiceModel(
+                                        workoutExercise.getId(),
+                                        workoutExercise.getExercise().getName(),
+                                        workoutExercise.getSets(),
+                                        workoutExercise.getMinReps(),
+                                        workoutExercise.getMaxReps(),
+                                        workoutExercise.getWeight(),
+                                        workoutExercise.getRest()
                                 )).toList()
                         )
                 ).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
@@ -74,14 +74,14 @@ public class WorkoutService {
     }
 
     @Transactional
-    public void addTrainingSet(long id, ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel, String username) {
+    public void addWorkoutExercise(long id, ExerciseWorkoutExerciseBindingModel exerciseWorkoutExerciseBindingModel, String username) {
         Workout workout = workoutRepository
                 .findWorkoutByIdAndUser_Username(id, username)
                 .orElseThrow(() -> new IllegalArgumentException("Workout not found"));
 
-        TrainingSet trainingSet = trainingSetService.createTrainingSet(exerciseTrainingSetsBindingModel, workout);
+        WorkoutExercise trainingSet = workoutExerciseService.createWorkoutExercise(exerciseWorkoutExerciseBindingModel, workout);
 
-        workout.getTrainingSets().add(trainingSet);
+        workout.getWorkoutExercises().add(trainingSet);
 
         workoutRepository.save(workout);
     }

@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.trainingSet;
+package com.dimitarrradev.workoutScheduler.workoutExercise;
 
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
@@ -8,11 +8,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "sets")
+@Table(name = "workout-exercises")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrainingSet {
+public class WorkoutExercise {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
@@ -32,6 +32,6 @@ public class TrainingSet {
     @Column(nullable = false)
     private Integer rest;
     @Column(nullable = false)
-    private Integer count;
+    private Integer sets;
 
 }

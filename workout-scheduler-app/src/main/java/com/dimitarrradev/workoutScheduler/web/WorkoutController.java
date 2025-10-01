@@ -3,10 +3,10 @@ package com.dimitarrradev.workoutScheduler.web;
 import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseNameAndIdViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
-import com.dimitarrradev.workoutScheduler.trainingSet.service.TrainingSetService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
 import com.dimitarrradev.workoutScheduler.workout.service.WorkoutService;
 import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
+import com.dimitarrradev.workoutScheduler.workoutExercise.service.WorkoutExerciseService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +26,12 @@ public class WorkoutController {
     private static final Logger log = LoggerFactory.getLogger(WorkoutController.class);
     private final WorkoutService workoutService;
     private final ExerciseService exerciseService;
-    private final TrainingSetService trainingSetService;
+    private final WorkoutExerciseService workoutExerciseService;
 
-    public WorkoutController(WorkoutService workoutService, ExerciseService exerciseService, TrainingSetService trainingSetService) {
+    public WorkoutController(WorkoutService workoutService, ExerciseService exerciseService, WorkoutExerciseService workoutExerciseService) {
         this.workoutService = workoutService;
         this.exerciseService = exerciseService;
-        this.trainingSetService = trainingSetService;
+        this.workoutExerciseService = workoutExerciseService;
     }
 
     @GetMapping
@@ -88,17 +88,17 @@ public class WorkoutController {
         List<ExerciseNameAndIdViewModel> exercises = exerciseService.getExercisesForTargetBodyParts(workout.targetBodyParts());
         TargetBodyPart[] targets = TargetBodyPart.values();
 
-        ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel;
+        ExerciseWorkoutExerciseBindingModel exerciseTrainingSetsBindingModel;
         if (!model.containsAttribute("exerciseTrainingSetsBindingModel")) {
-            TrainingSetBindingModel trainingSetBindingModel;
+            WorkoutExerciseBindingModel workoutExerciseBindingModel;
             if (!model.containsAttribute("trainingSetBindingModel")) {
-                trainingSetBindingModel = new TrainingSetBindingModel(null, null, null, null, null);
+                workoutExerciseBindingModel = new WorkoutExerciseBindingModel(null, null, null, null, null);
             } else {
-                trainingSetBindingModel = (TrainingSetBindingModel) model.getAttribute("trainingSet");
+                workoutExerciseBindingModel = (WorkoutExerciseBindingModel) model.getAttribute("trainingSet");
             }
-            exerciseTrainingSetsBindingModel = new ExerciseTrainingSetsBindingModel(null, trainingSetBindingModel);
+            exerciseTrainingSetsBindingModel = new ExerciseWorkoutExerciseBindingModel(null, workoutExerciseBindingModel);
         } else {
-            exerciseTrainingSetsBindingModel = (ExerciseTrainingSetsBindingModel) model.getAttribute("exerciseTrainingSetsBindingModel");
+            exerciseTrainingSetsBindingModel = (ExerciseWorkoutExerciseBindingModel) model.getAttribute("exerciseTrainingSetsBindingModel");
         }
 
         model.addAttribute("workoutId", id);
@@ -128,7 +128,7 @@ public class WorkoutController {
     @PostMapping("/edit/{id}/addExercise")
     public String postAddExerciseToWorkout(
             @PathVariable Long id,
-            @Valid ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel,
+            @Valid ExerciseWorkoutExerciseBindingModel exerciseTrainingSetsBindingModel,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Authentication authentication
@@ -136,9 +136,9 @@ public class WorkoutController {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("exerciseTrainingSetsBindingModel", exerciseTrainingSetsBindingModel);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseTrainingSetsBindingModel", bindingResult);
-            redirectAttributes.addFlashAttribute("trainingSetBindingModel", exerciseTrainingSetsBindingModel.trainingSet());
+            redirectAttributes.addFlashAttribute("trainingSetBindingModel", exerciseTrainingSetsBindingModel.workoutExerciseBindingModel());
         } else {
-            workoutService.addTrainingSet(id, exerciseTrainingSetsBindingModel, authentication.getName());
+            workoutService.addWorkoutExercise(id, exerciseTrainingSetsBindingModel, authentication.getName());
         }
 
         return "redirect:/workouts/edit/" + id;
@@ -146,18 +146,18 @@ public class WorkoutController {
 
     @DeleteMapping("/edit/{workoutId}/deleteSet/{setId}")
     public String deleteSet(@PathVariable Long workoutId, @PathVariable Long setId) {
-        trainingSetService.delete(setId);
+        workoutExerciseService.delete(setId);
 
         return "redirect:/workouts/edit/" + workoutId;
     }
 
-    @PatchMapping("/{workoutId}/editExercise/{exerciseId}")
+    @PatchMapping("/{workoutId}/editExercise/{id}")
     public String editExerciseInWorkout(
             @PathVariable Long workoutId,
-            @PathVariable Long exerciseId,
+            @PathVariable Long id,
             ExerciseInWorkoutEditBidingModel exerciseEdit) {
 
-        trainingSetService.doEdit(exerciseId, exerciseEdit);
+        workoutExerciseService.doEdit(id, exerciseEdit);
 
         return "redirect:/workouts/edit/" + workoutId;
     }

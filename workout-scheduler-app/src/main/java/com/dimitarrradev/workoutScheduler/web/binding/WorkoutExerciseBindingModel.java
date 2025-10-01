@@ -1,7 +1,7 @@
 package com.dimitarrradev.workoutScheduler.web.binding;
 
-public record TrainingSetBindingModel(
-        Integer count,
+public record WorkoutExerciseBindingModel(
+        Integer sets,
         Integer minReps,
         Integer maxReps,
         Integer rest,

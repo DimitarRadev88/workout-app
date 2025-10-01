@@ -1,9 +1,9 @@
 package com.dimitarrradev.workoutScheduler.exercise.dto;
 
-public record TrainingSetsServiceModel(
+public record WorkoutExerciseServiceModel(
         Long id,
         String exerciseName,
-        Integer count,
+        Integer sets,
         Integer minReps,
         Integer maxReps,
         Double weight,

@@ -3,7 +3,7 @@ package com.dimitarrradev.workoutScheduler.workout;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
-import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
+import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.workout.enums.Intensity;
 import com.dimitarrradev.workoutScheduler.workout.enums.Volume;
@@ -30,7 +30,7 @@ public class Workout {
     @DateTimeFormat(pattern = "dd-MM-yyyy HH-mm")
     private LocalDateTime workoutDateTime;
     @OneToMany(mappedBy = "workout")
-    private List<TrainingSet> trainingSets;
+    private List<WorkoutExercise> workoutExercises;
     @ManyToOne
     private Program program;
     @Basic

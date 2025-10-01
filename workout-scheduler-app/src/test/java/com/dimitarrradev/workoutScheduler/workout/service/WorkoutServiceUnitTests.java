@@ -1,14 +1,14 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
-import com.dimitarrradev.workoutScheduler.exercise.dto.TrainingSetsServiceModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
-import com.dimitarrradev.workoutScheduler.trainingSet.TrainingSet;
-import com.dimitarrradev.workoutScheduler.trainingSet.service.TrainingSetService;
+import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
+import com.dimitarrradev.workoutScheduler.workoutExercise.service.WorkoutExerciseService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
@@ -45,14 +45,14 @@ class WorkoutServiceUnitTests {
     @Mock
     private UserService userService;
     @Mock
-    private TrainingSetService trainingSetService;
+    private WorkoutExerciseService workoutExerciseService;
     @InjectMocks
     private WorkoutService workoutService;
 
     private Workout workout;
     private User user;
     private Exercise exercise;
-    private TrainingSet trainingSet;
+    private WorkoutExercise workoutExercise;
 
     @BeforeEach
     void setUp() {
@@ -62,7 +62,7 @@ class WorkoutServiceUnitTests {
         exercise = new Exercise();
         exercise.setName("test exercise");
 
-        trainingSet = new TrainingSet(
+        workoutExercise = new WorkoutExercise(
                 1L,
                 null,
                 exercise,
@@ -77,7 +77,7 @@ class WorkoutServiceUnitTests {
         workout = new Workout(
                 ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE),
                 LocalDateTime.now(),
-                new ArrayList<>(List.of(trainingSet)),
+                new ArrayList<>(List.of(workoutExercise)),
                 new Program(),
                 Intensity.HIGH,
                 Volume.HIGH,
@@ -127,14 +127,14 @@ class WorkoutServiceUnitTests {
                 workout.getWorkoutType(),
                 workout.getTargetBodyParts(),
                 workout.getWorkoutDateTime(),
-                workout.getTrainingSets().stream().map(set -> new TrainingSetsServiceModel(
-                        set.getId(),
-                        set.getExercise().getName(),
-                        set.getCount(),
-                        set.getMinReps(),
-                        set.getMaxReps(),
-                        set.getWeight(),
-                        set.getRest()
+                workout.getWorkoutExercises().stream().map(workoutExercise -> new WorkoutExerciseServiceModel(
+                        workoutExercise.getId(),
+                        workoutExercise.getExercise().getName(),
+                        workoutExercise.getSets(),
+                        workoutExercise.getMinReps(),
+                        workoutExercise.getMaxReps(),
+                        workoutExercise.getWeight(),
+                        workoutExercise.getRest()
                 )).toList()
         );
 
@@ -173,8 +173,8 @@ class WorkoutServiceUnitTests {
     }
 
     @Test
-    void testAddTrainingSetAddsATrainingSetInWorkoutTrainingSetsListAndSavesItInRepositoryWhenWorkoutExistsInRepository() {
-        Exercise trainingSetExercise = new Exercise(
+    void testAddWorkoutExerciseAddsAWorkoutExerciseInWorkoutExercisesListAndSavesItInRepositoryWhenWorkoutExistsInRepository() {
+        Exercise exercise = new Exercise(
                 234L,
                 "test-exercise",
                 workout.getTargetBodyParts().getFirst(),
@@ -186,30 +186,30 @@ class WorkoutServiceUnitTests {
                 Complexity.EASY
         );
 
-        ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel = new ExerciseTrainingSetsBindingModel(
+        ExerciseWorkoutExerciseBindingModel exerciseWorkoutExerciseBindingModel = new ExerciseWorkoutExerciseBindingModel(
                 234L,
-                new TrainingSetBindingModel(3, 10, 12, 60, 50.0)
+                new WorkoutExerciseBindingModel(3, 10, 12, 60, 50.0)
         );
 
-        TrainingSet trainingSet = new TrainingSet(
+        WorkoutExercise workoutExercise = new WorkoutExercise(
                 123L,
                 null,
-                trainingSetExercise,
-                exerciseTrainingSetsBindingModel.trainingSet().minReps(),
-                exerciseTrainingSetsBindingModel.trainingSet().maxReps(),
+                exercise,
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().minReps(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().maxReps(),
                 0,
-                exerciseTrainingSetsBindingModel.trainingSet().weight(),
-                exerciseTrainingSetsBindingModel.trainingSet().rest(),
-                exerciseTrainingSetsBindingModel.trainingSet().count());
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().weight(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().rest(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().sets());
 
         when(workoutRepository.findWorkoutByIdAndUser_Username(workout.getId(), user.getUsername()))
                 .thenReturn(Optional.of(workout));
 
-        when(trainingSetService.createTrainingSet(exerciseTrainingSetsBindingModel, workout))
-                .thenReturn(trainingSet);
+        when(workoutExerciseService.createWorkoutExercise(exerciseWorkoutExerciseBindingModel, workout))
+                .thenReturn(workoutExercise);
 
 
-        workoutService.addTrainingSet(workout.getId(), exerciseTrainingSetsBindingModel, user.getUsername());
+        workoutService.addWorkoutExercise(workout.getId(), exerciseWorkoutExerciseBindingModel, user.getUsername());
 
         verify(
                 workoutRepository,
@@ -218,15 +218,15 @@ class WorkoutServiceUnitTests {
     }
 
     @Test
-    void testAddTrainingSetThrowsWhenWorkoutDoesNotExistInRepository() {
+    void testAddWorkoutExerciseThrowsWhenWorkoutDoesNotExistInRepository() {
         when(workoutRepository.findWorkoutByIdAndUser_Username(workout.getId(), user.getUsername()))
                 .thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
                 () -> workoutService
-                        .addTrainingSet(
+                        .addWorkoutExercise(
                                 workout.getId(),
-                                new ExerciseTrainingSetsBindingModel(null, null),
+                                new ExerciseWorkoutExerciseBindingModel(null, null),
                                 user.getUsername()
                         )
         );
