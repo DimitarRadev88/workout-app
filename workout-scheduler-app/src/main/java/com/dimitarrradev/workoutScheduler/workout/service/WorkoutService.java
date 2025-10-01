@@ -13,6 +13,7 @@ import com.dimitarrradev.workoutScheduler.web.binding.WorkoutViewServiceModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import com.dimitarrradev.workoutScheduler.workout.dao.WorkoutRepository;
 import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -39,23 +40,22 @@ public class WorkoutService {
     }
 
     public WorkoutEditServiceModel getWorkout(long id, String username) {
-        userService.getUserEntityByUsername(username);
-
-        return workoutRepository.findWorkoutByIdAndUser_Username(id, username).map(workout -> new WorkoutEditServiceModel(
-                        workout.getWorkoutType(),
-                        workout.getTargetBodyParts(),
-                        workout.getWorkoutDateTime(),
-                        workout.getTrainingSets().stream().map(trainingSet -> new TrainingSetsServiceModel(
-                                trainingSet.getId(),
-                                trainingSet.getExercise().getName(),
-                                trainingSet.getCount(),
-                                trainingSet.getMinReps(),
-                                trainingSet.getMaxReps(),
-                                trainingSet.getWeight(),
-                                trainingSet.getRest()
-                        )).toList()
-                )
-        ).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+        return workoutRepository.findWorkoutByIdAndUser_Username(id, username)
+                .map(workout -> new WorkoutEditServiceModel(
+                                workout.getWorkoutType(),
+                                workout.getTargetBodyParts(),
+                                workout.getWorkoutDateTime(),
+                                workout.getTrainingSets().stream().map(trainingSet -> new TrainingSetsServiceModel(
+                                        trainingSet.getId(),
+                                        trainingSet.getExercise().getName(),
+                                        trainingSet.getCount(),
+                                        trainingSet.getMinReps(),
+                                        trainingSet.getMaxReps(),
+                                        trainingSet.getWeight(),
+                                        trainingSet.getRest()
+                                )).toList()
+                        )
+                ).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
     }
 
     public List<WorkoutViewServiceModel> getAllByUserUsername(String username) {
@@ -73,8 +73,11 @@ public class WorkoutService {
                 ).toList();
     }
 
-    public void addExerciseAndTrainingSetsToWorkout(Long id, ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel) {
-        Workout workout = workoutRepository.findWorkoutById(id).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+    @Transactional
+    public void addTrainingSet(long id, ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel, String username) {
+        Workout workout = workoutRepository
+                .findWorkoutByIdAndUser_Username(id, username)
+                .orElseThrow(() -> new IllegalArgumentException("Workout not found"));
 
         TrainingSet trainingSet = trainingSetService.createTrainingSet(exerciseTrainingSetsBindingModel, workout);
 
@@ -83,8 +86,10 @@ public class WorkoutService {
         workoutRepository.save(workout);
     }
 
-    public void doEdit(Long id, WorkoutEditBindingModel workoutEdit) {
-        Workout workout = workoutRepository.findWorkoutById(id).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+    public void doEdit(long id, WorkoutEditBindingModel workoutEdit, String username) {
+        Workout workout = workoutRepository
+                .findWorkoutByIdAndUser_Username(id, username)
+                .orElseThrow(() -> new IllegalArgumentException("Workout not found"));
 
         workout.setWorkoutType(workoutEdit.workoutType());
         workout.setTargetBodyParts(workoutEdit.targetBodyParts());

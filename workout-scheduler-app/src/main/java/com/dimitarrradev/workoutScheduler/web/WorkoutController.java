@@ -116,9 +116,10 @@ public class WorkoutController {
     public String postWorkoutEdit(
             @PathVariable Long id,
             @Valid WorkoutEditBindingModel workout,
-            BindingResult bindingResult) {
+            BindingResult bindingResult,
+            Authentication authentication) {
         if (!bindingResult.hasErrors()) {
-            workoutService.doEdit(id, workout);
+            workoutService.doEdit(id, workout, authentication.getName());
         }
 
         return "redirect:/workouts/edit/" + id;
@@ -129,17 +130,18 @@ public class WorkoutController {
             @PathVariable Long id,
             @Valid ExerciseTrainingSetsBindingModel exerciseTrainingSetsBindingModel,
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes
+            RedirectAttributes redirectAttributes,
+            Authentication authentication
     ) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("exerciseTrainingSetsBindingModel", exerciseTrainingSetsBindingModel);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseTrainingSetsBindingModel", bindingResult);
             redirectAttributes.addFlashAttribute("trainingSetBindingModel", exerciseTrainingSetsBindingModel.trainingSet());
         } else {
-            workoutService.addExerciseAndTrainingSetsToWorkout(id, exerciseTrainingSetsBindingModel);
+            workoutService.addTrainingSet(id, exerciseTrainingSetsBindingModel, authentication.getName());
         }
 
-        return  "redirect:/workouts/edit/" + id;
+        return "redirect:/workouts/edit/" + id;
     }
 
     @DeleteMapping("/edit/{workoutId}/deleteSet/{setId}")

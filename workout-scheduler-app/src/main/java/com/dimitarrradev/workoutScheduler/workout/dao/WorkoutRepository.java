@@ -11,9 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface WorkoutRepository extends JpaRepository<Workout, Long> {
-    Optional<Workout> findWorkoutById(Long id);
+    List<Workout> findAllByUser_UsernameOrderByWorkoutDateTimeDesc(String username);
 
-    List<Workout> findAllByUser_UsernameOrderByWorkoutDateTimeDesc(String userUsername);
-
-    Optional<Workout> findWorkoutByIdAndUser_Username(long id, String userUsername);
+    Optional<Workout> findWorkoutByIdAndUser_Username(long id, String username);
 }
