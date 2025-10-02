@@ -1,15 +1,10 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
-import com.dimitarrradev.workoutScheduler.RandomValueGenerator;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
-import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
-import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
-import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
-import com.dimitarrradev.workoutScheduler.workoutExercise.service.WorkoutExerciseService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
@@ -19,6 +14,8 @@ import com.dimitarrradev.workoutScheduler.workout.enums.Intensity;
 import com.dimitarrradev.workoutScheduler.workout.enums.Volume;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditServiceModel;
+import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
+import com.dimitarrradev.workoutScheduler.workoutExercise.service.WorkoutExerciseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.*;

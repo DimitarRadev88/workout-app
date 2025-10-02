@@ -4,6 +4,7 @@ import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseWorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseBindingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import com.dimitarrradev.workoutScheduler.workout.enums.Intensity;
 import com.dimitarrradev.workoutScheduler.workout.enums.Volume;
@@ -18,8 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 
 import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,6 +95,136 @@ public class WorkoutExerciseServiceUnitTests {
                 workoutExerciseRepository,
                 times(1)
         ).deleteById(id);
+    }
+
+    @Test
+    void testDoEditSavesWorkoutExerciseWithNewDataInRepository() {
+        long id = randomId();
+        long workoutId = randomId();
+        Exercise exercise = new Exercise(
+                randomId(),
+                randomExerciseName(),
+                randomTargetBodyPart(),
+                randomMovementType(),
+                randomDescription(),
+                Collections.emptyList(),
+                Boolean.TRUE,
+                "user",
+                randomComplexity()
+        );
+
+        WorkoutExercise workoutExercise = new WorkoutExercise(
+                id,
+                null,
+                exercise,
+                4,
+                6,
+                0,
+                80.0,
+                90,
+                3
+        );
+
+        WorkoutExerciseEditBindingModel bindingModel = new WorkoutExerciseEditBindingModel(
+                4,
+                10,
+                12,
+                60.0,
+                60
+        );
+
+        WorkoutExercise expected = new WorkoutExercise(
+                workoutExercise.getId(),
+                null,
+                exercise,
+                bindingModel.minReps(),
+                bindingModel.maxReps(),
+                0,
+                bindingModel.weight(),
+                bindingModel.rest(),
+                bindingModel.sets()
+        );
+
+        when(workoutExerciseRepository.findByIdAndWorkout_Id(id, workoutId))
+                .thenReturn(Optional.of(workoutExercise));
+
+        workoutExerciseService.doEdit(id, workoutId, bindingModel);
+
+        verify(
+                workoutExerciseRepository,
+                times(1))
+                .save(expected);
+    }
+
+    @Test
+    void testDoEditWithMaxRepsLessThanMinSetsChangesMaxRepsValueToMinRepsValueSavesWorkoutExerciseWithNewDataInRepository() {
+        long id = randomId();
+        long workoutId = randomId();
+        Exercise exercise = new Exercise(
+                randomId(),
+                randomExerciseName(),
+                randomTargetBodyPart(),
+                randomMovementType(),
+                randomDescription(),
+                Collections.emptyList(),
+                Boolean.TRUE,
+                "user",
+                randomComplexity()
+        );
+
+        WorkoutExercise workoutExercise = new WorkoutExercise(
+                id,
+                null,
+                exercise,
+                4,
+                6,
+                0,
+                80.0,
+                90,
+                3
+        );
+
+        WorkoutExerciseEditBindingModel bindingModel = new WorkoutExerciseEditBindingModel(
+                4,
+                10,
+                8,
+                60.0,
+                60
+        );
+
+        WorkoutExercise expected = new WorkoutExercise(
+                workoutExercise.getId(),
+                null,
+                exercise,
+                bindingModel.minReps(),
+                bindingModel.minReps(),
+                0,
+                bindingModel.weight(),
+                bindingModel.rest(),
+                bindingModel.sets()
+        );
+
+        when(workoutExerciseRepository.findByIdAndWorkout_Id(id, workoutId))
+                .thenReturn(Optional.of(workoutExercise));
+
+        workoutExerciseService.doEdit(id, workoutId, bindingModel);
+
+        verify(
+                workoutExerciseRepository,
+                times(1))
+                .save(expected);
+    }
+
+    @Test
+    void testDoEditThrowsWhenExerciseNotFoundInRepository() {
+        long id = randomId();
+        long workoutId = randomId();
+
+        when(workoutExerciseRepository.findByIdAndWorkout_Id(id, workoutId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> workoutExerciseService.doEdit(id, workoutId, null));
     }
 
 }

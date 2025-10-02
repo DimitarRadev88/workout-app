@@ -5,6 +5,7 @@ import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,12 +19,10 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/exercises")
+@RequiredArgsConstructor
 public class ExerciseController {
-    private final ExerciseService exerciseService;
 
-    public ExerciseController(ExerciseService exerciseService) {
-        this.exerciseService = exerciseService;
-    }
+    private final ExerciseService exerciseService;
 
     @GetMapping("/find/{muscleGroup}")
     public String getFindExercises(

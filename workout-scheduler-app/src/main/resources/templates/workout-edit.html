@@ -100,7 +100,7 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col col-xxl-12">
-                                                <form th:action="@{/workouts/edit/{id}/addExercise(id=${workoutId})}" th:object="${exerciseTrainingSetsBindingModel}" method="post">
+                                                <form th:action="@{/workouts/edit/{id}/addExercise(id=${workoutId})}" th:object="${exerciseWorkoutExerciseBindingModel}" method="post">
                                                     <div class="row">
                                                         <div class="col">
                                                             <div class="mb-3">
@@ -118,33 +118,33 @@
                                                     <div class="row">
                                                         <div class="col">
                                                             <div class="mb-3">
-                                                                <label class="form-label" for="sets"><strong>Sets</strong><span class="text-danger" th:if="*{trainingSet.count == null}">*</span></label>
-                                                                <input class="form-control" type="number" th:field="*{trainingSet.count}" id="sets" min="1" required>
+                                                                <label class="form-label" for="sets"><strong>Sets</strong><span class="text-danger" th:if="*{workoutExerciseBindingModel.sets == null}">*</span></label>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.sets}" id="sets" min="1" required>
                                                             </div>
                                                         </div>
                                                         <div class="col">
                                                             <div class="mb-3">
                                                                 <label class="form-label">
-                                                                    <strong class="text-danger" th:if="*{trainingSet.minReps > trainingSet.maxReps}">Min reps must be less or equal to Max reps</strong>
-                                                                    <strong th:unless="*{trainingSet.minReps != null && trainingSet.maxReps != null && trainingSet.minReps > trainingSet.maxReps}">Reps</strong>
-                                                                    <span class="text-danger" th:if="*{trainingSet.minReps == null || trainingSet.maxReps == null}">*</span>
+                                                                    <strong class="text-danger" th:if="*{workoutExerciseBindingModel.minReps > workoutExerciseBindingModel.maxReps}">Min reps must be less or equal to Max reps</strong>
+                                                                    <strong th:unless="*{workoutExerciseBindingModel.minReps != null && workoutExerciseBindingModel.maxReps != null && workoutExerciseBindingModel.minReps > workoutExerciseBindingModel.maxReps}">Reps</strong>
+                                                                    <span class="text-danger" th:if="*{workoutExerciseBindingModel.minReps == null || workoutExerciseBindingModel.maxReps == null}">*</span>
                                                                 </label>
-                                                                <input class="form-control" type="number" th:field="*{trainingSet.minReps}" placeholder="Min reps" id="min_reps" min="1" required>
-                                                                <input class="form-control" type="number" th:field="*{trainingSet.maxReps}" placeholder="Max reps" id="max_reps" min="1" required>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.minReps}" placeholder="Min reps" id="min_reps" min="1" required>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.maxReps}" placeholder="Max reps" id="max_reps" min="1" required>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col">
                                                             <div class="mb-3">
-                                                                <label class="form-label" for="rest"><strong>Rest</strong><span class="text-danger" th:if="*{trainingSet.rest == null}">*</span></label>
-                                                                <input class="form-control" type="number" th:field="*{trainingSet.rest}" id="rest" min="15" required>
+                                                                <label class="form-label" for="rest"><strong>Rest</strong><span class="text-danger" th:if="*{workoutExerciseBindingModel.rest == null}">*</span></label>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.rest}" id="rest" min="15" required>
                                                             </div>
                                                         </div>
                                                         <div class="col">
                                                             <div class="mb-3">
-                                                                <label class="form-label" for="weight"><strong>Weight</strong><span class="text-danger" th:if="*{trainingSet.weight == null}">*</span></label>
-                                                                <input class="form-control" type="number" th:field="*{trainingSet.weight}" id="weight" step=".25" min="0.5" required >
+                                                                <label class="form-label" for="weight"><strong>Weight</strong><span class="text-danger" th:if="*{workoutExerciseBindingModel.weight == null}">*</span></label>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.weight}" id="weight" step=".25" min="0.5" required >
                                                             </div>
                                                         </div>
                                                     </div>
@@ -178,7 +178,7 @@
                                                 <tr th:each="exercise : ${workoutExercises}">
                                                     <form th:action="@{/workouts/{workoutId}/editExercise/{exerciseId}(workoutId=${workoutId}, exerciseId=${exercise.id})}" th:method="@{PATCH}">
                                                         <td th:text="${exercise.exerciseName}">Bench Press</td>
-                                                        <td><input class="form-control form-control-sm" type="number" min="1" required name="count" th:value="${exercise.count}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="1" required name="sets" th:value="${exercise.sets}"></td>
                                                         <td><input class="form-control form-control-sm" type="number" min="1" required name="minReps" th:value="${exercise.minReps}"></td>
                                                         <td><input class="form-control form-control-sm" type="number" min="1" required name="maxReps" th:value="${exercise.maxReps}"></td>
                                                         <td><input class="form-control form-control-sm" type="number" min="0.5" step="0.25" required name="weight" th:value="${exercise.weight}"></td>
@@ -186,7 +186,7 @@
                                                         <td><button class="btn btn-primary btn-sm" type="submit">Edit</button></td>
                                                     </form>
                                                     <td>
-                                                        <form th:action="@{/workouts/edit/{workoutId}/deleteSet/{setId}(workoutId=${workoutId}, setId=${exercise.id})}" th:method="@{DELETE}">
+                                                        <form th:action="@{/workouts/edit/{workoutId}/deleteExercise/{setId}(workoutId=${workoutId}, setId=${exercise.id})}" th:method="@{DELETE}">
                                                             <button class="btn btn-danger btn-sm" type="submit">Delete</button>
                                                         </form>
                                                     </td>

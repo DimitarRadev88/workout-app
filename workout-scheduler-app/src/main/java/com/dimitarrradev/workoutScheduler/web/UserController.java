@@ -1,10 +1,11 @@
 package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileAccountViewModel;
 import com.dimitarrradev.workoutScheduler.user.dto.UserProfileInfoViewModel;
+import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,14 +15,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping("/login")
     public String getLoginPage(Model model) {
@@ -42,7 +40,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ModelAndView registerUser(ModelAndView modelAndView, @Valid @ModelAttribute("userRegister") UserRegisterBindingModel userRegister, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public ModelAndView registerUser(
+            ModelAndView modelAndView,
+            @Valid UserRegisterBindingModel userRegister,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("userRegister", userRegister);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userRegister", bindingResult);
@@ -101,7 +104,11 @@ public class UserController {
     }
 
     @PatchMapping("/profile-account-edit")
-    public String postProfileAccountEdit(Authentication authentication, @Valid @ModelAttribute("profileAccountEdit") UserProfileAccountEditBindingModel profileAccountEdit, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String postProfileAccountEdit(
+            @Valid UserProfileAccountEditBindingModel profileAccountEdit,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("profileAccountEdit", profileAccountEdit);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.profileAccountEdit", bindingResult);

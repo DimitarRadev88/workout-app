@@ -13,6 +13,7 @@ import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,20 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ExerciseService {
 
-    private static final Logger log = LoggerFactory.getLogger(ExerciseService.class);
     private final ExerciseRepository exerciseRepository;
     private final ImageUrlRepository imageUrlRepository;
     private final ExerciseFromBindingModelMapper mapperFrom;
     private final ExerciseToViewModelMapper mapperTo;
-
-    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository, ExerciseFromBindingModelMapper mapperFrom, ExerciseToViewModelMapper mapperTo) {
-        this.exerciseRepository = exerciseRepository;
-        this.imageUrlRepository = imageUrlRepository;
-        this.mapperFrom = mapperFrom;
-        this.mapperTo = mapperTo;
-    }
 
     public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
         if (exerciseRepository.existsExerciseByName(exerciseAdd.exerciseName())) {

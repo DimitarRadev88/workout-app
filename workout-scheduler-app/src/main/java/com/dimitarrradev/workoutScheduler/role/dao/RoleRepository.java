@@ -6,11 +6,14 @@ import jakarta.annotation.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Resource
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
     List<Role> getRolesBy();
 
-    Role getRolesByRoleType(RoleType roleType);
+    Optional<Role> getRoleByRoleType(RoleType roleType);
+
+    boolean existsRoleByRoleType(RoleType roleType);
 }

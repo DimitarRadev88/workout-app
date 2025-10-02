@@ -46,7 +46,7 @@ public class RandomValueGenerator {
     }
 
     public static List<TargetBodyPart> randomTargetBodyPartsList() {
-        int count = ThreadLocalRandom.current().nextInt(TargetBodyPart.values().length - 1);
+        int count = ThreadLocalRandom.current().nextInt(1,TargetBodyPart.values().length - 1);
 
         List<TargetBodyPart> targetBodyPartNames = new ArrayList<>();
 

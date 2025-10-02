@@ -3,7 +3,7 @@ package com.dimitarrradev.workoutScheduler.workoutExercise.service;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
 import com.dimitarrradev.workoutScheduler.workoutExercise.dao.WorkoutExerciseRepository;
-import com.dimitarrradev.workoutScheduler.web.binding.ExerciseInWorkoutEditBidingModel;
+import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseWorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +38,11 @@ public class WorkoutExerciseService {
         workoutExerciseRepository.deleteById(id);
     }
 
-    public void doEdit(Long id, ExerciseInWorkoutEditBidingModel exerciseEdit) {
-        WorkoutExercise workoutExercise = workoutExerciseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Exercise " + id + " for current workout: not found"));
+    public void doEdit(Long id, Long workoutId, WorkoutExerciseEditBindingModel exerciseEdit) {
+        WorkoutExercise workoutExercise = workoutExerciseRepository.findByIdAndWorkout_Id(id, workoutId)
+                .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
 
-        workoutExercise.setSets(exerciseEdit.count());
+        workoutExercise.setSets(exerciseEdit.sets());
         workoutExercise.setMinReps(exerciseEdit.minReps());
         workoutExercise.setMaxReps(exerciseEdit.maxReps());
         if (exerciseEdit.minReps() > exerciseEdit.maxReps()) {

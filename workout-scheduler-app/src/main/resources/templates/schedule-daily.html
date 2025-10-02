@@ -32,11 +32,11 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="workout : ${dailySchedule.workouts()}">
-                                    <td th:text="${workout.targetBodyParts}">Chest</td>
-                                    <td th:text="${workout.intensity}">Low</td>
-                                    <td th:text="${workout.volume}">Low</td>
-                                    <td th:text="${workout.timeOfDay}">Morning</td>
+                                <tr th:each="workout : ${dailySchedule.workouts}">
+                                    <td th:text="${workout.workoutDateTime}">Chest</td>
+                                    <td th:text="${workout.isCompleted}">Low</td>
+                                    <td></td>Low</td>
+                                    <td>Morning</td>
                                     <td>
                                         <button class="btn btn-primary text-white" type="button">View</button>
                                     </td>
@@ -56,7 +56,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 align-self-center">
-                                <p id="dataTable_info" class="dataTables_info" role="status" th:text="${dailySchedule.workouts().size()} + ' workouts'" aria-live="polite"></p>
+                                <p id="dataTable_info" class="dataTables_info" role="status" th:text="${dailySchedule.workouts.size()} + ' workouts'" aria-live="polite"></p>
                             </div>
                         </div>
                     </div>

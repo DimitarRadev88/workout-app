@@ -2,6 +2,9 @@ package com.dimitarrradev.workoutScheduler.workout.service;
 
 import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
+import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
+import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
+import com.dimitarrradev.workoutScheduler.schedule.dao.DayScheduleRepository;
 import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
 import com.dimitarrradev.workoutScheduler.workoutExercise.service.WorkoutExerciseService;
 import com.dimitarrradev.workoutScheduler.user.User;
@@ -26,7 +29,9 @@ public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final UserService userService;
     private final WorkoutExerciseService workoutExerciseService;
+    private final DayScheduleRepository dayScheduleRepository;
 
+    @Transactional
     public long createWorkout(WorkoutAddBindingModel workout, String username) {
         User user = userService.getUserEntityByUsername(username);
 
@@ -35,6 +40,12 @@ public class WorkoutService {
         newWorkout.setTargetBodyParts(workout.targetBodyParts());
         newWorkout.setWorkoutDateTime(workout.workoutDateTime());
         newWorkout.setUser(user);
+        DaySchedule daySchedule = new DaySchedule();
+        daySchedule.setUser(user);
+        daySchedule.setDate(workout.workoutDateTime().toLocalDate());
+        DaySchedule save = dayScheduleRepository.save(daySchedule);
+
+        newWorkout.setDaySchedule(save);
 
         return workoutRepository.save(newWorkout).getId();
     }
