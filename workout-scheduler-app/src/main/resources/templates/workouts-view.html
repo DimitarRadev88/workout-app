@@ -40,7 +40,8 @@
                                                                             <th>Type</th>
                                                                             <th>Target</th>
                                                                             <th>Date</th>
-                                                                            <th>Action</th>
+                                                                            <th></th>
+                                                                            <th></th>
                                                                         </tr>
                                                                         </thead>
                                                                         <tbody th:each="workout : ${workouts}">
@@ -56,6 +57,11 @@
                                                                             <td>
                                                                                 <a class="btn btn-primary text-white"
                                                                                    th:href="@{/workouts/edit/{id}(id=${workout.id})}">Edit</a>
+                                                                            </td>
+                                                                            <td>
+                                                                                <form th:method="@{DELETE}" th:action="@{/workouts/delete/{id}(id=${workout.id})}">
+                                                                                    <button class="btn btn-danger text-white">Delete</button>
+                                                                                </form>
                                                                             </td>
                                                                         </tr>
                                                                         </tbody>

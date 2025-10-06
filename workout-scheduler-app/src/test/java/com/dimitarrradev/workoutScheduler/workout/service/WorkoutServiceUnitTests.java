@@ -5,6 +5,7 @@ import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceMod
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
+import com.dimitarrradev.workoutScheduler.schedule.service.ScheduleService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
@@ -23,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +46,8 @@ class WorkoutServiceUnitTests {
     private UserService userService;
     @Mock
     private WorkoutExerciseService workoutExerciseService;
+    @Mock
+    private ScheduleService scheduleService;
     @InjectMocks
     private WorkoutService workoutService;
 
@@ -72,6 +76,11 @@ class WorkoutServiceUnitTests {
                 4
         );
 
+        DaySchedule daySchedule = new DaySchedule();
+        daySchedule.setId(randomId());
+        daySchedule.setUser(user);
+        daySchedule.setDate(LocalDate.now());
+
         workout = new Workout(
                 randomId(),
                 LocalDateTime.now(),
@@ -81,11 +90,10 @@ class WorkoutServiceUnitTests {
                 Volume.HIGH,
                 randomWorkoutType(),
                 user,
-                new DaySchedule(),
+                daySchedule,
                 randomTargetBodyPartsList()
         );
-
-
+        daySchedule.setWorkouts(new ArrayList<>(List.of(workout)));
     }
 
     @Test
@@ -96,7 +104,8 @@ class WorkoutServiceUnitTests {
                 LocalDateTime.now().plusDays(1L)
         );
 
-        when(userService.getUserEntityByUsername(user.getUsername())).thenReturn(user);
+        when(userService.getUserEntityByUsername(user.getUsername()))
+                .thenReturn(user);
 
         Workout expected = new Workout();
         expected.setWorkoutType(bindingModel.workoutType());
@@ -104,16 +113,32 @@ class WorkoutServiceUnitTests {
         expected.setWorkoutDateTime(bindingModel.workoutDateTime());
         expected.setUser(user);
 
+        DaySchedule daySchedule = new DaySchedule();
+        daySchedule.setId(randomId());
+        daySchedule.setUser(user);
+        daySchedule.setDate(bindingModel.workoutDateTime().toLocalDate());
+
+        when(scheduleService.getDayScheduleForDate(user.getUsername(), bindingModel.workoutDateTime().toLocalDate()))
+                .thenReturn(daySchedule);
+
+        expected.setDaySchedule(daySchedule);
+
         Workout workoutWithId = new Workout();
         workoutWithId.setId(randomId());
-        when(workoutRepository.save(expected)).thenReturn(workoutWithId);
+
+        when(workoutRepository.save(expected))
+                .thenReturn(workoutWithId);
+
 
         long id = workoutService.createWorkout(bindingModel, user.getUsername());
 
-        assertThat(id).isEqualTo(workoutWithId.getId());
+        assertThat(id)
+                .isEqualTo(workoutWithId.getId());
 
-        verify(workoutRepository, times(1))
-                .save(expected);
+        verify(
+                workoutRepository,
+                times(1)
+        ).save(expected);
     }
 
     @Test
@@ -259,6 +284,55 @@ class WorkoutServiceUnitTests {
                         workout.getId(),
                         new WorkoutEditBindingModel(null, null),
                         user.getUsername())
+        );
+    }
+
+    @Test
+    void testDoDeleteDeletesWorkoutAndScheduleIfOnlyOneWorkoutExistsInRepositoryForTheDay() {
+        when(workoutRepository.findWorkoutByIdAndUser_Username(workout.getId(), user.getUsername()))
+                .thenReturn(Optional.of(workout));
+
+        workoutService.doDelete(user.getUsername(), workout.getId());
+
+        verify(
+                workoutRepository,
+                times(1)
+        ).deleteById(workout.getId());
+
+        verify(
+                scheduleService,
+                times(1)
+        ).doDelete(user.getUsername(), workout.getDaySchedule().getId());
+    }
+
+    @Test
+    void testDoDeleteDeletesWorkoutButNotScheduleIfMoreThanOneWorkoutExistsInRepositoryForTheDay() {
+        when(workoutRepository.findWorkoutByIdAndUser_Username(workout.getId(), user.getUsername()))
+                .thenReturn(Optional.of(workout));
+
+        workout.getDaySchedule().getWorkouts().add(new Workout());
+
+        workoutService.doDelete(user.getUsername(), workout.getId());
+
+        verify(
+                workoutRepository,
+                times(1)
+        ).deleteById(workout.getId());
+
+        verify(
+                scheduleService,
+                never()
+        ).doDelete(user.getUsername(), workout.getDaySchedule().getId());
+    }
+
+    @Test
+    void testDoDeleteThrowsWhenWorkoutDoesNotExistInRepository() {
+        when(workoutRepository.findWorkoutByIdAndUser_Username(workout.getId(), user.getUsername()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> workoutService.doDelete(user.getUsername(), workout.getId())
         );
     }
 

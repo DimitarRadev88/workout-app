@@ -12,4 +12,5 @@ public interface DayScheduleRepository extends JpaRepository<DaySchedule, Long> 
 
     Optional<DaySchedule> findDayScheduleByUser_UsernameAndDate(String username, LocalDate date);
 
+    void deleteByIdAndUser_Username(Long id, String username);
 }

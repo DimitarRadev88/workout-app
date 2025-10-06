@@ -139,9 +139,9 @@ public class WorkoutController {
         return "redirect:/workouts/edit/" + id;
     }
 
-    @DeleteMapping("/edit/{workoutId}/deleteExercise/{setId}")
-    public String deleteSet(@PathVariable Long workoutId, @PathVariable Long setId) {
-        workoutExerciseService.delete(setId);
+    @DeleteMapping("/edit/{workoutId}/deleteExercise/{exerciseId}")
+    public String deleteSet(@PathVariable Long workoutId, @PathVariable Long exerciseId) {
+        workoutExerciseService.delete(exerciseId);
 
         return "redirect:/workouts/edit/" + workoutId;
     }
@@ -155,6 +155,13 @@ public class WorkoutController {
         workoutExerciseService.doEdit(id, workoutId, exerciseEdit);
 
         return "redirect:/workouts/edit/" + workoutId;
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public String deleteWorkout(@PathVariable Long id, Authentication authentication) {
+        workoutService.doDelete(authentication.getName(), id);
+
+        return "redirect:/workouts/view";
     }
 
 }
