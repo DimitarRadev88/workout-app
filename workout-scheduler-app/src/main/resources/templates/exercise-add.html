@@ -25,6 +25,12 @@
                                     <div class="card-body">
                                         <form th:action="@{/exercises/add}" th:object="${exerciseAdd}" method="post">
                                             <div class="row">
+                                                <div>
+                                                    <p class="text-bg-danger fw-bold d-flex justify-content-between" th:if="${error}" id="error">
+                                                        <span th:text="${error}"></span>
+                                                        <button class="btn btn-sm btn-danger" onclick="hideError()">X</button>
+                                                    </p>
+                                                </div>
                                                 <div class="col">
                                                     <div class="mb-3">
                                                         <div th:unless="${#fields.hasErrors('complexity')}" class="form-label"><strong>Complexity</strong></div>

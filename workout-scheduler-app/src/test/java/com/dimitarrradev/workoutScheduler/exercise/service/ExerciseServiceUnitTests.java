@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.exercise.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.ImageUrl;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
@@ -114,7 +115,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.existsExerciseByName(exerciseAddBindingModel.exerciseName()))
                 .thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.addExerciseForReview(exerciseAddBindingModel));
+        assertThrows(
+                ExerciseAlreadyExistsException.class,
+                () -> exerciseService.addExerciseForReview(exerciseAddBindingModel)
+        );
     }
 
     @Test

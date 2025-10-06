@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import static com.dimitarrradev.workoutScheduler.exception.ErrorMessage.*;
+import static com.dimitarrradev.workoutScheduler.errors.ErrorMessage.*;
 
 public record ExerciseAddBindingModel(
         @NotBlank(message = EXERCISE_NAME_MESSAGE) @Size(min = 2, max = 100, message = EXERCISE_NAME_MESSAGE) String exerciseName,

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.dimitarrradev.workoutScheduler.exception.ErrorMessage.*;
+import static com.dimitarrradev.workoutScheduler.errors.ErrorMessage.*;
 
 public record WorkoutAddBindingModel(
         @NotNull(message = WORKOUT_TYPE_ERROR_MESSAGE) WorkoutType workoutType,

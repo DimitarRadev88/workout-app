@@ -90,3 +90,8 @@ function redirectAddWorkoutWithFilterForExercises() {
     window.location.replace(replaceQueryParam(window.location.href, "selectedBodyParts", values));
 }
 
+function hideError() {
+    const paragraph = document.getElementById("error");
+    paragraph.setAttribute(display, "none");
+}
+

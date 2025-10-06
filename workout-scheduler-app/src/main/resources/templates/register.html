@@ -18,6 +18,9 @@
                         <div class="text-center">
                             <h4 class="text-dark mb-4">Create an Account!</h4>
                         </div>
+                        <div>
+                            <span class="text-danger" th:if="${error}" th:text="${error}"></span>
+                        </div>
                         <form class="user" th:action="@{/users/register}" th:object="${userRegister}"
                               th:method="@{post}">
                             <div class="mb-3">

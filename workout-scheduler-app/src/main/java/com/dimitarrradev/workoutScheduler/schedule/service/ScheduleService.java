@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.schedule.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.ScheduleDoesNotExistException;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
 import com.dimitarrradev.workoutScheduler.schedule.dao.DayScheduleRepository;
 import com.dimitarrradev.workoutScheduler.schedule.dao.WeekScheduleRepository;
@@ -25,7 +26,7 @@ public class ScheduleService {
     public DailyScheduleServiceViewModel getDailySchedule(String username) {
         DaySchedule daySchedule = dayScheduleRepository
                 .findDayScheduleByUser_UsernameAndDate(username, LocalDate.now())
-                .orElseThrow(() -> new IllegalArgumentException("No schedule found"));
+                .orElseThrow(() -> new ScheduleDoesNotExistException("Nothing scheduled for today"));
 
         return new DailyScheduleServiceViewModel(
                 daySchedule.getWorkouts().stream().map(workout -> new WorkoutInScheduleViewModel(

@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.exception;
+package com.dimitarrradev.workoutScheduler.errors;
 
 public class ErrorMessage {
     public static final String EXERCISE_NAME_MESSAGE = "Exercise name should be between 2 and 100 symbols";

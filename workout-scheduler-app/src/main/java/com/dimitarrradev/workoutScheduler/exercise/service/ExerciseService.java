@@ -1,5 +1,7 @@
 package com.dimitarrradev.workoutScheduler.exercise.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlRepository;
@@ -14,8 +16,6 @@ import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +36,7 @@ public class ExerciseService {
 
     public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
         if (exerciseRepository.existsExerciseByName(exerciseAdd.exerciseName())) {
-            throw new IllegalArgumentException("Exercise already exists");
+            throw new ExerciseAlreadyExistsException("Exercise already exists");
         }
 
         Exercise exercise = mapperFrom.fromExerciseAddBindingModel(exerciseAdd);

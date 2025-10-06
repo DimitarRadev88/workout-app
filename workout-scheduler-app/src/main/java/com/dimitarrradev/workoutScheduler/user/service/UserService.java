@@ -1,5 +1,8 @@
 package com.dimitarrradev.workoutScheduler.user.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.PasswordsDoNotMatchException;
+import com.dimitarrradev.workoutScheduler.errors.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.service.RoleService;
 import com.dimitarrradev.workoutScheduler.user.User;
@@ -49,12 +52,16 @@ public class UserService {
 
     @Transactional
     public String doRegister(UserRegisterBindingModel userRegisterBindingModel) {
+        if (!userRegisterBindingModel.password().equals(userRegisterBindingModel.confirmPassword())) {
+            throw new PasswordsDoNotMatchException("Passwords do not match");
+        }
+
         if (userRepository.existsUserByUsername(userRegisterBindingModel.username())) {
-            throw new IllegalArgumentException("Username is already in use");
+            throw new UsernameAlreadyExistsException("Username already exists");
         }
 
         if (userRepository.existsUserByEmail(userRegisterBindingModel.email())) {
-            throw new IllegalArgumentException("Email is already in use");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
 
         User user = mapperFrom.fromUserRegisterBindingModel(userRegisterBindingModel);

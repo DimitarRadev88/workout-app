@@ -1,5 +1,8 @@
 package com.dimitarrradev.workoutScheduler.user.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.PasswordsDoNotMatchException;
+import com.dimitarrradev.workoutScheduler.errors.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
 import com.dimitarrradev.workoutScheduler.user.User;
@@ -88,14 +91,15 @@ public class UserServiceUnitTests {
         when(userRepository.existsUserByUsername("existing"))
                 .thenReturn(true);
 
+        UserRegisterBindingModel bindingModel = new UserRegisterBindingModel(
+                "existing",
+                "valid@email",
+                "valid password",
+                "valid password");
+
         assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.doRegister(new UserRegisterBindingModel(
-                        "existing",
-                        null,
-                        null,
-                        null)
-                )
+                UsernameAlreadyExistsException.class,
+                () -> userService.doRegister(bindingModel)
         );
     }
 
@@ -104,14 +108,29 @@ public class UserServiceUnitTests {
         when(userRepository.existsUserByEmail("existing@email"))
                 .thenReturn(true);
 
+        UserRegisterBindingModel bindingModel = new UserRegisterBindingModel(
+                "valid username",
+                "existing@email",
+                "valid password",
+                "valid password");
+
         assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.doRegister(new UserRegisterBindingModel(
-                        "valid username",
-                        "existing@email",
-                        null,
-                        null)
-                )
+                EmailAlreadyExistsException.class,
+                () -> userService.doRegister(bindingModel)
+        );
+    }
+
+    @Test
+    void testDoRegisterThrowsWhenPasswordAndConfirmPasswordAreNotEqual() {
+        UserRegisterBindingModel bindingModel = new UserRegisterBindingModel(
+                "valid username",
+                "valid@email",
+                "password",
+                "not equal password");
+
+        assertThrows(
+                PasswordsDoNotMatchException.class,
+                () -> userService.doRegister(bindingModel)
         );
     }
 
