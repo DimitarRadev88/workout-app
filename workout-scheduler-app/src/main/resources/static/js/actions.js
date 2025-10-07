@@ -92,6 +92,6 @@ function redirectAddWorkoutWithFilterForExercises() {
 
 function hideError() {
     const paragraph = document.getElementById("error");
-    paragraph.setAttribute(display, "none");
+    paragraph.classList.replace("d-flex", "d-none")
 }
 

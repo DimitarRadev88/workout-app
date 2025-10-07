@@ -1,6 +1,7 @@
 package com.dimitarrradev.workoutScheduler.exercise.service;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.ImageUrl;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
@@ -157,7 +158,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.approveExercise(1L));
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> exerciseService.approveExercise(1L)
+        );
     }
 
     @Test
@@ -176,7 +180,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.deleteExercise(1L));
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> exerciseService.deleteExercise(1L)
+        );
     }
 
     @Test
@@ -207,7 +214,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.getExerciseView(1L));
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> exerciseService.getExerciseView(1L)
+        );
     }
 
     @Test
@@ -253,7 +263,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.editExercise(new ExerciseEditBindingModel(1L, null, null, null, null)));
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> exerciseService.editExercise(new ExerciseEditBindingModel(1L, null, null, null, null))
+        );
     }
 
     @Test
@@ -289,7 +302,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.getExerciseEditBindingModel(1L));
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> exerciseService.getExerciseEditBindingModel(1L)
+        );
     }
 
     @Test
@@ -360,7 +376,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.getExercise(1L));
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> exerciseService.getExercise(1L)
+        );
     }
 
     @Test
@@ -401,7 +420,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(exercise.getId()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> exerciseService.approveExercise(exercise.getId()));
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> exerciseService.approveExercise(exercise.getId())
+        );
     }
 
     @Test

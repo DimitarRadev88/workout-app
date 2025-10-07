@@ -27,5 +27,17 @@ public class GlobalExceptionHandler {
         return "redirect:/exercises/add";
     }
 
+    @ExceptionHandler(ExerciseNotFoundException.class)
+    public String handleExerciseNotFoundException(Exception exception, Model model) {
+        model.addAttribute("error", exception.getMessage());
+        return "exercise-not-found";
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public String handleInvalidPasswordException(Exception exception, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        return "redirect:/users/profile";
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package com.dimitarrradev.workoutScheduler.user.service;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.InvalidPasswordException;
 import com.dimitarrradev.workoutScheduler.errors.exception.PasswordsDoNotMatchException;
 import com.dimitarrradev.workoutScheduler.errors.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.role.Role;
@@ -91,11 +92,15 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException(username));
 
         if (!passwordEncoder.matches(profilePasswordChange.oldPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Incorrect password");
+            throw new InvalidPasswordException("Incorrect password");
         }
 
         if (profilePasswordChange.newPassword().equals(profilePasswordChange.oldPassword())) {
-            throw new IllegalArgumentException("New password cannot be the same as the old");
+            throw new InvalidPasswordException("New password cannot be the same as the old");
+        }
+
+        if (!profilePasswordChange.newPassword().equals(profilePasswordChange.confirmPassword())) {
+            throw new InvalidPasswordException("Confirm password does not match");
         }
 
         user.setPassword(passwordEncoder.encode(profilePasswordChange.newPassword()));

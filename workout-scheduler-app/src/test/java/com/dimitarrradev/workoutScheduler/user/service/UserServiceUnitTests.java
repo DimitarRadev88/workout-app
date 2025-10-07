@@ -1,6 +1,7 @@
 package com.dimitarrradev.workoutScheduler.user.service;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.InvalidPasswordException;
 import com.dimitarrradev.workoutScheduler.errors.exception.PasswordsDoNotMatchException;
 import com.dimitarrradev.workoutScheduler.errors.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.role.Role;
@@ -289,7 +290,7 @@ public class UserServiceUnitTests {
                 .thenReturn(Boolean.FALSE);
 
         assertThrows(
-                IllegalArgumentException.class,
+                InvalidPasswordException.class,
                 () -> userService.doPasswordChange("existing", bindingModel)
         );
     }
@@ -309,7 +310,27 @@ public class UserServiceUnitTests {
                 .thenReturn(Boolean.TRUE);
 
         assertThrows(
-                IllegalArgumentException.class,
+                InvalidPasswordException.class,
+                () -> userService.doPasswordChange("existing", bindingModel)
+        );
+    }
+
+    @Test
+    void testDoPasswordChangeThrowsWhenNewPasswordAndConfirmPasswordDoNotMatch() {
+        when(userRepository.findUserByUsername("existing"))
+                .thenReturn(Optional.of(user));
+
+        UserProfilePasswordChangeBindingModel bindingModel = new UserProfilePasswordChangeBindingModel(
+                "old-password",
+                "new-password",
+                "not-matching-password"
+        );
+
+        when(passwordEncoder.matches(bindingModel.oldPassword(), user.getPassword()))
+                .thenReturn(Boolean.TRUE);
+
+        assertThrows(
+                InvalidPasswordException.class,
                 () -> userService.doPasswordChange("existing", bindingModel)
         );
     }

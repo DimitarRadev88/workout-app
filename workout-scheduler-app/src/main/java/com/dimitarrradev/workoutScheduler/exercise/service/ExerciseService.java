@@ -2,6 +2,7 @@ package com.dimitarrradev.workoutScheduler.exercise.service;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.workoutScheduler.exercise.dao.ImageUrlRepository;
@@ -65,7 +66,7 @@ public class ExerciseService {
             exercise.setApproved(true);
             exerciseRepository.save(exercise);
             return exercise;
-        }).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+        }).orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
     }
 
     public void deleteExercise(Long id) {
@@ -73,7 +74,7 @@ public class ExerciseService {
                 .ifPresentOrElse(
                         exerciseRepository::delete,
                         () -> {
-                            throw new IllegalArgumentException("Exercise not found");
+                            throw new ExerciseNotFoundException("Exercise not found");
                         }
                 );
     }
@@ -191,7 +192,7 @@ public class ExerciseService {
     public ExerciseViewModel getExerciseView(Long id) {
         Exercise exercise = exerciseRepository
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
 
         return mapperTo.toExerciseViewModel(exercise);
     }
@@ -200,7 +201,7 @@ public class ExerciseService {
     public void editExercise(ExerciseEditBindingModel exerciseEdit) {
         Exercise exercise = exerciseRepository
                 .findById(exerciseEdit.id())
-                .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
 
         exerciseRepository.save(mapperFrom.fromExerciseEditBindingModel(exercise, exerciseEdit));
     }
@@ -210,7 +211,8 @@ public class ExerciseService {
     }
 
     public ExerciseEditBindingModel getExerciseEditBindingModel(long id) {
-        Exercise exercise = exerciseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+        Exercise exercise = exerciseRepository.findById(id)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
 
         return mapperTo.toExerciseEditBindingModel(exercise);
     }
@@ -235,7 +237,7 @@ public class ExerciseService {
     public Exercise getExercise(Long id) {
         return exerciseRepository
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
     }
 
     public <T> PageInformation getPageInfo(Page<T> page) {
