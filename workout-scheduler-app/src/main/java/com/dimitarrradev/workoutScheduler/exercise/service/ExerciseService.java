@@ -1,6 +1,5 @@
 package com.dimitarrradev.workoutScheduler.exercise.service;
 
-import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;

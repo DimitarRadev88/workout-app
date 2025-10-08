@@ -1,9 +1,6 @@
 package com.dimitarrradev.workoutScheduler.user.service;
 
-import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
-import com.dimitarrradev.workoutScheduler.errors.exception.InvalidPasswordException;
-import com.dimitarrradev.workoutScheduler.errors.exception.PasswordsDoNotMatchException;
-import com.dimitarrradev.workoutScheduler.errors.exception.UsernameAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.*;
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.enums.RoleType;
 import com.dimitarrradev.workoutScheduler.user.User;
@@ -193,7 +190,7 @@ public class UserServiceUnitTests {
                 .thenReturn(Optional.empty());
 
         assertThrows(
-                UsernameNotFoundException.class,
+                UserNotFoundException.class,
                 () -> userService.getUserProfileAccountView("not existing")
         );
     }
@@ -253,7 +250,7 @@ public class UserServiceUnitTests {
                 .thenReturn(Optional.empty());
 
         assertThrows(
-                UsernameNotFoundException.class,
+                UserNotFoundException.class,
                 () -> userService.getUserProfileInfoView("not existing")
         );
     }
@@ -270,7 +267,7 @@ public class UserServiceUnitTests {
         );
 
         assertThrows(
-                UsernameNotFoundException.class,
+                UserNotFoundException.class,
                 () -> userService.doPasswordChange("not existing", bindingModel)
         );
     }
@@ -376,7 +373,7 @@ public class UserServiceUnitTests {
         );
 
         assertThrows(
-                UsernameNotFoundException.class,
+                UserNotFoundException.class,
                 () -> userService.doInfoEdit("not-existing", bindingModel)
         );
     }
@@ -424,7 +421,7 @@ public class UserServiceUnitTests {
                 Boolean.FALSE);
 
         assertThrows(
-                UsernameNotFoundException.class,
+                UserNotFoundException.class,
                 () -> userService.doAccountEdit(bindingModel)
         );
     }
@@ -461,7 +458,7 @@ public class UserServiceUnitTests {
                 .thenReturn(Optional.empty());
 
         assertThrows(
-                UsernameNotFoundException.class,
+                UserNotFoundException.class,
                 () -> userService.getUserEntityByUsername("not-existing")
         );
     }

@@ -11,7 +11,7 @@
         <div id="content">
             <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
             <div class="container-fluid">
-                <h3 class="text-dark mb-4">Exercise Name</h3>
+                <h3 class="text-dark mb-4" th:text="${exerciseEdit.name}">Exercise Name</h3>
                 <div class="row mb-3">
                     <div class="col-lg-8">
                         <div class="row">
@@ -64,7 +64,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <input hidden type="text" name="isApproved" id="isApproved" th:value="*{isApproved}" th:field="*{isApproved}">
+                                                <input hidden type="text" name="approved" id="approved" th:value="*{approved}" th:field="*{approved}">
 
                                                 <div class="mb-3">
                                                     <button class="btn btn-primary btn-sm" type="submit">Save Settings</button>
@@ -109,7 +109,7 @@
                 <div class="col-sm-1">
                     <div class="row">
                         <div class="col">
-                            <div th:unless="${exerciseEdit.isApproved}" class="row">
+                            <div th:unless="${exerciseEdit.approved}" class="row">
                                 <div class="col">
                                     <div class="mb-3">
                                         <form th:action="@{/exercises/approve/{id}(id=${id})}" th:method="@{PATCH}">
@@ -122,8 +122,8 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="mb-3">
-                                        <a th:if="${exerciseEdit.isApproved}" class="btn btn-primary" th:href="@{/exercises/view/{id}(id=${id})}">Back</a>
-                                        <a th:unless="${exerciseEdit.isApproved}" class="btn btn-primary" th:href="@{/exercises/for-review}">Back</a>
+                                        <a th:if="${exerciseEdit.approved}" class="btn btn-primary" th:href="@{/exercises/view/{id}(id=${id})}">Back</a>
+                                        <a th:unless="${exerciseEdit.approved}" class="btn btn-primary" th:href="@{/exercises/for-review}">Back</a>
                                     </div>
                                 </div>
                             </div>

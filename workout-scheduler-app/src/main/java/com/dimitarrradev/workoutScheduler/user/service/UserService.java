@@ -1,9 +1,6 @@
 package com.dimitarrradev.workoutScheduler.user.service;
 
-import com.dimitarrradev.workoutScheduler.errors.exception.EmailAlreadyExistsException;
-import com.dimitarrradev.workoutScheduler.errors.exception.InvalidPasswordException;
-import com.dimitarrradev.workoutScheduler.errors.exception.PasswordsDoNotMatchException;
-import com.dimitarrradev.workoutScheduler.errors.exception.UsernameAlreadyExistsException;
+import com.dimitarrradev.workoutScheduler.errors.exception.*;
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.role.service.RoleService;
 import com.dimitarrradev.workoutScheduler.user.User;
@@ -17,9 +14,7 @@ import com.dimitarrradev.workoutScheduler.web.binding.UserProfileInfoEditBinding
 import com.dimitarrradev.workoutScheduler.web.binding.UserProfilePasswordChangeBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.UserRegisterBindingModel;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -73,23 +68,15 @@ public class UserService {
     }
 
     public UserProfileAccountViewModel getUserProfileAccountView(String username) {
-        return userRepository
-                .findUserByUsername(username)
-                .map(mapperTo::toUserProfileAccountViewModel)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
-
+        return mapperTo.toUserProfileAccountViewModel(getUserEntityByUsername(username));
     }
 
     public UserProfileInfoViewModel getUserProfileInfoView(String username) {
-        return userRepository.findUserByUsername(username)
-                .map(mapperTo::toUserProfileInfoViewModel)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
+        return mapperTo.toUserProfileInfoViewModel(getUserEntityByUsername(username));
     }
 
-    public void doPasswordChange(String username, @Valid UserProfilePasswordChangeBindingModel profilePasswordChange) {
-        User user = userRepository
-                .findUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
+    public void doPasswordChange(String username, UserProfilePasswordChangeBindingModel profilePasswordChange) {
+        User user = getUserEntityByUsername(username);
 
         if (!passwordEncoder.matches(profilePasswordChange.oldPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Incorrect password");
@@ -104,12 +91,12 @@ public class UserService {
         }
 
         user.setPassword(passwordEncoder.encode(profilePasswordChange.newPassword()));
+
         userRepository.save(user);
     }
 
     public void doInfoEdit(String username, UserProfileInfoEditBindingModel profileInfoEdit) {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
-
+        User user = getUserEntityByUsername(username);
         user.setWeight(profileInfoEdit.weight());
         user.setHeight(profileInfoEdit.height());
         user.setGym(profileInfoEdit.gym());
@@ -118,12 +105,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-
     public void doAccountEdit(UserProfileAccountEditBindingModel profileAccountEdit) {
-        User user = userRepository
-                .findUserByUsername(profileAccountEdit.username())
-                .orElseThrow(() -> new UsernameNotFoundException(profileAccountEdit.username()));
-
+        User user = getUserEntityByUsername(profileAccountEdit.username());
         user.setFirstName(profileAccountEdit.firstName());
         user.setLastName(profileAccountEdit.lastName());
 
@@ -131,6 +114,8 @@ public class UserService {
     }
 
     public User getUserEntityByUsername(String username) {
-        return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        return userRepository.findUserByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("You must login to access the wanted resources"));
     }
+
 }

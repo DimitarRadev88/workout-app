@@ -18,9 +18,15 @@
                                     <div class="text-center">
                                         <h4 class="text-dark mb-4">Welcome Back!</h4>
                                     </div>
+                                    <div>
+                                        <p class="text-bg-danger fw-bold d-flex justify-content-between" th:if="${error}" id="error">
+                                            <span th:text="${error}"></span>
+                                            <button class="btn btn-sm btn-danger" onclick="hideError()">X</button>
+                                        </p>
+                                    </div>
                                     <form class="user" th:action="@{/users/login}" th:method="@{post}" th:object="${userLogin}">
                                         <div class="text-danger" th:if="${param.error}">
-                                            Invalid username and password.
+                                            Invalid username and/or password
                                         </div>
                                         <div class="mb-3">
                                             <label for="username"></label>

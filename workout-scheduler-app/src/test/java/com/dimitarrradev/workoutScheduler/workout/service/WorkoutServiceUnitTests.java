@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
@@ -173,7 +174,10 @@ class WorkoutServiceUnitTests {
         when(workoutRepository.findWorkoutByIdAndUser_Username(randomId, "test-user"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> workoutService.getWorkout(randomId, "test-user"));
+        assertThrows(
+                WorkoutNotFoundException.class,
+                () -> workoutService.getWorkout(randomId, "test-user")
+        );
     }
 
     @Test
@@ -247,7 +251,7 @@ class WorkoutServiceUnitTests {
         when(workoutRepository.findWorkoutByIdAndUser_Username(workout.getId(), user.getUsername()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(WorkoutNotFoundException.class,
                 () -> workoutService
                         .addWorkoutExercise(
                                 workout.getId(),
@@ -279,7 +283,7 @@ class WorkoutServiceUnitTests {
         when(workoutRepository.findWorkoutByIdAndUser_Username(workout.getId(), user.getUsername()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(WorkoutNotFoundException.class,
                 () -> workoutService.doEdit(
                         workout.getId(),
                         new WorkoutEditBindingModel(null, null),
@@ -331,7 +335,7 @@ class WorkoutServiceUnitTests {
                 .thenReturn(Optional.empty());
 
         assertThrows(
-                IllegalArgumentException.class,
+                WorkoutNotFoundException.class,
                 () -> workoutService.doDelete(user.getUsername(), workout.getId())
         );
     }

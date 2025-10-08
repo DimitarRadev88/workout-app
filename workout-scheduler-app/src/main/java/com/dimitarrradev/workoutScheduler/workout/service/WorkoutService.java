@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
@@ -64,7 +65,7 @@ public class WorkoutService {
                                         workoutExercise.getRest()
                                 )).toList()
                         )
-                ).orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+                ).orElseThrow(() -> new WorkoutNotFoundException("Workout not found"));
     }
 
     public List<WorkoutViewServiceModel> getAllByUserUsername(String username) {
@@ -86,7 +87,7 @@ public class WorkoutService {
     public void addWorkoutExercise(long id, ExerciseWorkoutExerciseBindingModel exerciseWorkoutExerciseBindingModel, String username) {
         Workout workout = workoutRepository
                 .findWorkoutByIdAndUser_Username(id, username)
-                .orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+                .orElseThrow(() -> new WorkoutNotFoundException("The workout you were trying to add exercise to was not found"));
 
         WorkoutExercise trainingSet = workoutExerciseService.createWorkoutExercise(exerciseWorkoutExerciseBindingModel, workout);
 
@@ -98,7 +99,7 @@ public class WorkoutService {
     public void doEdit(long id, WorkoutEditBindingModel workoutEdit, String username) {
         Workout workout = workoutRepository
                 .findWorkoutByIdAndUser_Username(id, username)
-                .orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+                .orElseThrow(() -> new WorkoutNotFoundException("The workout you were trying to edit was not found"));
 
         workout.setWorkoutType(workoutEdit.workoutType());
         workout.setTargetBodyParts(workoutEdit.targetBodyParts());
@@ -117,7 +118,7 @@ public class WorkoutService {
             }
             workoutRepository.deleteById(id);
         } else {
-            throw new IllegalArgumentException("Workout not found");
+            throw new WorkoutNotFoundException("The workout you were trying to delete was not found");
         }
     }
 }
