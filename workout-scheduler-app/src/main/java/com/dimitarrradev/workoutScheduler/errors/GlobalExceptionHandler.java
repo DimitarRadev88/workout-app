@@ -53,4 +53,10 @@ public class GlobalExceptionHandler {
         return "redirect:/workouts";
     }
 
+    @ExceptionHandler(WorkoutExerciseNotFoundException.class)
+    public String handleWorkoutExerciseNotFoundException(Exception exception, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        return "redirect:/workouts";
+    }
+
 }

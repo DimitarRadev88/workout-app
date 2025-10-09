@@ -29,7 +29,7 @@ public class Workout {
     @Column(nullable = false, name = "workout_date_time")
     @DateTimeFormat(pattern = "dd-MM-yyyy HH-mm")
     private LocalDateTime workoutDateTime;
-    @OneToMany(mappedBy = "workout")
+    @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkoutExercise> workoutExercises;
     @ManyToOne
     private Program program;

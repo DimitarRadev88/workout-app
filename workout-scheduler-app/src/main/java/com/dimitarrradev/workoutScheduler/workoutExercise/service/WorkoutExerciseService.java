@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.workoutExercise.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
 import com.dimitarrradev.workoutScheduler.workoutExercise.dao.WorkoutExerciseRepository;
@@ -34,13 +35,17 @@ public class WorkoutExerciseService {
         return workoutExerciseRepository.save(workoutExercise);
     }
 
-    public void delete(long id) {
+    public void delete(long id, String username) {
+        if (!workoutExerciseRepository.existsByIdAndWorkout_User_Username(id, username)) {
+            throw new WorkoutExerciseNotFoundException("The exercise you were trying to delete was not found");
+        }
+
         workoutExerciseRepository.deleteById(id);
     }
 
-    public void doEdit(Long id, Long workoutId, WorkoutExerciseEditBindingModel exerciseEdit) {
-        WorkoutExercise workoutExercise = workoutExerciseRepository.findByIdAndWorkout_Id(id, workoutId)
-                .orElseThrow(() -> new IllegalArgumentException("Exercise not found"));
+    public void doEdit(Long id, Long workoutId, String username, WorkoutExerciseEditBindingModel exerciseEdit) {
+        WorkoutExercise workoutExercise = workoutExerciseRepository.findByIdAndWorkout_IdAndWorkout_User_Username(id, workoutId, username)
+                .orElseThrow(() -> new WorkoutExerciseNotFoundException("The exercise you were trying to edit was not found"));
 
         workoutExercise.setSets(exerciseEdit.sets());
         workoutExercise.setMinReps(exerciseEdit.minReps());

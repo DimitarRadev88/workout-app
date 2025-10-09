@@ -9,8 +9,6 @@ import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutEditService
 import com.dimitarrradev.workoutScheduler.workoutExercise.service.WorkoutExerciseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -140,8 +138,8 @@ public class WorkoutController {
     }
 
     @DeleteMapping("/edit/{workoutId}/deleteExercise/{exerciseId}")
-    public String deleteSet(@PathVariable Long workoutId, @PathVariable Long exerciseId) {
-        workoutExerciseService.delete(exerciseId);
+    public String deleteWorkoutExercise(@PathVariable Long workoutId, @PathVariable Long exerciseId, Authentication authentication) {
+        workoutExerciseService.delete(exerciseId, authentication.getName());
 
         return "redirect:/workouts/edit/" + workoutId;
     }
@@ -150,9 +148,10 @@ public class WorkoutController {
     public String editExerciseInWorkout(
             @PathVariable Long workoutId,
             @PathVariable Long id,
-            WorkoutExerciseEditBindingModel exerciseEdit) {
+            WorkoutExerciseEditBindingModel exerciseEdit,
+            Authentication authentication) {
 
-        workoutExerciseService.doEdit(id, workoutId, exerciseEdit);
+        workoutExerciseService.doEdit(id, workoutId, authentication.getName(), exerciseEdit);
 
         return "redirect:/workouts/edit/" + workoutId;
     }

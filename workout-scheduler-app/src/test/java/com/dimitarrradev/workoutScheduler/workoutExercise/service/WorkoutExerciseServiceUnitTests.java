@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.workoutExercise.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseWorkoutExerciseBindingModel;
@@ -89,7 +90,12 @@ public class WorkoutExerciseServiceUnitTests {
     @Test
     void testDeleteDeletesExerciseFromRepository() {
         long id = randomId();
-        workoutExerciseService.delete(id);
+        String username = "user";
+
+        when(workoutExerciseRepository.existsByIdAndWorkout_User_Username(id,  username))
+                .thenReturn(true);
+
+        workoutExerciseService.delete(id, username);
 
         verify(
                 workoutExerciseRepository,
@@ -98,9 +104,30 @@ public class WorkoutExerciseServiceUnitTests {
     }
 
     @Test
+    void testDeleteThrowsWhenWorkoutExerciseDoesNotExistForUser() {
+        long id = randomId();
+        String username = "user";
+
+        when(workoutExerciseRepository.existsByIdAndWorkout_User_Username(id,  username))
+                .thenReturn(false);
+
+
+        assertThrows(
+                WorkoutExerciseNotFoundException.class,
+                () -> workoutExerciseService.delete(id, username)
+        );
+
+        verify(
+                workoutExerciseRepository,
+                never()
+        ).deleteById(id);
+    }
+
+    @Test
     void testDoEditSavesWorkoutExerciseWithNewDataInRepository() {
         long id = randomId();
         long workoutId = randomId();
+        String username = "user";
         Exercise exercise = new Exercise(
                 randomId(),
                 randomExerciseName(),
@@ -109,7 +136,7 @@ public class WorkoutExerciseServiceUnitTests {
                 randomDescription(),
                 Collections.emptyList(),
                 Boolean.TRUE,
-                "user",
+                username,
                 randomComplexity()
         );
 
@@ -145,10 +172,10 @@ public class WorkoutExerciseServiceUnitTests {
                 bindingModel.sets()
         );
 
-        when(workoutExerciseRepository.findByIdAndWorkout_Id(id, workoutId))
+        when(workoutExerciseRepository.findByIdAndWorkout_IdAndWorkout_User_Username(id, workoutId, username))
                 .thenReturn(Optional.of(workoutExercise));
 
-        workoutExerciseService.doEdit(id, workoutId, bindingModel);
+        workoutExerciseService.doEdit(id, workoutId, username, bindingModel);
 
         verify(
                 workoutExerciseRepository,
@@ -160,6 +187,7 @@ public class WorkoutExerciseServiceUnitTests {
     void testDoEditWithMaxRepsLessThanMinSetsChangesMaxRepsValueToMinRepsValueSavesWorkoutExerciseWithNewDataInRepository() {
         long id = randomId();
         long workoutId = randomId();
+        String username = "user";
         Exercise exercise = new Exercise(
                 randomId(),
                 randomExerciseName(),
@@ -168,7 +196,7 @@ public class WorkoutExerciseServiceUnitTests {
                 randomDescription(),
                 Collections.emptyList(),
                 Boolean.TRUE,
-                "user",
+                username,
                 randomComplexity()
         );
 
@@ -204,10 +232,10 @@ public class WorkoutExerciseServiceUnitTests {
                 bindingModel.sets()
         );
 
-        when(workoutExerciseRepository.findByIdAndWorkout_Id(id, workoutId))
+        when(workoutExerciseRepository.findByIdAndWorkout_IdAndWorkout_User_Username(id, workoutId, username))
                 .thenReturn(Optional.of(workoutExercise));
 
-        workoutExerciseService.doEdit(id, workoutId, bindingModel);
+        workoutExerciseService.doEdit(id, workoutId, username, bindingModel);
 
         verify(
                 workoutExerciseRepository,
@@ -220,11 +248,13 @@ public class WorkoutExerciseServiceUnitTests {
         long id = randomId();
         long workoutId = randomId();
 
-        when(workoutExerciseRepository.findByIdAndWorkout_Id(id, workoutId))
+        String username = "user";
+
+        when(workoutExerciseRepository.findByIdAndWorkout_IdAndWorkout_User_Username(id, workoutId, username))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
-                () -> workoutExerciseService.doEdit(id, workoutId, null));
+        assertThrows(WorkoutExerciseNotFoundException.class,
+                () -> workoutExerciseService.doEdit(id, workoutId, username, null));
     }
 
 }
