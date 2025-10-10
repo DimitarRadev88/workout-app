@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record ExerciseWorkoutExerciseBindingModel(
     @NotNull(message = "Please choose an exercise") Long exerciseId,
-    @NotNull(message = "Please enter training set information") @WorkoutExerciseConstraint WorkoutExerciseBindingModel workoutExerciseBindingModel
+    @NotNull(message = "Please enter exercise information") @WorkoutExerciseConstraint WorkoutExerciseBindingModel workoutExerciseBindingModel
 ) {
 
 }

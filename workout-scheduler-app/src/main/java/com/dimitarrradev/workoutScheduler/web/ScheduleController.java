@@ -1,9 +1,9 @@
 package com.dimitarrradev.workoutScheduler.web;
 
+import com.dimitarrradev.workoutScheduler.schedule.dto.WeeklyScheduleViewModel;
 import com.dimitarrradev.workoutScheduler.schedule.service.ScheduleService;
 import com.dimitarrradev.workoutScheduler.schedule.service.dto.DailyScheduleServiceViewModel;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +31,13 @@ public class ScheduleController {
         model.addAttribute("dailySchedule", dailySchedule);
 
         return "schedule-daily";
+    }
+
+    @GetMapping("/weekly")
+    public String getWeeklySchedule(Model model, Principal principal) {
+        WeeklyScheduleViewModel weeklySchedule = scheduleService.getWeeklySchedule(principal.getName());
+
+        return "schedule-weekly";
     }
 
 }

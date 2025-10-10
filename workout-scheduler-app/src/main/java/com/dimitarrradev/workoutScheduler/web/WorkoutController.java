@@ -110,7 +110,8 @@ public class WorkoutController {
             @PathVariable Long id,
             @Valid WorkoutEditBindingModel workout,
             BindingResult bindingResult,
-            Authentication authentication) {
+            Authentication authentication
+    ) {
         if (!bindingResult.hasErrors()) {
             workoutService.doEdit(id, workout, authentication.getName());
         }
@@ -138,7 +139,11 @@ public class WorkoutController {
     }
 
     @DeleteMapping("/edit/{workoutId}/deleteExercise/{exerciseId}")
-    public String deleteWorkoutExercise(@PathVariable Long workoutId, @PathVariable Long exerciseId, Authentication authentication) {
+    public String deleteWorkoutExercise(
+            @PathVariable Long workoutId,
+            @PathVariable Long exerciseId,
+            Authentication authentication
+    ) {
         workoutExerciseService.delete(exerciseId, authentication.getName());
 
         return "redirect:/workouts/edit/" + workoutId;
@@ -149,7 +154,8 @@ public class WorkoutController {
             @PathVariable Long workoutId,
             @PathVariable Long id,
             WorkoutExerciseEditBindingModel exerciseEdit,
-            Authentication authentication) {
+            Authentication authentication
+    ) {
 
         workoutExerciseService.doEdit(id, workoutId, authentication.getName(), exerciseEdit);
 

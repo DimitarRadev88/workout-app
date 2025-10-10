@@ -1,11 +1,14 @@
 package com.dimitarrradev.workoutScheduler.schedule;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,6 +20,6 @@ import java.util.List;
 public class WeekSchedule extends Schedule {
 
     @OneToMany(mappedBy = "weekSchedule")
-    private List<DaySchedule> daySchedules;
+    private List<DaySchedule> daySchedules = new ArrayList<>();
 
 }
