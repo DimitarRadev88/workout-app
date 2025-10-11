@@ -41,35 +41,50 @@ public class ScheduleService {
 
     @Transactional
     public DaySchedule getDayScheduleForDate(String username, LocalDate date) {
-        Optional<DaySchedule> daySchedule = dayScheduleRepository.findDayScheduleByUser_UsernameAndDate(username, date);
+        var dayScheduleOptional = dayScheduleRepository
+                .findDayScheduleByUser_UsernameAndDate(username, date);
 
-        if (daySchedule.isPresent()) {
-            return daySchedule.get();
+        if (dayScheduleOptional.isPresent()) {
+            return dayScheduleOptional.get();
         }
 
+        DaySchedule schedule = createDaySchedule(username, date);
+
+        int dayOfWeek = date.getDayOfWeek().getValue();
+
+        var weekScheduleOptional = weekScheduleRepository
+                .findByUser_UsernameAndDate(username, date.minusDays(dayOfWeek));
+
+        WeekSchedule weekSchedule = null;
+        if (weekScheduleOptional.isPresent()) {
+            weekSchedule = weekScheduleOptional.get();
+            weekSchedule.getDaySchedules().add(schedule);
+        } else {
+            weekSchedule = createWeekSchedule(username, date, schedule);
+        }
+
+        weekScheduleRepository.save(weekSchedule);
+
+        return dayScheduleRepository.save(schedule);
+    }
+
+    private DaySchedule createDaySchedule(String username, LocalDate date) {
         DaySchedule schedule = new DaySchedule();
         schedule.setUser(userService.getUserEntityByUsername(username));
         schedule.setIsCompleted(false);
         schedule.setDate(date);
 
+        return schedule;
+    }
+
+    private WeekSchedule createWeekSchedule(String username, LocalDate date, DaySchedule schedule) {
         int dayOfWeek = date.getDayOfWeek().getValue();
-
-        WeekSchedule weekSchedule = null;
-        if (!weekScheduleRepository.existsByUser_UsernameAndDate(username, date.minusDays(dayOfWeek))) {
-            weekSchedule = new WeekSchedule();
-            weekSchedule.setUser(userService.getUserEntityByUsername(username));
-            weekSchedule.getDaySchedules().add(schedule);
-            weekSchedule.setDate(date.minusDays(dayOfWeek));
-            schedule.setWeekSchedule(weekSchedule);
-            weekScheduleRepository.save(weekSchedule);
-
-        } else {
-            weekSchedule = weekScheduleRepository.findByUser_UsernameAndDate(username, date).get();
-            weekSchedule.getDaySchedules().add(schedule);
-            weekScheduleRepository.save(weekSchedule);
-        }
-
-        return dayScheduleRepository.save(schedule);
+        WeekSchedule weekSchedule = new WeekSchedule();
+        weekSchedule.setUser(userService.getUserEntityByUsername(username));
+        weekSchedule.getDaySchedules().add(schedule);
+        weekSchedule.setDate(date.minusDays(dayOfWeek));
+        schedule.setWeekSchedule(weekSchedule);
+        return weekSchedule;
     }
 
     public void doDelete(String username, Long id) {
@@ -81,10 +96,10 @@ public class ScheduleService {
 
         int[] days = {1, 2 ,3 ,4 ,5 ,6 ,7};
 
-        Optional<WeekSchedule> optionalWeekSchedule = weekScheduleRepository.findByUser_UsernameAndDate(name, monday);
+        var optionalWeekSchedule = weekScheduleRepository.findByUser_UsernameAndDate(name, monday);
         Map<DayOfWeek, DailyScheduleServiceViewModel> map = new LinkedHashMap<>();
         if (optionalWeekSchedule.isPresent()) {
-            WeekSchedule weekSchedule = optionalWeekSchedule.get();
+            var weekSchedule = optionalWeekSchedule.get();
             Arrays.stream(days).forEach(day -> {
                 map.put(DayOfWeek.of(day), weekSchedule.getDaySchedules().stream()
                         .filter(daySchedule -> daySchedule.getDate().isEqual(monday.plusDays(day)))

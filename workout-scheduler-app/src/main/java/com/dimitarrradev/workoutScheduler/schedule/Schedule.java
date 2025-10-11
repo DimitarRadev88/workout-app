@@ -2,14 +2,13 @@ package com.dimitarrradev.workoutScheduler.schedule;
 
 import com.dimitarrradev.workoutScheduler.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @MappedSuperclass
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class Schedule {
