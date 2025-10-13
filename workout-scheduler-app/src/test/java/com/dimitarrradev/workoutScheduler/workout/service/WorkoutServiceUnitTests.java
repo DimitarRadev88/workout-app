@@ -306,7 +306,7 @@ class WorkoutServiceUnitTests {
         verify(
                 scheduleService,
                 times(1)
-        ).doDelete(user.getUsername(), workout.getDaySchedule().getId());
+        ).deleteDailySchedule(user.getUsername(), workout.getDaySchedule().getId());
     }
 
     @Test
@@ -326,7 +326,7 @@ class WorkoutServiceUnitTests {
         verify(
                 scheduleService,
                 never()
-        ).doDelete(user.getUsername(), workout.getDaySchedule().getId());
+        ).deleteDailySchedule(user.getUsername(), workout.getDaySchedule().getId());
     }
 
     @Test

@@ -114,7 +114,7 @@ public class WorkoutService {
             Workout workout = optionalWorkout.get();
             DaySchedule daySchedule = workout.getDaySchedule();
             if (daySchedule.getWorkouts().size() <= 1) {
-                scheduleService.doDelete(username, daySchedule.getId());
+                scheduleService.deleteDailySchedule(username, daySchedule.getId());
             }
             workoutRepository.deleteById(id);
         } else {

@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +55,7 @@ public class ScheduleService {
         int dayOfWeek = date.getDayOfWeek().getValue();
 
         var weekScheduleOptional = weekScheduleRepository
-                .findByUser_UsernameAndDate(username, date.minusDays(dayOfWeek));
+                .findByUser_UsernameAndDate(username, date.minusDays(dayOfWeek - 1));
 
         WeekSchedule weekSchedule = null;
         if (weekScheduleOptional.isPresent()) {
@@ -82,36 +84,49 @@ public class ScheduleService {
         WeekSchedule weekSchedule = new WeekSchedule();
         weekSchedule.setUser(userService.getUserEntityByUsername(username));
         weekSchedule.getDaySchedules().add(schedule);
-        weekSchedule.setDate(date.minusDays(dayOfWeek));
+        weekSchedule.setDate(date.minusDays(dayOfWeek - 1));
         schedule.setWeekSchedule(weekSchedule);
         return weekSchedule;
     }
 
-    public void doDelete(String username, Long id) {
+    public void deleteDailySchedule(String username, Long id) {
+        if (!dayScheduleRepository.existsByIdAndUser_Username(id, username)) {
+            throw new ScheduleDoesNotExistException("Schedule does not exist");
+        }
+
         dayScheduleRepository.deleteByIdAndUser_Username(id, username);
     }
 
     public WeeklyScheduleViewModel getWeeklySchedule(String name) {
-        LocalDate monday = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue());
-
-        int[] days = {1, 2 ,3 ,4 ,5 ,6 ,7};
+        LocalDate monday = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1);
 
         var optionalWeekSchedule = weekScheduleRepository.findByUser_UsernameAndDate(name, monday);
         Map<DayOfWeek, DailyScheduleServiceViewModel> map = new LinkedHashMap<>();
         if (optionalWeekSchedule.isPresent()) {
             var weekSchedule = optionalWeekSchedule.get();
-            Arrays.stream(days).forEach(day -> {
-                map.put(DayOfWeek.of(day), weekSchedule.getDaySchedules().stream()
-                        .filter(daySchedule -> daySchedule.getDate().isEqual(monday.plusDays(day)))
-                        .findAny()
-                        .map(daySchedule -> new DailyScheduleServiceViewModel(
-                                daySchedule.getWorkouts().stream().map(workout -> new WorkoutInScheduleViewModel(
-                                        workout.getWorkoutDateTime(),
-                                        daySchedule.getIsCompleted())).toList())).orElse(null));
-            });
+            IntStream
+                    .rangeClosed(1, 7)
+                    .forEach(day -> {
+                        map.put(DayOfWeek.of(day), weekSchedule.getDaySchedules()
+                                .stream()
+                                .filter(daySchedule -> daySchedule.getDate().isEqual(monday.plusDays(day - 1)))
+                                .findAny()
+                                .map(daySchedule -> new DailyScheduleServiceViewModel(
+                                                daySchedule.getWorkouts()
+                                                        .stream()
+                                                        .map(workout -> new WorkoutInScheduleViewModel(
+                                                                workout.getWorkoutDateTime(),
+                                                                daySchedule.getIsCompleted()))
+                                                        .toList()
+                                        )
+                                )
+                                .orElse(null)
+                        );
+                    });
         } else {
-            return new WeeklyScheduleViewModel(new HashMap<>());
+            throw new ScheduleDoesNotExistException("Nothing scheduled for this week");
         }
+
         return new WeeklyScheduleViewModel(map);
     }
 }
