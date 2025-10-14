@@ -6,7 +6,7 @@ import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceMod
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
-import com.dimitarrradev.workoutScheduler.schedule.service.ScheduleService;
+import com.dimitarrradev.workoutScheduler.schedule.service.DayScheduleService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;
@@ -48,7 +48,7 @@ class WorkoutServiceUnitTests {
     @Mock
     private WorkoutExerciseService workoutExerciseService;
     @Mock
-    private ScheduleService scheduleService;
+    private DayScheduleService dayScheduleService;
     @InjectMocks
     private WorkoutService workoutService;
 
@@ -119,7 +119,7 @@ class WorkoutServiceUnitTests {
         daySchedule.setUser(user);
         daySchedule.setDate(bindingModel.workoutDateTime().toLocalDate());
 
-        when(scheduleService.getDayScheduleForDate(user.getUsername(), bindingModel.workoutDateTime().toLocalDate()))
+        when(dayScheduleService.getDayScheduleForDate(user.getUsername(), bindingModel.workoutDateTime().toLocalDate()))
                 .thenReturn(daySchedule);
 
         expected.setDaySchedule(daySchedule);
@@ -304,7 +304,7 @@ class WorkoutServiceUnitTests {
         ).deleteById(workout.getId());
 
         verify(
-                scheduleService,
+                dayScheduleService,
                 times(1)
         ).deleteDailySchedule(user.getUsername(), workout.getDaySchedule().getId());
     }
@@ -324,7 +324,7 @@ class WorkoutServiceUnitTests {
         ).deleteById(workout.getId());
 
         verify(
-                scheduleService,
+                dayScheduleService,
                 never()
         ).deleteDailySchedule(user.getUsername(), workout.getDaySchedule().getId());
     }

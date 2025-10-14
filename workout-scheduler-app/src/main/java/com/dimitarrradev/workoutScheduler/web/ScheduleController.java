@@ -1,8 +1,8 @@
 package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.workoutScheduler.schedule.dto.WeeklyScheduleViewModel;
-import com.dimitarrradev.workoutScheduler.schedule.service.ScheduleService;
-import com.dimitarrradev.workoutScheduler.schedule.service.dto.DailyScheduleServiceViewModel;
+import com.dimitarrradev.workoutScheduler.schedule.service.dto.WeekScheduleViewModel;
+import com.dimitarrradev.workoutScheduler.schedule.service.DayScheduleService;
+import com.dimitarrradev.workoutScheduler.schedule.service.dto.DayScheduleServiceViewModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +16,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class ScheduleController {
 
-    private final ScheduleService scheduleService;
+    private final DayScheduleService dayScheduleService;
 
     @GetMapping()
     public String getSchedulePage() {
@@ -26,7 +26,7 @@ public class ScheduleController {
     @GetMapping("/daily")
     public String getTodaySchedule(Model model, Principal principal) {
 
-        DailyScheduleServiceViewModel dailySchedule = scheduleService.getDailySchedule(principal.getName());
+        DayScheduleServiceViewModel dailySchedule = dayScheduleService.getDailySchedule(principal.getName());
 
         model.addAttribute("dailySchedule", dailySchedule);
 
@@ -35,7 +35,7 @@ public class ScheduleController {
 
     @GetMapping("/weekly")
     public String getWeeklySchedule(Model model, Principal principal) {
-        WeeklyScheduleViewModel weeklySchedule = scheduleService.getWeeklySchedule(principal.getName());
+        WeekScheduleViewModel weeklySchedule = dayScheduleService.getWeekSchedule(principal.getName());
 
         return "schedule-weekly";
     }

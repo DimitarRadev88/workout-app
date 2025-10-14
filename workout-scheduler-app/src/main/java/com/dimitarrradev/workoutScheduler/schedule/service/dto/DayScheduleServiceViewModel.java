@@ -4,7 +4,7 @@ import com.dimitarrradev.workoutScheduler.workout.service.dto.WorkoutInScheduleV
 
 import java.util.List;
 
-public record DailyScheduleServiceViewModel(
+public record DayScheduleServiceViewModel(
         List<WorkoutInScheduleViewModel> workouts
 ) {
 }

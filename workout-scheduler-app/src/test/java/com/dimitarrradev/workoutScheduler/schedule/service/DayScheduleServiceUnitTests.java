@@ -2,11 +2,9 @@ package com.dimitarrradev.workoutScheduler.schedule.service;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.ScheduleDoesNotExistException;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
-import com.dimitarrradev.workoutScheduler.schedule.WeekSchedule;
 import com.dimitarrradev.workoutScheduler.schedule.dao.DayScheduleRepository;
-import com.dimitarrradev.workoutScheduler.schedule.dao.WeekScheduleRepository;
-import com.dimitarrradev.workoutScheduler.schedule.dto.WeeklyScheduleViewModel;
-import com.dimitarrradev.workoutScheduler.schedule.service.dto.DailyScheduleServiceViewModel;
+import com.dimitarrradev.workoutScheduler.schedule.service.dto.DayScheduleServiceViewModel;
+import com.dimitarrradev.workoutScheduler.schedule.service.dto.WeekScheduleViewModel;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
@@ -24,7 +22,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.IntStream;
 
 import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -32,16 +29,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ScheduleServiceUnitTests {
+public class DayScheduleServiceUnitTests {
 
     @Mock
     private DayScheduleRepository dayScheduleRepository;
     @Mock
-    private WeekScheduleRepository weekScheduleRepository;
-    @Mock
     private UserService userService;
     @InjectMocks
-    private ScheduleService scheduleService;
+    private DayScheduleService dayScheduleService;
 
     private DaySchedule daySchedule;
     private User user;
@@ -76,7 +71,7 @@ public class ScheduleServiceUnitTests {
         when(dayScheduleRepository.findDayScheduleByUser_UsernameAndDate(user.getUsername(), LocalDate.now()))
                 .thenReturn(Optional.of(daySchedule));
 
-        var expected = new DailyScheduleServiceViewModel(
+        var expected = new DayScheduleServiceViewModel(
                 daySchedule.getWorkouts().stream().map(workout -> new WorkoutInScheduleViewModel(
                                 workout.getWorkoutDateTime(),
                                 daySchedule.getIsCompleted()
@@ -84,7 +79,7 @@ public class ScheduleServiceUnitTests {
                 ).toList()
         );
 
-        var actual = scheduleService.getDailySchedule(user.getUsername());
+        var actual = dayScheduleService.getDailySchedule(user.getUsername());
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -96,7 +91,7 @@ public class ScheduleServiceUnitTests {
 
         assertThrows(
                 ScheduleDoesNotExistException.class,
-                () -> scheduleService.getDailySchedule(user.getUsername())
+                () -> dayScheduleService.getDailySchedule(user.getUsername())
         );
     }
 
@@ -105,7 +100,7 @@ public class ScheduleServiceUnitTests {
         when(dayScheduleRepository.findDayScheduleByUser_UsernameAndDate(user.getUsername(), LocalDate.now()))
                 .thenReturn(Optional.of(daySchedule));
 
-        var actual = scheduleService.getDayScheduleForDate(user.getUsername(), LocalDate.now());
+        var actual = dayScheduleService.getDayScheduleForDate(user.getUsername(), LocalDate.now());
 
         assertThat(actual)
                 .isEqualTo(daySchedule);
@@ -124,24 +119,7 @@ public class ScheduleServiceUnitTests {
         schedule.setIsCompleted(false);
         schedule.setDate(LocalDate.now());
 
-        WeekSchedule weekSchedule = new WeekSchedule();
-        weekSchedule.setId(randomId());
-        weekSchedule.setDate(LocalDate.now());
-
-        int dayOfWeek = LocalDate.now().getDayOfWeek().getValue();
-
-        when(weekScheduleRepository.findByUser_UsernameAndDate(user.getUsername(), LocalDate.now().minusDays(dayOfWeek - 1)))
-                .thenReturn(Optional.of(weekSchedule));
-
-        scheduleService.getDayScheduleForDate(user.getUsername(), LocalDate.now());
-
-        assertThat(weekSchedule.getDaySchedules().size())
-                .isEqualTo(1);
-
-        verify(
-                weekScheduleRepository,
-                times(1)
-        ).save(weekSchedule);
+        dayScheduleService.getDayScheduleForDate(user.getUsername(), LocalDate.now());
 
         verify(
                 dayScheduleRepository,
@@ -164,31 +142,12 @@ public class ScheduleServiceUnitTests {
         schedule.setIsCompleted(false);
         schedule.setDate(date);
 
-        int dayOfWeek = date.getDayOfWeek().getValue();
-
-        WeekSchedule weekSchedule = new WeekSchedule();
-        weekSchedule.setUser(userService.getUserEntityByUsername(user.getUsername()));
-        weekSchedule.getDaySchedules().add(schedule);
-        weekSchedule.setDate(date.minusDays(dayOfWeek - 1));
-        schedule.setWeekSchedule(weekSchedule);
-
-        when(weekScheduleRepository.findByUser_UsernameAndDate(user.getUsername(), date.minusDays(dayOfWeek - 1)))
-                .thenReturn(Optional.empty());
-
-        scheduleService.getDayScheduleForDate(user.getUsername(), date);
-
-        assertThat(weekSchedule.getDaySchedules().getFirst())
-                .isEqualTo(schedule);
-
-        verify(
-                weekScheduleRepository,
-                times(1)
-        ).save(any(WeekSchedule.class));
+        dayScheduleService.getDayScheduleForDate(user.getUsername(), date);
 
         verify(
                 dayScheduleRepository,
                 times(1)
-        ).save(any(DaySchedule.class));
+        ).save(schedule);
 
     }
 
@@ -199,7 +158,7 @@ public class ScheduleServiceUnitTests {
 
         assertThrows(
                 ScheduleDoesNotExistException.class,
-                () -> scheduleService.deleteDailySchedule(user.getUsername(), daySchedule.getId())
+                () -> dayScheduleService.deleteDailySchedule(user.getUsername(), daySchedule.getId())
         );
 
         verify(dayScheduleRepository, never())
@@ -211,7 +170,7 @@ public class ScheduleServiceUnitTests {
         when(dayScheduleRepository.existsByIdAndUser_Username(daySchedule.getId(), user.getUsername()))
                 .thenReturn(true);
 
-        scheduleService.deleteDailySchedule(user.getUsername(), daySchedule.getId());
+        dayScheduleService.deleteDailySchedule(user.getUsername(), daySchedule.getId());
 
         verify(
                 dayScheduleRepository,
@@ -220,47 +179,38 @@ public class ScheduleServiceUnitTests {
     }
 
     @Test
-    void testGetWeeklyScheduleReturnsCorrectWeekScheduleWhenExistsInRepository() {
-        WeekSchedule weekSchedule = new WeekSchedule();
-        weekSchedule.setId(randomId());
-        DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
-        LocalDate monday = LocalDate.now().minusDays(dayOfWeek.getValue() - 1);
-        weekSchedule.setDaySchedules(new ArrayList<>(List.of(daySchedule)));
-        weekSchedule.setDate(monday);
-        when(weekScheduleRepository.findByUser_UsernameAndDate(user.getUsername(), LocalDate.now()))
-                .thenReturn(Optional.of(weekSchedule));
+    void testGetWeekScheduleReturnsCorrectWeekScheduleWhenExistsInRepository() {
+        LocalDate monday = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1);
 
-        Map<DayOfWeek, DailyScheduleServiceViewModel> map = new LinkedHashMap<>();
-        IntStream
-                .rangeClosed(1, 7)
-                .forEach(i -> {
-                    map.put(DayOfWeek.of(i), null);
+        List<DaySchedule> schedules = new ArrayList<>(List.of(daySchedule));
+
+        when(dayScheduleRepository
+                .findAllByUser_UsernameAndDateIsBetweenOrderByDateAsc(user.getUsername(), monday, monday.plusDays(6)))
+                .thenReturn(schedules);
+
+        Map<DayOfWeek, List<DayScheduleServiceViewModel>> map = new LinkedHashMap<>();
+
+        Arrays
+                .stream(DayOfWeek.values())
+                .forEach(day -> map.put(day, new ArrayList<>()));
+
+        schedules
+                .forEach(schedule -> {
+                    map.get(schedule.getDate().getDayOfWeek())
+                            .add(new DayScheduleServiceViewModel(
+                                    schedule.getWorkouts()
+                                            .stream()
+                                            .map(workout -> new WorkoutInScheduleViewModel(workout.getWorkoutDateTime(), false))
+                                            .toList()));
                 });
-        map.put(dayOfWeek, new DailyScheduleServiceViewModel(
-                daySchedule.getWorkouts().stream().map(workout -> new WorkoutInScheduleViewModel(
-                        workout.getWorkoutDateTime(),
-                        daySchedule.getIsCompleted())
-                ).toList())
-        );
-        var expected = new WeeklyScheduleViewModel(map);
 
-        var actual = scheduleService.getWeeklySchedule(user.getUsername());
+        var expected = new WeekScheduleViewModel(map);
+
+        var actual = dayScheduleService.getWeekSchedule(user.getUsername());
 
         assertThat(actual)
                 .isEqualTo(expected);
+
     }
-
-    @Test
-    void testGetWeeklyScheduleThrowsWhenScheduleDoesNotExistInRepository() {
-        LocalDate monday = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1);
-        when(weekScheduleRepository.findByUser_UsernameAndDate(user.getUsername(), monday))
-                .thenReturn(Optional.empty());
-
-        assertThrows(
-                ScheduleDoesNotExistException.class, () ->
-                scheduleService.getWeeklySchedule(user.getUsername())
-        );
-    }
-
 
 }

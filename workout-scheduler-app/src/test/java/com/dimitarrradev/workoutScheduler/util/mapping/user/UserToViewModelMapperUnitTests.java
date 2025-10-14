@@ -44,7 +44,6 @@ public class UserToViewModelMapperUnitTests {
                 Collections.emptyList(),
                 List.of(new Role(1L, RoleType.USER, null)),
                 Collections.emptyList(),
-                Collections.emptyList(),
                 null,
                 null
         );

@@ -3,7 +3,6 @@ package com.dimitarrradev.workoutScheduler.user;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
-import com.dimitarrradev.workoutScheduler.schedule.WeekSchedule;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 import jakarta.persistence.*;
@@ -62,8 +61,6 @@ public class User {
     private List<Role> roles;
     @OneToMany(mappedBy = "user")
     private List<DaySchedule> daySchedules;
-    @OneToMany(mappedBy = "user")
-    private List<WeekSchedule> weekSchedules;
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp

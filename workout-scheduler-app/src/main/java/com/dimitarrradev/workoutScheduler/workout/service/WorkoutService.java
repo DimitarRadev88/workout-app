@@ -4,7 +4,7 @@ import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutNotFoundExcept
 import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
-import com.dimitarrradev.workoutScheduler.schedule.service.ScheduleService;
+import com.dimitarrradev.workoutScheduler.schedule.service.DayScheduleService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseWorkoutExerciseBindingModel;
@@ -30,13 +30,13 @@ public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final UserService userService;
     private final WorkoutExerciseService workoutExerciseService;
-    private final ScheduleService scheduleService;
+    private final DayScheduleService dayScheduleService;
 
     @Transactional
     public long createWorkout(WorkoutAddBindingModel bindingModel, String username) {
         User user = userService.getUserEntityByUsername(username);
 
-        DaySchedule schedule = scheduleService.getDayScheduleForDate(username, bindingModel.workoutDateTime().toLocalDate());
+        DaySchedule schedule = dayScheduleService.getDayScheduleForDate(username, bindingModel.workoutDateTime().toLocalDate());
 
         Workout newWorkout = new Workout();
         newWorkout.setWorkoutType(bindingModel.workoutType());
@@ -114,7 +114,7 @@ public class WorkoutService {
             Workout workout = optionalWorkout.get();
             DaySchedule daySchedule = workout.getDaySchedule();
             if (daySchedule.getWorkouts().size() <= 1) {
-                scheduleService.deleteDailySchedule(username, daySchedule.getId());
+                dayScheduleService.deleteDailySchedule(username, daySchedule.getId());
             }
             workoutRepository.deleteById(id);
         } else {
