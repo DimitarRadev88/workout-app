@@ -2,12 +2,10 @@ package com.dimitarrradev.exercisesApi.exercise.service;
 
 import com.dimitarrradev.exercisesApi.exercise.Exercise;
 import com.dimitarrradev.exercisesApi.exercise.dao.ExerciseRepository;
-import com.dimitarrradev.exercisesApi.image.dao.ImageUrlRepository;
 import com.dimitarrradev.exercisesApi.exercise.dto.*;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.exercisesApi.image.dto.ImageUrlViewModel;
 import com.dimitarrradev.exercisesApi.image.service.ImageUrlService;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseNotFoundException;
@@ -24,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,14 +33,14 @@ public class ExerciseService {
     private final ExerciseFromBindingModelMapper mapperFrom;
     private final ExerciseToViewModelMapper mapperTo;
 
-    public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
+    public Long addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
         if (exerciseRepository.existsExerciseByName(exerciseAdd.exerciseName())) {
             throw new ExerciseAlreadyExistsException("Exercise already exists");
         }
 
         Exercise exercise = mapperFrom.fromExerciseAddBindingModel(exerciseAdd);
 
-        exerciseRepository.save(exercise);
+        return exerciseRepository.save(exercise).getId();
     }
 
     public long getExercisesForReviewCount() {
@@ -206,7 +203,6 @@ public class ExerciseService {
 
         exerciseRepository.save(mapperFrom.fromExerciseEditBindingModel(exercise, exerciseEdit));
     }
-
 
 
     public ExerciseEditBindingModel getExerciseEditBindingModel(long id) {

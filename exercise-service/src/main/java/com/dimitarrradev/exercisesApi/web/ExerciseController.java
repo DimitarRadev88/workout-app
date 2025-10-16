@@ -2,12 +2,12 @@ package com.dimitarrradev.exercisesApi.web;
 
 import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseViewModel;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
+import com.dimitarrradev.exercisesApi.web.binding.ExerciseAddBindingModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/exercises")
@@ -23,6 +23,15 @@ public class ExerciseController {
         return ResponseEntity
                 .ok()
                 .body(exercise);
+    }
+
+    @PostMapping("/add")
+    private ResponseEntity<Long> addExercise(@RequestBody ExerciseAddBindingModel exerciseAdd) {
+        Long id = exerciseService.addExerciseForReview(exerciseAdd);
+
+        return ResponseEntity
+                .created(URI.create("/exercises/" + id))
+                .body(id);
     }
 
 }
