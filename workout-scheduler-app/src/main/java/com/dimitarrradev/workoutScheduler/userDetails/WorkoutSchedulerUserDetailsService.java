@@ -1,6 +1,5 @@
 package com.dimitarrradev.workoutScheduler.userDetails;
 
-import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.dao.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,10 +19,9 @@ public class WorkoutSchedulerUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
-        if (user == null) {
-            throw new UsernameNotFoundException(username);
-        }
-        return new WorkoutSchedulerUserDetails(user);
+        return userRepository
+                .findUserByUsername(username)
+                .map(WorkoutSchedulerUserDetails::new)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }

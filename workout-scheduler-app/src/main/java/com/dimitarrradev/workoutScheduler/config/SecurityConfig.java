@@ -28,9 +28,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .userDetailsService(userDetailsService)
                 .formLogin(login -> login
-                        .loginPage("/users/login")
+                        .loginPage("/users/login").permitAll()
                         .defaultSuccessUrl("/", true)
-                        .permitAll()
                 );
 
         return http.build();

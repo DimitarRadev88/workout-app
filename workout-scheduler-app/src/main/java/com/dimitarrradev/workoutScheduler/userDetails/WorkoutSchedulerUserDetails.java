@@ -2,6 +2,7 @@ package com.dimitarrradev.workoutScheduler.userDetails;
 
 import com.dimitarrradev.workoutScheduler.role.Role;
 import com.dimitarrradev.workoutScheduler.user.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,12 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@RequiredArgsConstructor
 public class WorkoutSchedulerUserDetails implements UserDetails {
-    private User user;
-
-    public WorkoutSchedulerUserDetails(User user) {
-        this.user = user;
-    }
+    private final User user;
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
