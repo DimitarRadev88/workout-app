@@ -1,0 +1,1 @@
+INSERT INTO users (enabled, email, password, username) VALUES (TRUE, 'email', 'password', 'user');

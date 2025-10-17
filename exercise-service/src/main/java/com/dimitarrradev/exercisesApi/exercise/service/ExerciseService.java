@@ -196,12 +196,12 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void editExercise(ExerciseEditBindingModel exerciseEdit) {
+    public Long editExercise(ExerciseEditBindingModel exerciseEdit) {
         Exercise exercise = exerciseRepository
                 .findById(exerciseEdit.id())
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
 
-        exerciseRepository.save(mapperFrom.fromExerciseEditBindingModel(exercise, exerciseEdit));
+        return exerciseRepository.save(mapperFrom.fromExerciseEditBindingModel(exercise, exerciseEdit)).getId();
     }
 
 
