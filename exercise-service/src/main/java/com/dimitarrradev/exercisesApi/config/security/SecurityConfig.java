@@ -1,5 +1,6 @@
 package com.dimitarrradev.exercisesApi.config.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,7 +12,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final ExerciseApiUserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -23,9 +27,12 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/users/login").permitAll()
+                        .requestMatchers("/exercises/add", "exercises/update", "/exercises/delete").
+                        hasAnyRole("ADMINISTRATOR", "MODERATOR")
                         .anyRequest().authenticated())
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .userDetailsService(userDetailsService)
                 .formLogin(login -> login
                         .loginPage("/users/login").permitAll()
                         .defaultSuccessUrl("/users/dashboard", true)

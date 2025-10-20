@@ -13,6 +13,8 @@ import java.util.List;
 public class ExercisesApiUserDetails implements UserDetails {
     private final User user;
 
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(

@@ -8,6 +8,7 @@ import com.dimitarrradev.exercisesApi.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.exercisesApi.web.binding.ExerciseFindBindingModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,25 +27,28 @@ public class ExerciseController {
 
         return ResponseEntity
                 .ok()
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(exercise);
     }
 
     @PostMapping("/add")
-    private ResponseEntity<Long> addExercise(@RequestBody ExerciseAddBindingModel exerciseAdd) {
+        private ResponseEntity<Void> addExercise(@RequestBody ExerciseAddBindingModel exerciseAdd) {
         Long id = exerciseService.addExerciseForReview(exerciseAdd);
 
         return ResponseEntity
                 .created(URI.create("/exercises/" + id))
-                .body(id);
+                .contentType(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    @PutMapping("/edit/{id}")
-    private ResponseEntity<Long> addExercise(@RequestBody ExerciseEditBindingModel exerciseEdit) {
-        Long id = exerciseService.editExercise(exerciseEdit);
+    @PatchMapping("/edit/{id}")
+    private ResponseEntity<ExerciseViewModel> editExercise(@RequestParam Long id, @RequestBody ExerciseEditBindingModel exerciseEdit) {
+        ExerciseViewModel exerciseView = exerciseService.editExercise(id, exerciseEdit);
 
         return ResponseEntity
-                .created(URI.create("/exercises/" + id))
-                .body(id);
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(exerciseView);
     }
 
     @GetMapping("/find")
@@ -58,6 +62,7 @@ public class ExerciseController {
 
         return ResponseEntity
                 .ok()
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(exercisesPage);
     }
 

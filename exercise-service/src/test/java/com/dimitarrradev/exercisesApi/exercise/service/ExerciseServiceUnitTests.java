@@ -6,7 +6,6 @@ import com.dimitarrradev.exercisesApi.exercise.dto.*;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
 import com.dimitarrradev.exercisesApi.image.ImageUrl;
 import com.dimitarrradev.exercisesApi.image.dto.ImageUrlViewModel;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
@@ -260,7 +259,7 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.save(toSave))
                 .thenReturn(toSave);
 
-        Long id = exerciseService.editExercise(exerciseEdit);
+        ExerciseViewModel viewModel = exerciseService.editExercise(1L, exerciseEdit);
 
         verify(exerciseRepository, Mockito.times(1))
                 .save(toSave);
@@ -273,7 +272,7 @@ public class ExerciseServiceUnitTests {
 
         assertThrows(
                 ExerciseNotFoundException.class,
-                () -> exerciseService.editExercise(new ExerciseEditBindingModel(1L, null, null, null, null))
+                () -> exerciseService.editExercise(1L, new ExerciseEditBindingModel(1L, null, null, null, null))
         );
     }
 
