@@ -15,29 +15,49 @@ import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
 @Service
-@RequiredArgsConstructor
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
     private final ImageUrlRepository imageUrlRepository;
     private final ExerciseFromBindingModelMapper mapperFrom;
     private final ExerciseToViewModelMapper mapperTo;
+    @Qualifier("exercisesRestClient")
+    private final RestClient restClient;
+
+    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository, ExerciseFromBindingModelMapper mapperFrom, ExerciseToViewModelMapper mapperTo, RestClient restClient) {
+        this.exerciseRepository = exerciseRepository;
+        this.imageUrlRepository = imageUrlRepository;
+        this.mapperFrom = mapperFrom;
+        this.mapperTo = mapperTo;
+        this.restClient = restClient;
+    }
 
     public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
         if (exerciseRepository.existsExerciseByName(exerciseAdd.exerciseName())) {
             throw new ExerciseAlreadyExistsException("Exercise already exists");
         }
+
+        ResponseEntity<Void> bodilessEntity = restClient.post()
+                .uri("exercises/add")
+                .contentType(APPLICATION_JSON)
+                .body(exerciseAdd)
+                .retrieve()
+                .toBodilessEntity();
 
         Exercise exercise = mapperFrom.fromExerciseAddBindingModel(exerciseAdd);
 
