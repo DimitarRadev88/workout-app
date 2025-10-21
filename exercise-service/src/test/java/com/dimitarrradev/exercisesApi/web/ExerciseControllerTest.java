@@ -1,6 +1,5 @@
 package com.dimitarrradev.exercisesApi.web;
 
-import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseViewModel;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
@@ -12,13 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
-
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -37,6 +39,7 @@ public class ExerciseControllerTest {
     @Test
     @Sql(scripts = "/dbContent/exercises.sql")
     @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
+    @DirtiesContext
     void testGetExerciseShouldReturnExercise() throws Exception {
 
         mockMvc.perform(get("/exercises/{id}", 1))
@@ -50,8 +53,21 @@ public class ExerciseControllerTest {
 
     }
 
+//    @Test
+//    @Sql(scripts = {"/dbContent/users.sql", "/dbContent/exercises.sql"})
+//    void testSecurity() throws Exception {
+//
+//        ResponseEntity<String> forEntity = restTemplate
+//                .withBasicAuth("test-user", "password")
+//                .getForEntity("/exercises/1", String.class, 1);
+//
+//        assertThat(forEntity.getStatusCode())
+//                .isEqualTo(HttpStatus.OK);
+//    }
+
     @Test
     @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
+    @DirtiesContext
     void testPostAddExerciseShouldCreateExerciseAndSaveItInRepository() throws Exception {
         ExerciseAddBindingModel bindingModel = new ExerciseAddBindingModel("test-exercise",
                 "test-exercise-description",
@@ -80,6 +96,7 @@ public class ExerciseControllerTest {
     @Test
     @Sql(scripts = "/dbContent/exercises.sql")
     @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
+    @DirtiesContext
     void testPostEditExerciseShouldEditExerciseAndSaveItInRepository() throws Exception {
         ExerciseEditBindingModel bindingModel = new ExerciseEditBindingModel(1L, "edited-exercise",
                 "edited-exercise-description",
