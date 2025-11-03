@@ -32,13 +32,13 @@ public class ExerciseController {
     }
 
     @PostMapping("/add")
-        private ResponseEntity<Void> addExercise(@RequestBody ExerciseAddBindingModel exerciseAdd) {
+        private ResponseEntity<String> addExercise(@RequestBody ExerciseAddBindingModel exerciseAdd) {
         Long id = exerciseService.addExerciseForReview(exerciseAdd);
 
         return ResponseEntity
                 .created(URI.create("/exercises/" + id))
                 .contentType(MediaType.APPLICATION_JSON)
-                .build();
+                .body("Exercise " + id + " added successfully for review!");
     }
 
     @PatchMapping("/edit/{id}")

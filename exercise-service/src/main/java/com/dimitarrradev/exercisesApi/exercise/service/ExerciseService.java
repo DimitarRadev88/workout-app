@@ -29,13 +29,12 @@ import java.util.List;
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
-    private final ImageUrlService imageUrlService;
     private final ExerciseFromBindingModelMapper mapperFrom;
     private final ExerciseToViewModelMapper mapperTo;
 
     public Long addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
         if (exerciseRepository.existsExerciseByName(exerciseAdd.exerciseName())) {
-            throw new ExerciseAlreadyExistsException("Exercise already exists");
+            throw new ExerciseAlreadyExistsException("Exercise with name " + exerciseAdd.exerciseName() + "  already exists");
         }
 
         Exercise exercise = mapperFrom.fromExerciseAddBindingModel(exerciseAdd);
