@@ -92,13 +92,14 @@ public class ExerciseController {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.exerciseAdd", bindingResult);
             return "redirect:/exercises/add";
         } else {
-            exerciseService.addExerciseForReview(exerciseAdd);
+            String message = exerciseService.addExerciseForReview(exerciseAdd);
+            redirectAttributes.addFlashAttribute("message", message);
         }
 
         return "redirect:/exercises";
     }
 
-    @GetMapping
+    @GetMapping("")
     public String getExercises(Model model, Authentication authentication) {
         authentication.getAuthorities().stream().filter(authority -> authority
                         .getAuthority().equals("ROLE_ADMIN"))

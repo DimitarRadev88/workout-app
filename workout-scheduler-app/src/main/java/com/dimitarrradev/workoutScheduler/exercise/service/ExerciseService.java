@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.exercise.service;
 
+import com.dimitarrradev.workoutScheduler.config.rest.ExerciseRestClient;
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
@@ -15,20 +16,19 @@ import com.dimitarrradev.workoutScheduler.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.ExerciseFindBindingModel;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
+@Slf4j
 @Service
 public class ExerciseService {
 
@@ -36,10 +36,9 @@ public class ExerciseService {
     private final ImageUrlRepository imageUrlRepository;
     private final ExerciseFromBindingModelMapper mapperFrom;
     private final ExerciseToViewModelMapper mapperTo;
-    @Qualifier("exercisesRestClient")
-    private final RestClient restClient;
+    private final ExerciseRestClient restClient;
 
-    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository, ExerciseFromBindingModelMapper mapperFrom, ExerciseToViewModelMapper mapperTo, RestClient restClient) {
+    public ExerciseService(ExerciseRepository exerciseRepository, ImageUrlRepository imageUrlRepository, ExerciseFromBindingModelMapper mapperFrom, ExerciseToViewModelMapper mapperTo, ExerciseRestClient restClient) {
         this.exerciseRepository = exerciseRepository;
         this.imageUrlRepository = imageUrlRepository;
         this.mapperFrom = mapperFrom;
@@ -47,21 +46,16 @@ public class ExerciseService {
         this.restClient = restClient;
     }
 
-    public void addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
-        if (exerciseRepository.existsExerciseByName(exerciseAdd.exerciseName())) {
-            throw new ExerciseAlreadyExistsException("Exercise already exists");
+    public String addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
+        ResponseEntity<String> entity = restClient.addExercise(exerciseAdd);
+
+        if (entity.getStatusCode().equals(HttpStatus.CONFLICT)) {
+            throw new ExerciseAlreadyExistsException(entity.getBody());
         }
 
-        ResponseEntity<Void> bodilessEntity = restClient.post()
-                .uri("exercises/add")
-                .contentType(APPLICATION_JSON)
-                .body(exerciseAdd)
-                .retrieve()
-                .toBodilessEntity();
+        log.info("Exercise added for review: {}", entity.getHeaders().getLocation());
 
-        Exercise exercise = mapperFrom.fromExerciseAddBindingModel(exerciseAdd);
-
-        exerciseRepository.save(exercise);
+        return  entity.getBody();
     }
 
     public long getExercisesForReviewCount() {

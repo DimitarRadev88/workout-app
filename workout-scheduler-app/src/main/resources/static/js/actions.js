@@ -95,3 +95,8 @@ function hideError() {
     paragraph.classList.replace("d-flex", "d-none")
 }
 
+function hideMessage() {
+    const paragraph = document.getElementById("message");
+    paragraph.classList.replace("d-flex", "d-none")
+}
+

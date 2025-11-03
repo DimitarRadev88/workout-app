@@ -1,5 +1,6 @@
 package com.dimitarrradev.workoutScheduler.exercise.service;
 
+import com.dimitarrradev.workoutScheduler.config.rest.ExerciseRestClient;
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.Exercise;
@@ -23,11 +24,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
 import java.util.*;
 
 import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.*;
-import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.randomExerciseName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -44,6 +48,8 @@ public class ExerciseServiceUnitTests {
     private ExerciseFromBindingModelMapper mapperFrom;
     @Mock
     private ExerciseToViewModelMapper mapperTo;
+    @Mock
+    private ExerciseRestClient restClient;
     @InjectMocks
     private ExerciseService exerciseService;
 
@@ -79,28 +85,18 @@ public class ExerciseServiceUnitTests {
                 randomMovementType()
         );
 
-        Exercise saved = new Exercise(
-                null,
-                exerciseAddBindingModel.exerciseName(),
-                exerciseAddBindingModel.bodyPart(),
-                exerciseAddBindingModel.movementType(),
-                exerciseAddBindingModel.description(),
-                null,
-                false,
-                exerciseAddBindingModel.addedBy(),
-                exerciseAddBindingModel.complexity()
-        );
+        ResponseEntity<String> entity = ResponseEntity
+                .created(URI.create("/exercises/" + 1))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("Exercise " + 1 + " added successfully for review!");
 
-        when(mapperFrom.fromExerciseAddBindingModel(exerciseAddBindingModel))
-                .thenReturn(saved);
+        when(restClient.addExercise(exerciseAddBindingModel))
+                .thenReturn(entity);
 
-        when(exerciseRepository.existsExerciseByName(exerciseAddBindingModel.exerciseName()))
-                .thenReturn(false);
+        String message = exerciseService.addExerciseForReview(exerciseAddBindingModel);
 
-        exerciseService.addExerciseForReview(exerciseAddBindingModel);
-
-        verify(exerciseRepository, Mockito.times(1))
-                .save(saved);
+        assertThat(message)
+                .isEqualTo("Exercise " + 1 + " added successfully for review!");
     }
 
     @Test
@@ -113,8 +109,14 @@ public class ExerciseServiceUnitTests {
                 randomComplexity(),
                 randomMovementType()
         );
-        when(exerciseRepository.existsExerciseByName(exerciseAddBindingModel.exerciseName()))
-                .thenReturn(true);
+
+
+        ResponseEntity<String> body = ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Exercise already exists!");
+
+        when(restClient.addExercise(exerciseAddBindingModel))
+                .thenReturn(body);
 
         assertThrows(
                 ExerciseAlreadyExistsException.class,
