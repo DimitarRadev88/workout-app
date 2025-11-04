@@ -1,6 +1,5 @@
 package com.dimitarrradev.workoutScheduler.workoutExercise;
 
-import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,9 +17,9 @@ public class WorkoutExercise {
     @ManyToOne
     @JoinColumn(name = "workout_id")
     private Workout workout;
-    @ManyToOne
-    @JoinColumn(name = "exercise_id")
-    private Exercise exercise;
+//    @ManyToOne
+//    @JoinColumn(name = "exercise_id")
+//    private Exercise exercise;
     @Column(name = "min_reps", nullable = false)
     private Integer minReps;
     @Column(name = "max_reps", nullable = false)

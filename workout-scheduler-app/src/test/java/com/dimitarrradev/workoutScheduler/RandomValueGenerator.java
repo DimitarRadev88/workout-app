@@ -1,13 +1,11 @@
 package com.dimitarrradev.workoutScheduler;
 
-import com.dimitarrradev.workoutScheduler.exercise.Exercise;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -61,27 +59,6 @@ public class RandomValueGenerator {
         }
 
         return targetBodyPartNames;
-    }
-
-    public static List<Exercise> randomExerciseList(int count) {
-        List<Exercise> exercises = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            Exercise e = new Exercise(
-                    RandomValueGenerator.randomId(),
-                    randomExerciseName(),
-                    randomTargetBodyPart(),
-                    randomMovementType(),
-                    randomDescription(),
-                    Collections.emptyList(),
-                    randomBoolean(),
-                    "user" + i,
-                    randomComplexity()
-            );
-
-            exercises.add(e);
-        }
-
-        return exercises;
     }
 
 }

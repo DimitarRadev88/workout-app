@@ -1,7 +1,7 @@
 package com.dimitarrradev.workoutScheduler.workout.service.dto;
 
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
+import com.dimitarrradev.workoutScheduler.workoutExercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType;
 
 import java.time.LocalDateTime;

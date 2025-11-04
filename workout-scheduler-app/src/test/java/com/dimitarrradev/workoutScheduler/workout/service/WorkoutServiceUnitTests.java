@@ -1,8 +1,8 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutNotFoundException;
-import com.dimitarrradev.workoutScheduler.exercise.Exercise;
-import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseWorkoutExerciseBindingModel;
+import com.dimitarrradev.workoutScheduler.workoutExercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.program.Program;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
@@ -54,7 +54,6 @@ class WorkoutServiceUnitTests {
 
     private Workout workout;
     private User user;
-    private Exercise exercise;
     private WorkoutExercise workoutExercise;
 
     @BeforeEach
@@ -62,13 +61,9 @@ class WorkoutServiceUnitTests {
         user = new User();
         user.setUsername("test-user");
 
-        exercise = new Exercise();
-        exercise.setName(randomExerciseName());
-
         workoutExercise = new WorkoutExercise(
                 randomId(),
                 null,
-                exercise,
                 5,
                 10,
                 null,
@@ -147,25 +142,26 @@ class WorkoutServiceUnitTests {
         when(workoutRepository.findWorkoutByIdAndUser_Username(workout.getId(), user.getUsername()))
                 .thenReturn(Optional.of(workout));
 
-        WorkoutEditServiceModel expected = new WorkoutEditServiceModel(
-                workout.getWorkoutType(),
-                workout.getTargetBodyParts(),
-                workout.getWorkoutDateTime(),
-                workout.getWorkoutExercises().stream().map(workoutExercise -> new WorkoutExerciseServiceModel(
-                        workoutExercise.getId(),
-                        workoutExercise.getExercise().getName(),
-                        workoutExercise.getSets(),
-                        workoutExercise.getMinReps(),
-                        workoutExercise.getMaxReps(),
-                        workoutExercise.getWeight(),
-                        workoutExercise.getRest()
-                )).toList()
-        );
+//        WorkoutEditServiceModel expected = new WorkoutEditServiceModel(
+//                workout.getWorkoutType(),
+//                workout.getTargetBodyParts(),
+//                workout.getWorkoutDateTime(),
+//                workout.getWorkoutExercises().stream().map(workoutExercise -> new WorkoutExerciseServiceModel(
+//                        workoutExercise.getId(),
+//                        workoutExercise.getExercise().getName(),
+//                        workoutExercise.getSets(),
+//                        workoutExercise.getMinReps(),
+//                        workoutExercise.getMaxReps(),
+//                        workoutExercise.getWeight(),
+//                        workoutExercise.getRest()
+//                )).toList()
+//        );
 
         WorkoutEditServiceModel actual = workoutService.getWorkout(workout.getId(), user.getUsername());
+        throw new IllegalStateException("TODO");
 
-        assertThat(actual)
-                .isEqualTo(expected);
+//        assertThat(actual)
+//                .isEqualTo(expected);
     }
 
     @Test

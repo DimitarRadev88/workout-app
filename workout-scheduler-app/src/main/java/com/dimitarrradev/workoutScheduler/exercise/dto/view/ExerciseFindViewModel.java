@@ -1,12 +1,11 @@
-package com.dimitarrradev.workoutScheduler.web.binding;
+package com.dimitarrradev.workoutScheduler.exercise.dto.view;
 
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
-import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 
-public record ExerciseFindBindingModel (
+public record ExerciseFindViewModel(
+        Long id,
         String name,
-        TargetBodyPart targetBodyPart,
         Complexity complexity,
         MovementType movementType
 ) {

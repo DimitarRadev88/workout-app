@@ -1,6 +1,7 @@
-package com.dimitarrradev.workoutScheduler.web.binding;
+package com.dimitarrradev.workoutScheduler.exercise.dto.binding;
 
 import com.dimitarrradev.workoutScheduler.util.validation.WorkoutExerciseConstraint;
+import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseBindingModel;
 import jakarta.validation.constraints.NotNull;
 
 public record ExerciseWorkoutExerciseBindingModel(

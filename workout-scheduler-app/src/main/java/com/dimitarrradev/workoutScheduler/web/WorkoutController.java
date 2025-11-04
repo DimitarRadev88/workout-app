@@ -1,6 +1,7 @@
 package com.dimitarrradev.workoutScheduler.web;
 
-import com.dimitarrradev.workoutScheduler.exercise.dto.ExerciseNameAndIdViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseNameAndIdViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseWorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.*;

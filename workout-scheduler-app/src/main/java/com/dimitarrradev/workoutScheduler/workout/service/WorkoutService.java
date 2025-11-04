@@ -1,13 +1,13 @@
 package com.dimitarrradev.workoutScheduler.workout.service;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutNotFoundException;
-import com.dimitarrradev.workoutScheduler.exercise.dto.WorkoutExerciseServiceModel;
+import com.dimitarrradev.workoutScheduler.workoutExercise.dto.WorkoutExerciseServiceModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.schedule.DaySchedule;
 import com.dimitarrradev.workoutScheduler.schedule.service.DayScheduleService;
 import com.dimitarrradev.workoutScheduler.user.User;
 import com.dimitarrradev.workoutScheduler.user.service.UserService;
-import com.dimitarrradev.workoutScheduler.web.binding.ExerciseWorkoutExerciseBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseWorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutAddBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutEditBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutViewServiceModel;
@@ -50,22 +50,24 @@ public class WorkoutService {
     }
 
     public WorkoutEditServiceModel getWorkout(long id, String username) {
-        return workoutRepository.findWorkoutByIdAndUser_Username(id, username)
-                .map(workout -> new WorkoutEditServiceModel(
-                                workout.getWorkoutType(),
-                                workout.getTargetBodyParts(),
-                                workout.getWorkoutDateTime(),
-                                workout.getWorkoutExercises().stream().map(workoutExercise -> new WorkoutExerciseServiceModel(
-                                        workoutExercise.getId(),
-                                        workoutExercise.getExercise().getName(),
-                                        workoutExercise.getSets(),
-                                        workoutExercise.getMinReps(),
-                                        workoutExercise.getMaxReps(),
-                                        workoutExercise.getWeight(),
-                                        workoutExercise.getRest()
-                                )).toList()
-                        )
-                ).orElseThrow(() -> new WorkoutNotFoundException("Workout not found"));
+//        return workoutRepository.findWorkoutByIdAndUser_Username(id, username)
+//                .map(workout -> new WorkoutEditServiceModel(
+//                                workout.getWorkoutType(),
+//                                workout.getTargetBodyParts(),
+//                                workout.getWorkoutDateTime(),
+//                                workout.getWorkoutExercises().stream().map(workoutExercise -> new WorkoutExerciseServiceModel(
+//                                        workoutExercise.getId(),
+//                                        workoutExercise.getExercise().getName(),
+//                                        workoutExercise.getSets(),
+//                                        workoutExercise.getMinReps(),
+//                                        workoutExercise.getMaxReps(),
+//                                        workoutExercise.getWeight(),
+//                                        workoutExercise.getRest()
+//                                )).toList()
+//                        )
+//                ).orElseThrow(() -> new WorkoutNotFoundException("Workout not found"));
+        throw new IllegalStateException("TODO");
+
     }
 
     public List<WorkoutViewServiceModel> getAllByUserUsername(String username) {

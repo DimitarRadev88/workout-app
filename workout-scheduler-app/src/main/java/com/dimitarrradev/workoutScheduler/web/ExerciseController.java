@@ -1,9 +1,14 @@
 package com.dimitarrradev.workoutScheduler.web;
 
 import com.dimitarrradev.workoutScheduler.exercise.dto.*;
+import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseAddBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseEditBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseFindBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseFindViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseForReviewViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
-import com.dimitarrradev.workoutScheduler.web.binding.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

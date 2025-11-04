@@ -5,7 +5,7 @@ import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.workoutExercise.WorkoutExercise;
 import com.dimitarrradev.workoutScheduler.workoutExercise.dao.WorkoutExerciseRepository;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseEditBindingModel;
-import com.dimitarrradev.workoutScheduler.web.binding.ExerciseWorkoutExerciseBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseWorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,19 +20,21 @@ public class WorkoutExerciseService {
 
     @Transactional
     public WorkoutExercise createWorkoutExercise(ExerciseWorkoutExerciseBindingModel exerciseWorkoutExerciseBindingModel, Workout workout) {
-        WorkoutExercise workoutExercise = new WorkoutExercise(
-                null,
-                workout,
-                exerciseService.getExercise(exerciseWorkoutExerciseBindingModel.exerciseId()),
-                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().minReps(),
-                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().maxReps(),
-                0,
-                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().weight(),
-                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().rest(),
-                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().sets()
-        );
+//        WorkoutExercise workoutExercise = new WorkoutExercise(
+//                null,
+//                workout,
+//                exerciseService.getExercise(exerciseWorkoutExerciseBindingModel.exerciseId()),
+//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().minReps(),
+//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().maxReps(),
+//                0,
+//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().weight(),
+//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().rest(),
+//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().sets()
+//        );
+//
+//        return workoutExerciseRepository.save(workoutExercise);
+        throw new IllegalStateException("TODO");
 
-        return workoutExerciseRepository.save(workoutExercise);
     }
 
     public void delete(long id, String username) {

@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.web.binding;
+package com.dimitarrradev.workoutScheduler.exercise.dto.binding;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

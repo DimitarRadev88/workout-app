@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.exercise.dto;
+package com.dimitarrradev.workoutScheduler.workoutExercise.dto;
 
 public record WorkoutExerciseServiceModel(
         Long id,

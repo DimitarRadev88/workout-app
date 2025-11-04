@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.web.binding;
+package com.dimitarrradev.workoutScheduler.exercise.dto.binding;
 
 public record ExerciseNameAndIdBindingModel(
         Long id,

@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.exercise.dto;
+package com.dimitarrradev.workoutScheduler.exercise.dto.view;
 
 public record ExerciseNameAndIdViewModel(
         Long id,

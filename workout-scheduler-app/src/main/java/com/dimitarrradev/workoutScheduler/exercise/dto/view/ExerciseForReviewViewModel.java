@@ -1,12 +1,14 @@
-package com.dimitarrradev.workoutScheduler.exercise.dto;
+package com.dimitarrradev.workoutScheduler.exercise.dto.view;
 
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 
-public record ExerciseFindViewModel(
+public record ExerciseForReviewViewModel(
         Long id,
         String name,
+        String description,
         Complexity complexity,
-        MovementType movementType
+        MovementType movementType,
+        String addedBy
 ) {
 }

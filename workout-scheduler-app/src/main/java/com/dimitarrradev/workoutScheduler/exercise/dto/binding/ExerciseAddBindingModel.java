@@ -1,4 +1,4 @@
-package com.dimitarrradev.workoutScheduler.web.binding;
+package com.dimitarrradev.workoutScheduler.exercise.dto.binding;
 
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;

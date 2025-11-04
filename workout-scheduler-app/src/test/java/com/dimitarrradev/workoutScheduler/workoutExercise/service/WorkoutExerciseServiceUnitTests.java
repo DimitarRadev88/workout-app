@@ -1,9 +1,8 @@
 package com.dimitarrradev.workoutScheduler.workoutExercise.service;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutExerciseNotFoundException;
-import com.dimitarrradev.workoutScheduler.exercise.Exercise;
+import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseWorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
-import com.dimitarrradev.workoutScheduler.web.binding.ExerciseWorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseEditBindingModel;
 import com.dimitarrradev.workoutScheduler.workout.Workout;
@@ -19,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Optional;
 
 import static com.dimitarrradev.workoutScheduler.RandomValueGenerator.*;
@@ -54,37 +52,39 @@ public class WorkoutExerciseServiceUnitTests {
                 randomTargetBodyPartsList()
         );
 
-        Exercise exercise = new Exercise(
-                exerciseWorkoutExerciseBindingModel.exerciseId(),
-                randomExerciseName(),
-                randomTargetBodyPart(),
-                randomMovementType(),
-                randomDescription(),
-                Collections.emptyList(),
-                Boolean.TRUE,
-                "user",
-                randomComplexity());
+//        Exercise exercise = new Exercise(
+//                exerciseWorkoutExerciseBindingModel.exerciseId(),
+//                randomExerciseName(),
+//                randomTargetBodyPart(),
+//                randomMovementType(),
+//                randomDescription(),
+//                Collections.emptyList(),
+//                Boolean.TRUE,
+//                "user",
+//                randomComplexity());
 
-        WorkoutExercise expected = new WorkoutExercise(
-                null,
-                workout,
-                exercise,
-                workoutExerciseBindingModel.minReps(),
-                workoutExerciseBindingModel.maxReps(),
-                0,
-                workoutExerciseBindingModel.weight(),
-                workoutExerciseBindingModel.rest(),
-                workoutExerciseBindingModel.sets());
-
-        when(exerciseService.getExercise(exercise.getId()))
-                .thenReturn(exercise);
+//        WorkoutExercise expected = new WorkoutExercise(
+//                null,
+//                workout,
+//                exercise,
+//                workoutExerciseBindingModel.minReps(),
+//                workoutExerciseBindingModel.maxReps(),
+//                0,
+//                workoutExerciseBindingModel.weight(),
+//                workoutExerciseBindingModel.rest(),
+//                workoutExerciseBindingModel.sets());
+//
+//        when(exerciseService.getExercise(exercise.getId()))
+//                .thenReturn(exercise);
 
         workoutExerciseService.createWorkoutExercise(exerciseWorkoutExerciseBindingModel, workout);
 
-        verify(
-                workoutExerciseRepository,
-                times(1)
-        ).save(expected);
+//        verify(
+//                workoutExerciseRepository,
+//                times(1)
+//        ).save(expected);
+        throw new IllegalStateException("TODO");
+
     }
 
     @Test
@@ -128,22 +128,22 @@ public class WorkoutExerciseServiceUnitTests {
         long id = randomId();
         long workoutId = randomId();
         String username = "user";
-        Exercise exercise = new Exercise(
-                randomId(),
-                randomExerciseName(),
-                randomTargetBodyPart(),
-                randomMovementType(),
-                randomDescription(),
-                Collections.emptyList(),
-                Boolean.TRUE,
-                username,
-                randomComplexity()
-        );
+//        Exercise exercise = new Exercise(
+//                randomId(),
+//                randomExerciseName(),
+//                randomTargetBodyPart(),
+//                randomMovementType(),
+//                randomDescription(),
+//                Collections.emptyList(),
+//                Boolean.TRUE,
+//                username,
+//                randomComplexity()
+//        );
 
         WorkoutExercise workoutExercise = new WorkoutExercise(
                 id,
                 null,
-                exercise,
+//                exercise,
                 4,
                 6,
                 0,
@@ -163,7 +163,7 @@ public class WorkoutExerciseServiceUnitTests {
         WorkoutExercise expected = new WorkoutExercise(
                 workoutExercise.getId(),
                 null,
-                exercise,
+//                exercise,
                 bindingModel.minReps(),
                 bindingModel.maxReps(),
                 0,
@@ -188,22 +188,22 @@ public class WorkoutExerciseServiceUnitTests {
         long id = randomId();
         long workoutId = randomId();
         String username = "user";
-        Exercise exercise = new Exercise(
-                randomId(),
-                randomExerciseName(),
-                randomTargetBodyPart(),
-                randomMovementType(),
-                randomDescription(),
-                Collections.emptyList(),
-                Boolean.TRUE,
-                username,
-                randomComplexity()
-        );
+//        Exercise exercise = new Exercise(
+//                randomId(),
+//                randomExerciseName(),
+//                randomTargetBodyPart(),
+//                randomMovementType(),
+//                randomDescription(),
+//                Collections.emptyList(),
+//                Boolean.TRUE,
+//                username,
+//                randomComplexity()
+//        );
 
         WorkoutExercise workoutExercise = new WorkoutExercise(
                 id,
                 null,
-                exercise,
+//                exercise,
                 4,
                 6,
                 0,
@@ -223,7 +223,7 @@ public class WorkoutExerciseServiceUnitTests {
         WorkoutExercise expected = new WorkoutExercise(
                 workoutExercise.getId(),
                 null,
-                exercise,
+//                exercise,
                 bindingModel.minReps(),
                 bindingModel.minReps(),
                 0,
