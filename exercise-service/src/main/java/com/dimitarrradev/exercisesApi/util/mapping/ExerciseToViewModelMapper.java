@@ -20,10 +20,13 @@ public class ExerciseToViewModelMapper {
 
     public ExerciseViewModel toExerciseViewModel(Exercise exercise) {
         return new ExerciseViewModel(
+                exercise.getId(),
                 exercise.getName(),
                 exercise.getComplexity().getName(),
                 exercise.getMovementType().getName(),
                 exercise.getDescription(),
+                exercise.getAddedBy(),
+                exercise.getApproved(),
                 exercise.getImageURLs().stream()
                         .map(imageUrl -> new ImageUrlViewModel(
                                 imageUrl.getId(),

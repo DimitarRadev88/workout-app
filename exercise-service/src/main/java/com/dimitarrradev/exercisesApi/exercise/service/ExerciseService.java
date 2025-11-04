@@ -16,6 +16,7 @@ import com.dimitarrradev.exercisesApi.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.exercisesApi.web.binding.ExerciseFindBindingModel;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ExerciseService {
@@ -187,6 +189,7 @@ public class ExerciseService {
 
     @Transactional
     public ExerciseViewModel getExerciseView(Long id) {
+        log.info("Getting exercise view with id: {}", id);
         Exercise exercise = exerciseRepository
                 .findById(id)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));

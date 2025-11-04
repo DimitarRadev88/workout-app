@@ -104,15 +104,9 @@ public class ExerciseControllerTest {
                 Boolean.TRUE);
 
         mockMvc.perform(patch("/exercises/edit/{id}", 1)
-                        .param("id", "1")
                         .content(objectMapper.writeValueAsBytes(bindingModel))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.name").value(bindingModel.name()))
-                .andExpect(jsonPath("$.description").value(bindingModel.description()))
-                .andExpect(jsonPath("$.imageUrls").isArray());
-
+                .andExpect(status().isNoContent());
     }
 
 }

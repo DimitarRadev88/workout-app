@@ -190,10 +190,13 @@ public class ExerciseServiceUnitTests {
                 .thenReturn(Optional.of(exercise));
 
         ExerciseViewModel expected = new ExerciseViewModel(
+                exercise.getId(),
                 exercise.getName(),
                 exercise.getComplexity().getName(),
                 exercise.getMovementType().getName(),
                 exercise.getDescription(),
+                exercise.getAddedBy(),
+                exercise.getApproved(),
                 exercise.getImageURLs().stream().map(imageUrl -> new ImageUrlViewModel(
                         imageUrl.getId(),
                         imageUrl.getUrl()

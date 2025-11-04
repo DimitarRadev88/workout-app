@@ -42,13 +42,12 @@ public class ExerciseController {
     }
 
     @PatchMapping("/edit/{id}")
-    private ResponseEntity<ExerciseViewModel> editExercise(@RequestParam Long id, @RequestBody ExerciseEditBindingModel exerciseEdit) {
-        ExerciseViewModel exerciseView = exerciseService.editExercise(id, exerciseEdit);
+    private ResponseEntity<ExerciseViewModel> editExercise(@PathVariable Long id, @RequestBody ExerciseEditBindingModel exerciseEdit) {
+        exerciseService.editExercise(id, exerciseEdit);
 
         return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(exerciseView);
+                .noContent()
+                .build();
     }
 
     @GetMapping("/find")
@@ -64,6 +63,22 @@ public class ExerciseController {
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(exercisesPage);
+    }
+
+    @GetMapping("/for-review/count")
+    private ResponseEntity<Long> countForReview() {
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(exerciseService.getExercisesForReviewCount());
+    }
+
+    @GetMapping("/edit/{id}")
+    private ResponseEntity<ExerciseEditBindingModel> getExerciseEditBindingModel(@PathVariable Long id) {
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(exerciseService.getExerciseEditBindingModel(id));
     }
 
 }
