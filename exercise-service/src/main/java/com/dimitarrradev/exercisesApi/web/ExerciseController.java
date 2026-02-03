@@ -1,18 +1,24 @@
 package com.dimitarrradev.exercisesApi.web;
 
 import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseFindViewModel;
+import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseForReviewViewModel;
 import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseViewModel;
+import com.dimitarrradev.exercisesApi.exercise.dto.PageInformation;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
 import com.dimitarrradev.exercisesApi.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.exercisesApi.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.exercisesApi.web.binding.ExerciseFindBindingModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedModel;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
 @RestController
 @RequestMapping("/exercises")
@@ -73,6 +79,20 @@ public class ExerciseController {
                 .body(exerciseService.getExercisesForReviewCount());
     }
 
+    @GetMapping("/for-review/")
+    private ResponseEntity<PagedModel<ExerciseForReviewViewModel>> getExerciseForReview(@RequestParam int pageNumber,
+                                                                                        @RequestParam int pageSize,
+                                                                                        @RequestParam String sortDirection) {
+
+        Page<ExerciseForReviewViewModel> exercises = exerciseService.getExercisesForReviewPage(pageNumber, pageSize, sortDirection);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new PagedModel<>(exercises));
+    }
+
+
+
     @GetMapping("/edit/{id}")
     private ResponseEntity<ExerciseEditBindingModel> getExerciseEditBindingModel(@PathVariable Long id) {
         return ResponseEntity
@@ -80,5 +100,6 @@ public class ExerciseController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(exerciseService.getExerciseEditBindingModel(id));
     }
+
 
 }
