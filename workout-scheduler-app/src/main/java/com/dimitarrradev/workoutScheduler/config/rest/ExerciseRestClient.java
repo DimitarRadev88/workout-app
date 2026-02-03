@@ -1,10 +1,14 @@
 package com.dimitarrradev.workoutScheduler.config.rest;
 
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
-import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseEditBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseForReviewViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.service.ExercisePageImpl;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -75,6 +79,19 @@ public class ExerciseRestClient {
                 .uri("/for-review/count")
                 .retrieve()
                 .toEntity(Long.class);
+    }
+
+    public Page<ExerciseForReviewViewModel> getExercisesForReviewPage(int pageNumber, int pageSize, String sortDirection) {
+
+        return restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/for-review/")
+                        .queryParam("pageNumber", pageNumber)
+                        .queryParam("pageSize", pageSize)
+                        .queryParam("sortDirection", sortDirection)
+                        .build())
+                .retrieve()
+                .body(new ParameterizedTypeReference<ExercisePageImpl<ExerciseForReviewViewModel>>() {});
     }
 
 

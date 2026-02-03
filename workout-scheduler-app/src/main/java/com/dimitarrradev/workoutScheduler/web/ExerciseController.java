@@ -180,6 +180,8 @@ public class ExerciseController {
         Page<ExerciseForReviewViewModel> exercises = exerciseService.getExercisesForReviewPage(pageNumber, pageSize, sortDirection);
         PageInformation pageInfo = exerciseService.getPageInfo(exercises);
 
+        System.out.println(exercises);
+
         model.addAttribute("pageSizes", pageInfo.pageSizes());
         model.addAttribute("elementsCount", exercises.getTotalElements());
         model.addAttribute("pagesCount", exercises.getTotalPages());

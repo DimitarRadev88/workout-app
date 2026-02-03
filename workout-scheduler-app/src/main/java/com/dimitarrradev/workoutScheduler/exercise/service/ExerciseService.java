@@ -49,17 +49,7 @@ public class ExerciseService {
 
 
     public Page<ExerciseForReviewViewModel> getExercisesForReviewPage(int pageNumber, int pageSize, String sortDirection) {
-        Sort sort = sortDirection.equalsIgnoreCase("asc") ?
-                Sort.by("name").ascending() :
-                Sort.by("name").descending();
-
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
-
-//        return exerciseRepository
-//                .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
-//                .map(mapperTo::toExerciseForReviewViewModel);
-        throw new IllegalStateException("TODO");
-
+        return restClient.getExercisesForReviewPage(pageNumber, pageSize, sortDirection);
     }
 
     public void approveExercise(Long id) {
