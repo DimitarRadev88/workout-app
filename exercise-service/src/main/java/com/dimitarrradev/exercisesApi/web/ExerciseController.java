@@ -3,7 +3,6 @@ package com.dimitarrradev.exercisesApi.web;
 import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseFindViewModel;
 import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseForReviewViewModel;
 import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseViewModel;
-import com.dimitarrradev.exercisesApi.exercise.dto.PageInformation;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
 import com.dimitarrradev.exercisesApi.web.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.exercisesApi.web.binding.ExerciseEditBindingModel;
@@ -11,14 +10,11 @@ import com.dimitarrradev.exercisesApi.web.binding.ExerciseFindBindingModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedModel;
-import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-
-import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
 @RestController
 @RequestMapping("/exercises")
@@ -38,7 +34,7 @@ public class ExerciseController {
     }
 
     @PostMapping("/add")
-        private ResponseEntity<String> addExercise(@RequestBody ExerciseAddBindingModel exerciseAdd) {
+    private ResponseEntity<String> addExercise(@RequestBody ExerciseAddBindingModel exerciseAdd) {
         Long id = exerciseService.addExerciseForReview(exerciseAdd);
 
         return ResponseEntity
@@ -79,18 +75,25 @@ public class ExerciseController {
                 .body(exerciseService.getExercisesForReviewCount());
     }
 
-    @GetMapping("/for-review/")
-    private ResponseEntity<PagedModel<ExerciseForReviewViewModel>> getExerciseForReview(@RequestParam int pageNumber,
-                                                                                        @RequestParam int pageSize,
-                                                                                        @RequestParam String sortDirection) {
+    @GetMapping("/for-review")
+    private ResponseEntity<PagedModel<ExerciseForReviewViewModel>> getExercisesForReview(@RequestParam int page,
+                                                                                         @RequestParam int size,
+                                                                                         @RequestParam String orderBy) {
 
-        Page<ExerciseForReviewViewModel> exercises = exerciseService.getExercisesForReviewPage(pageNumber, pageSize, sortDirection);
+        Page<ExerciseForReviewViewModel> exercisesForReviewPage = exerciseService.getExercisesForReviewPage(page, size, orderBy);
+
+        String linkHeader = "<http://localhost:8082/exercises/for-review?page=%d&size=%d&orderBy=%s>;, rel=\"%s\"";
+        String link = "Link";
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new PagedModel<>(exercises));
+                .header(link, String.format(linkHeader, page, size, orderBy, "self"))
+                .header(link, String.format(linkHeader, 0, size, orderBy, "first"))
+                .header(link, String.format(linkHeader, Math.max(0, page - 1), size, orderBy, "prev"))
+                .header(link, String.format(linkHeader, Math.min(page + 1, exercisesForReviewPage.getTotalPages() - 1), size, orderBy, "next"))
+                .header(link, String.format(linkHeader, exercisesForReviewPage.getTotalPages() - 1, size, orderBy, "last"))
+                .body(new PagedModel<>(exercisesForReviewPage));
     }
-
 
 
     @GetMapping("/edit/{id}")

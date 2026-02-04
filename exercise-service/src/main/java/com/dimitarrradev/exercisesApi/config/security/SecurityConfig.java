@@ -30,7 +30,8 @@ public class SecurityConfig {
                         .requestMatchers("/users/login").permitAll()
                         .requestMatchers("/exercises/add", "exercises/update", "/exercises/delete").
                         hasAnyRole("ADMINISTRATOR", "MODERATOR")
-                        .anyRequest().authenticated())
+//                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
 
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)

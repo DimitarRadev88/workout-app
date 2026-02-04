@@ -11,16 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -108,5 +104,37 @@ public class ExerciseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @Sql(scripts = "/dbContent/exercises.sql")
+    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
+    @DirtiesContext
+    void testGetExercisesForReviewShouldReturnCorrectResponse() throws Exception {
+
+        String linkHeader = "<http://localhost:8082/exercises/for-review?page=%d&size=%d&orderBy=%s>;, rel=\"%s\"";
+        String link = "Link";
+
+        int page = 0;
+        int size = 5;
+        String orderBy = "asc";
+
+        mockMvc.perform(get("/exercises/for-review")
+                .param("page", String.valueOf(page))
+                .param("size", String.valueOf(size))
+                .param("orderBy", orderBy)
+        ).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content").isNotEmpty())
+                .andExpect(header().stringValues(link,
+                        String.format(linkHeader, page, size, orderBy, "self"),
+                        String.format(linkHeader, 0, size, orderBy, "first"),
+                        String.format(linkHeader, 0, size, orderBy, "prev"),
+                        String.format(linkHeader, 0, size, orderBy, "next"),
+                        String.format(linkHeader, 0, size, orderBy, "last")
+                ));
+
+    }
+
 
 }

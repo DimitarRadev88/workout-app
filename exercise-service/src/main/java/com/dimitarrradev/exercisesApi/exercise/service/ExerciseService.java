@@ -6,7 +6,6 @@ import com.dimitarrradev.exercisesApi.exercise.dto.*;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.exercisesApi.image.service.ImageUrlService;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseNotFoundException;
 import com.dimitarrradev.exercisesApi.util.mapping.ExerciseFromBindingModelMapper;
@@ -48,12 +47,10 @@ public class ExerciseService {
         return exerciseRepository.countAllByApprovedFalse();
     }
 
-    public Page<ExerciseForReviewViewModel> getExercisesForReviewPage(int pageNumber, int pageSize, String sortDirection) {
-        Sort sort = sortDirection.equalsIgnoreCase("asc") ?
-                Sort.by("name").ascending() :
-                Sort.by("name").descending();
+    public Page<ExerciseForReviewViewModel> getExercisesForReviewPage(int pageNumber, int pageSize, String orderBy) {
+        Sort sort = Sort.by(Sort.Direction.fromString(orderBy), "name");
 
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         return exerciseRepository
                 .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
