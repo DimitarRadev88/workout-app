@@ -1,7 +1,7 @@
 package com.dimitarrradev.exercisesApi.image.service;
 
 import com.dimitarrradev.exercisesApi.image.dao.ImageUrlRepository;
-import com.dimitarrradev.exercisesApi.image.dto.ImageUrlViewModel;
+import com.dimitarrradev.exercisesApi.image.dto.ImageUrlModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +18,9 @@ public class ImageUrlService {
         imageUrlRepository.deleteById(id);
     }
 
-    public List<ImageUrlViewModel> getExerciseImages(long exerciseId) {
-        List<ImageUrlViewModel> result = imageUrlRepository.findByExercise_Id(exerciseId).stream()
-                .map(imageUrl -> new ImageUrlViewModel(imageUrl.getId(), imageUrl.getUrl()))
+    public List<ImageUrlModel> getExerciseImages(long exerciseId) {
+        List<ImageUrlModel> result = imageUrlRepository.findByExercise_Id(exerciseId).stream()
+                .map(imageUrl -> new ImageUrlModel(imageUrl.getId(), imageUrl.getUrl()))
                 .toList();
 
         return result.isEmpty() ? new ArrayList<>() : result;

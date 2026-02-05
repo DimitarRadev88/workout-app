@@ -1,11 +1,10 @@
 package com.dimitarrradev.exercisesApi.mapping.exercise;
 
 import com.dimitarrradev.exercisesApi.exercise.Exercise;
+import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseModel;
 import com.dimitarrradev.exercisesApi.image.ImageUrl;
-import com.dimitarrradev.exercisesApi.image.dto.ImageUrlViewModel;
+import com.dimitarrradev.exercisesApi.image.dto.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.util.mapping.ExerciseToViewModelMapper;
-import com.dimitarrradev.exercisesApi.web.binding.ExerciseEditBindingModel;
-import com.dimitarrradev.exercisesApi.exercise.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,80 +40,28 @@ public class ExerciseToViewModelMapperUnitTests {
     }
 
     @Test
-    void testToExerciseFindViewModelReturnsModelWithCorrectData() {
-        ExerciseFindViewModel expected = new ExerciseFindViewModel(
+    void testToExerciseModelReturnsModelWithCorrectData() {
+        ExerciseModel expected = new ExerciseModel(
                 exercise.getId(),
                 exercise.getName(),
                 exercise.getComplexity(),
-                exercise.getMovementType()
-        );
-
-        ExerciseFindViewModel actual = mapper.toExerciseFindViewModel(exercise);
-
-        assertThat(actual).isEqualTo(expected);
-    }
-
-    @Test
-    void testToExerciseViewModelReturnsModelWithCorrectData() {
-        ExerciseViewModel expected = new ExerciseViewModel(
-                exercise.getId(),
-                exercise.getName(),
-                exercise.getComplexity().getName(),
-                exercise.getMovementType().getName(),
                 exercise.getDescription(),
-                exercise.getAddedBy(),
-                exercise.getApproved(),
-                exercise.getImageURLs().stream()
-                        .map(url -> new ImageUrlViewModel(url.getId(), url.getUrl()))
-                        .toList()
-        );
-
-        ExerciseViewModel actual = mapper.toExerciseViewModel(exercise);
-
-        assertThat(actual).isEqualTo(expected);
-    }
-
-    @Test
-    void testToExerciseEditBindingModelReturnsModelWithCorrectData() {
-        ExerciseEditBindingModel expected = new ExerciseEditBindingModel(
-                exercise.getId(),
-                exercise.getName(),
-                exercise.getDescription(),
-                null,
-                exercise.getApproved()
-        );
-
-        ExerciseEditBindingModel exerciseEditBindingModel = mapper.toExerciseEditBindingModel(exercise);
-
-        assertThat(exerciseEditBindingModel).isEqualTo(expected);
-    }
-
-    @Test
-    void testToExerciseNameAndIdViewModelReturnsModelWithCorrectData() {
-        ExerciseNameAndIdViewModel expected = new ExerciseNameAndIdViewModel(
-                exercise.getId(),
-                exercise.getName()
-        );
-
-        ExerciseNameAndIdViewModel actual = mapper.toExerciseNameAndIdViewModel(exercise);
-
-        assertThat(actual).isEqualTo(expected);
-    }
-
-    @Test
-    void testToExerciseForReviewViewModelReturnsModelWithCorrectData() {
-        ExerciseForReviewViewModel expected = new ExerciseForReviewViewModel(
-                exercise.getId(),
-                exercise.getName(),
-                exercise.getDescription(),
-                exercise.getComplexity(),
                 exercise.getMovementType(),
+                exercise.getTargetBodyPart(),
+                exercise.getImageURLs().stream()
+                        .map(imageUrl -> new ImageUrlModel(
+                                imageUrl.getId(),
+                                imageUrl.getUrl()
+                        ))
+                        .toList(),
+                exercise.getApproved(),
                 exercise.getAddedBy()
         );
 
-        ExerciseForReviewViewModel actual = mapper.toExerciseForReviewViewModel(exercise);
+        ExerciseModel actual = mapper.toExerciseModel(exercise);
 
         assertThat(actual).isEqualTo(expected);
     }
+
 
 }

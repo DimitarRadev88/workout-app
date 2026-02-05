@@ -1,6 +1,6 @@
 package com.dimitarrradev.exercisesApi.image.dto;
 
-public record ImageUrlViewModel(
+public record ImageUrlModel(
         Long id,
         String url
 ) {

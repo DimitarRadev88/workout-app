@@ -47,14 +47,14 @@ public class ExerciseService {
         return exerciseRepository.countAllByApprovedFalse();
     }
 
-    public Page<ExerciseForReviewViewModel> getExercisesForReviewPage(int pageNumber, int pageSize, String orderBy) {
+    public Page<ExerciseModel> getExercisesForReviewPage(int pageNumber, int pageSize, String orderBy) {
         Sort sort = Sort.by(Sort.Direction.fromString(orderBy), "name");
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         return exerciseRepository
                 .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
-                .map(mapperTo::toExerciseForReviewViewModel);
+                .map(mapperTo::toExerciseModel);
     }
 
     public void approveExercise(Long id) {
@@ -75,7 +75,7 @@ public class ExerciseService {
                 );
     }
 
-    public Page<ExerciseFindViewModel> findActiveExercisesPage(ExerciseFindBindingModel exerciseFind, int pageNumber, int pageSize, String sortDirection) {
+    public Page<ExerciseModel> findActiveExercisesPage(ExerciseFindBindingModel exerciseFind, int pageNumber, int pageSize, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("asc") ?
                 Sort.by("name").ascending() :
                 Sort.by("name").descending();
@@ -109,118 +109,110 @@ public class ExerciseService {
         return getExerciseFindViewModelPageByActiveTrue(pageable);
     }
 
-    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart) {
+    private Page<ExerciseModel> getExerciseFindViewModelPageByTargetBodyPartAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart) {
         return exerciseRepository
                 .findAllByApprovedTrueAndTargetBodyPart(
                         pageable,
                         targetBodyPart
-                ).map(mapperTo::toExerciseFindViewModel);
+                ).map(mapperTo::toExerciseModel);
     }
 
-    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByActiveTrue(Pageable pageable) {
+    private Page<ExerciseModel> getExerciseFindViewModelPageByActiveTrue(Pageable pageable) {
         return exerciseRepository
                 .findAllByApprovedTrue(
                         pageable
-                ).map(mapperTo::toExerciseFindViewModel);
+                ).map(mapperTo::toExerciseModel);
     }
 
-    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByMovementTypeAndActiveTrue(Pageable pageable, MovementType movementType) {
+    private Page<ExerciseModel> getExerciseFindViewModelPageByMovementTypeAndActiveTrue(Pageable pageable, MovementType movementType) {
         return exerciseRepository
                 .findAllByApprovedTrueAndMovementType(
                         pageable,
                         movementType
-                ).map(mapperTo::toExerciseFindViewModel);
+                ).map(mapperTo::toExerciseModel);
     }
 
-    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByComplexityAndActiveTrue(Pageable pageable, Complexity complexity) {
+    private Page<ExerciseModel> getExerciseFindViewModelPageByComplexityAndActiveTrue(Pageable pageable, Complexity complexity) {
         return exerciseRepository
                 .findAllByApprovedTrueAndComplexity(
                         pageable,
                         complexity
-                ).map(mapperTo::toExerciseFindViewModel);
+                ).map(mapperTo::toExerciseModel);
     }
 
-    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByComplexityMovementTypeAndActiveTrue(Pageable pageable, Complexity complexity, MovementType movementType) {
+    private Page<ExerciseModel> getExerciseFindViewModelPageByComplexityMovementTypeAndActiveTrue(Pageable pageable, Complexity complexity, MovementType movementType) {
         return exerciseRepository
                 .findAllByApprovedTrueAndComplexityAndMovementType(
                         pageable,
                         complexity,
                         movementType
-                ).map(mapperTo::toExerciseFindViewModel);
+                ).map(mapperTo::toExerciseModel);
     }
 
-    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType) {
+    private Page<ExerciseModel> getExerciseFindViewModelPageByTargetBodyPartMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType) {
         return exerciseRepository
                 .findAllByApprovedTrueAndTargetBodyPartAndMovementType(
                         pageable,
                         targetBodyPart,
                         movementType
-                ).map(mapperTo::toExerciseFindViewModel);
+                ).map(mapperTo::toExerciseModel);
     }
 
-    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartComplexityAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity) {
+    private Page<ExerciseModel> getExerciseFindViewModelPageByTargetBodyPartComplexityAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity) {
         return exerciseRepository
                 .findAllByApprovedTrueAndTargetBodyPartAndComplexity(
                         pageable,
                         targetBodyPart,
                         complexity
-                ).map(mapperTo::toExerciseFindViewModel);
+                ).map(mapperTo::toExerciseModel);
     }
 
-    private Page<ExerciseFindViewModel> getExerciseFindViewModelPageByTargetBodyPartComplexityMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType) {
+    private Page<ExerciseModel> getExerciseFindViewModelPageByTargetBodyPartComplexityMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType) {
         return exerciseRepository
                 .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementType(
                         pageable,
                         targetBodyPart,
                         complexity,
                         movementType
-                ).map(mapperTo::toExerciseFindViewModel);
+                ).map(mapperTo::toExerciseModel);
     }
 
 
-    private Page<ExerciseFindViewModel> getActiveExercisesWithNameContaining(String exerciseName, Pageable pageable) {
+    private Page<ExerciseModel> getActiveExercisesWithNameContaining(String exerciseName, Pageable pageable) {
         return exerciseRepository
                 .findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, exerciseName)
-                .map(mapperTo::toExerciseFindViewModel);
+                .map(mapperTo::toExerciseModel);
     }
 
     @Transactional
-    public ExerciseViewModel getExerciseView(Long id) {
+    public ExerciseModel getExerciseModel(Long id) {
         log.info("Getting exercise view with id: {}", id);
         Exercise exercise = exerciseRepository
                 .findById(id)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
 
-        return mapperTo.toExerciseViewModel(exercise);
+        return mapperTo.toExerciseModel(exercise);
     }
 
     @Transactional
-    public ExerciseViewModel editExercise(Long id, ExerciseEditBindingModel exerciseEdit) {
+    public ExerciseModel editExercise(Long id, ExerciseEditBindingModel exerciseEdit) {
         Exercise exercise = exerciseRepository
                 .findById(exerciseEdit.id())
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
 
         Exercise saved = exerciseRepository.save(mapperFrom.fromExerciseEditBindingModel(exercise, exerciseEdit));
-        return mapperTo.toExerciseViewModel(saved);
+        return mapperTo.toExerciseModel(saved);
     }
 
-
-    public ExerciseEditBindingModel getExerciseEditBindingModel(long id) {
-        Exercise exercise = exerciseRepository.findById(id)
-                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
-
-        return mapperTo.toExerciseEditBindingModel(exercise);
-    }
-
-    public List<ExerciseNameAndIdViewModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
+    public List<ExerciseModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
         return exerciseRepository
                 .findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyParts)
                 .stream()
-                .map(mapperTo::toExerciseNameAndIdViewModel)
+                .map(mapperTo::toExerciseModel)
                 .toList();
     }
 
-    public Exercise getExercise(Long id) {
+    public Exercise getExerciseEntity(Long id) {
         return exerciseRepository
                 .findById(id)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
@@ -241,11 +233,11 @@ public class ExerciseService {
         );
     }
 
-    public List<ExerciseFindViewModel> getAllActiveExercises() {
+    public List<ExerciseModel> getAllActiveExercises() {
         return exerciseRepository
                 .findAllByApprovedTrue()
                 .stream()
-                .map(mapperTo::toExerciseFindViewModel)
+                .map(mapperTo::toExerciseModel)
                 .toList();
     }
 }

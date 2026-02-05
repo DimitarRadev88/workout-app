@@ -42,8 +42,8 @@ public class ExerciseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("test-exercise1"))
-                .andExpect(jsonPath("$.complexity").value("Medium"))
-                .andExpect(jsonPath("$.movementType").value("Compound"))
+                .andExpect(jsonPath("$.complexity").value("MEDIUM"))
+                .andExpect(jsonPath("$.movementType").value("COMPOUND"))
                 .andExpect(jsonPath("$.description").value("test-exercise-description1"))
                 .andExpect(jsonPath("$.imageUrls").isArray());
 
@@ -83,8 +83,8 @@ public class ExerciseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value(bindingModel.exerciseName()))
-                .andExpect(jsonPath("$.complexity").value(bindingModel.complexity().getName()))
-                .andExpect(jsonPath("$.movementType").value(bindingModel.movementType().getName()))
+                .andExpect(jsonPath("$.complexity").value(bindingModel.complexity().toString()))
+                .andExpect(jsonPath("$.movementType").value(bindingModel.movementType().toString()))
                 .andExpect(jsonPath("$.description").value(bindingModel.description()))
                 .andExpect(jsonPath("$.imageUrls").isArray());
     }
