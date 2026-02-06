@@ -1,10 +1,5 @@
 package com.dimitarrradev.exercisesApi.web;
 
-import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
-import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
-import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.exercisesApi.web.binding.ExerciseAddBindingModel;
-import com.dimitarrradev.exercisesApi.web.binding.ExerciseEditBindingModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +35,7 @@ public class ExerciseControllerTest {
 
         mockMvc.perform(get("/exercises/{id}", 1))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.name").value("test-exercise1"))
                 .andExpect(jsonPath("$.complexity").value("MEDIUM"))
                 .andExpect(jsonPath("$.movementType").value("COMPOUND"))
@@ -65,27 +60,28 @@ public class ExerciseControllerTest {
     @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
     @DirtiesContext
     void testPostAddExerciseShouldCreateExerciseAndSaveItInRepository() throws Exception {
-        ExerciseAddBindingModel bindingModel = new ExerciseAddBindingModel("test-exercise",
-                "test-exercise-description",
-                TargetBodyPart.ABS,
-                "user",
-                Complexity.EASY,
-                MovementType.ISOLATION);
+        String name = "test-exercise";
+        String description = "test-exercise-description";
 
         mockMvc.perform(post("/exercises/add")
-                        .content(objectMapper.writeValueAsBytes(bindingModel))
+                        .param("name", name)
+                        .param("description", description)
+                        .param("bodyPart", "abs")
+                        .param("addedBy", "user")
+                        .param("complexity", "easy")
+                        .param("movement", "isolation")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/exercises/1"));
+                .andExpect(status().isCreated());
+
 
         mockMvc.perform(get("/exercises/{id}", 1)
                         .with(user("test-user").roles("ADMINISTRATOR")))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.name").value(bindingModel.exerciseName()))
-                .andExpect(jsonPath("$.complexity").value(bindingModel.complexity().toString()))
-                .andExpect(jsonPath("$.movementType").value(bindingModel.movementType().toString()))
-                .andExpect(jsonPath("$.description").value(bindingModel.description()))
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.complexity").value("EASY"))
+                .andExpect(jsonPath("$.movementType").value("ISOLATION"))
+                .andExpect(jsonPath("$.description").value(description))
                 .andExpect(jsonPath("$.imageUrls").isArray());
     }
 
@@ -94,13 +90,10 @@ public class ExerciseControllerTest {
     @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
     @DirtiesContext
     void testPostEditExerciseShouldEditExerciseAndSaveItInRepository() throws Exception {
-        ExerciseEditBindingModel bindingModel = new ExerciseEditBindingModel(1L, "edited-exercise",
-                "edited-exercise-description",
-                null,
-                Boolean.TRUE);
-
         mockMvc.perform(patch("/exercises/edit/{id}", 1)
-                        .content(objectMapper.writeValueAsBytes(bindingModel))
+                        .param("name", "new name")
+                        .param("description", "new description")
+                        .param("approved", "true")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

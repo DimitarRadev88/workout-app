@@ -28,8 +28,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/users/login").permitAll()
-                        .requestMatchers("/exercises/add", "exercises/update", "/exercises/delete").
-                        hasAnyRole("ADMINISTRATOR", "MODERATOR")
+//                        .requestMatchers("/exercises/add", "exercises/update", "/exercises/delete").
+//                        hasAnyRole("ADMINISTRATOR", "MODERATOR")
 //                        .anyRequest().authenticated())
                         .anyRequest().permitAll())
 

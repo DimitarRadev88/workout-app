@@ -11,10 +11,7 @@ import com.dimitarrradev.exercisesApi.image.ImageUrl;
 import com.dimitarrradev.exercisesApi.image.dto.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseNotFoundException;
-import com.dimitarrradev.exercisesApi.util.mapping.ExerciseFromBindingModelMapper;
 import com.dimitarrradev.exercisesApi.util.mapping.ExerciseToViewModelMapper;
-import com.dimitarrradev.exercisesApi.web.binding.ExerciseAddBindingModel;
-import com.dimitarrradev.exercisesApi.web.binding.ExerciseEditBindingModel;
 import com.dimitarrradev.exercisesApi.web.binding.ExerciseFindBindingModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +34,6 @@ public class ExerciseServiceUnitTests {
 
     @Mock
     private ExerciseRepository exerciseRepository;
-    @Mock
-    private ExerciseFromBindingModelMapper mapperFrom;
     @Mock
     private ExerciseToViewModelMapper mapperTo;
     @InjectMocks
@@ -67,36 +62,30 @@ public class ExerciseServiceUnitTests {
 
     @Test
     void testAddExerciseForReviewAddsExerciseWhenNameNotFoundInRepository() {
-        ExerciseAddBindingModel exerciseAddBindingModel = new ExerciseAddBindingModel("test-exercise",
-                "test-exercise-description",
-                TargetBodyPart.ABDUCTORS,
-                "username",
-                Complexity.EASY,
-                MovementType.COMPOUND
-        );
-
         Exercise saved = new Exercise(
                 null,
-                exerciseAddBindingModel.exerciseName(),
-                exerciseAddBindingModel.bodyPart(),
-                exerciseAddBindingModel.movementType(),
-                exerciseAddBindingModel.description(),
+                "test-exercise",
+                TargetBodyPart.ABDUCTORS,
+                MovementType.COMPOUND,
+                "test-exercise-description",
                 null,
                 false,
-                exerciseAddBindingModel.addedBy(),
-                exerciseAddBindingModel.complexity()
+                "username",
+                Complexity.EASY
         );
 
-        when(mapperFrom.fromExerciseAddBindingModel(exerciseAddBindingModel))
-                .thenReturn(saved);
-
-        when(exerciseRepository.existsExerciseByName(exerciseAddBindingModel.exerciseName()))
+        when(exerciseRepository.existsExerciseByName("test-exercise"))
                 .thenReturn(false);
 
         when(exerciseRepository.save(saved))
                 .thenReturn(saved);
 
-        exerciseService.addExerciseForReview(exerciseAddBindingModel);
+        exerciseService.addExerciseForReview("test-exercise",
+                "test-exercise-description",
+                "ABDUCTORS",
+                "username",
+                "EASY",
+                "COMPOUND");
 
         verify(exerciseRepository, Mockito.times(1))
                 .save(saved);
@@ -104,20 +93,17 @@ public class ExerciseServiceUnitTests {
 
     @Test
     void testAddExerciseForReviewThrowsWhenNameFoundInRepository() {
-        ExerciseAddBindingModel exerciseAddBindingModel = new ExerciseAddBindingModel("test-exercise",
-                "test-exercise-description",
-                TargetBodyPart.ABDUCTORS,
-                "username",
-                Complexity.EASY,
-                MovementType.COMPOUND
-        );
-
-        when(exerciseRepository.existsExerciseByName(exerciseAddBindingModel.exerciseName()))
+        when(exerciseRepository.existsExerciseByName("test-exercise"))
                 .thenReturn(true);
 
         assertThrows(
                 ExerciseAlreadyExistsException.class,
-                () -> exerciseService.addExerciseForReview(exerciseAddBindingModel)
+                () -> exerciseService.addExerciseForReview("test-exercise",
+                        "test-exercise-description",
+                        "ABDUCTORS",
+                        "username",
+                        "EASY",
+                        "COMPOUND")
         );
     }
 
@@ -230,43 +216,19 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.of(exercise));
 
-        ExerciseEditBindingModel exerciseEdit = new ExerciseEditBindingModel(
-                1L,
-                "test-exercise",
-                "test-exercise-description",
-                "NewImageUrl",
-                true);
-
-        List<ImageUrl> exerciseEditImageUrls = Arrays.stream(exerciseEdit.addImageUrls().split(System.lineSeparator()))
-                .map(url -> {
-                    ImageUrl imageUrl = new ImageUrl();
-                    imageUrl.setUrl(url.trim());
-                    imageUrl.setExercise(exercise);
-                    return imageUrl;
-                }).toList();
-
-        List<ImageUrl> imageUrls = new ArrayList<>(exercise.getImageURLs());
-        imageUrls.addAll(exerciseEditImageUrls);
-
         Exercise toSave = new Exercise(
                 exercise.getId(),
-                exerciseEdit.name(),
+                "test-exercise",
                 exercise.getTargetBodyPart(),
                 exercise.getMovementType(),
-                exerciseEdit.description(),
-                imageUrls,
-                exerciseEdit.approved(),
+                "test-exercise-description",
+                exercise.getImageURLs(),
+                true,
                 exercise.getAddedBy(),
                 exercise.getComplexity()
         );
 
-        when(mapperFrom.fromExerciseEditBindingModel(exercise, exerciseEdit))
-                .thenReturn(toSave);
-
-        when(exerciseRepository.save(toSave))
-                .thenReturn(toSave);
-
-        ExerciseModel viewModel = exerciseService.editExercise(1L, exerciseEdit);
+        exerciseService.editExercise(exercise.getId(), "test-exercise", "test-exercise-description", true);
 
         verify(exerciseRepository, Mockito.times(1))
                 .save(toSave);
@@ -279,8 +241,9 @@ public class ExerciseServiceUnitTests {
 
         assertThrows(
                 ExerciseNotFoundException.class,
-                () -> exerciseService.editExercise(1L, new ExerciseEditBindingModel(1L, null, null, null, null))
+                () -> exerciseService.editExercise(1L, "test-exercise", "test-exercise-description", true)
         );
+
     }
 
     @Test
@@ -476,10 +439,8 @@ public class ExerciseServiceUnitTests {
 
     @Test
     void testFindActiveExercisesPageReturnsCorrectPageOfExerciseFindViewModelWithExerciseName() {
-        ExerciseFindBindingModel exerciseFind = new ExerciseFindBindingModel("1", TargetBodyPart.ALL, Complexity.ALL, MovementType.ALL);
-
         List<Exercise> exerciseList = generateExerciseList(12).stream()
-                .filter(exercise -> exercise.getName().contains(exerciseFind.name())
+                .filter(exercise -> exercise.getName().contains("1")
                         && exercise.getApproved().equals(Boolean.TRUE))
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
@@ -490,12 +451,12 @@ public class ExerciseServiceUnitTests {
 
         Page<ExerciseModel> expected = new PageImpl<>(exerciseFindList);
 
-        when(exerciseRepository.findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, exerciseFind.name()))
+        when(exerciseRepository.findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, "1"))
                 .thenReturn(new PageImpl<>(exerciseList));
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "asc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("1", "all", "all", "all", 1, pageable.getPageSize(), "asc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
@@ -523,7 +484,7 @@ public class ExerciseServiceUnitTests {
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "desc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("", "back", "all", "", 1, pageable.getPageSize(), "desc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
@@ -533,8 +494,8 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getTargetBodyPart().equals(exerciseFind.targetBodyPart())
-                                && exercise.getComplexity().equals(exerciseFind.complexity())
+                        exercise.getTargetBodyPart().equals(TargetBodyPart.LEGS)
+                                && exercise.getComplexity().equals(Complexity.EASY)
                                 && exercise.getApproved().equals(Boolean.TRUE))
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
@@ -553,7 +514,7 @@ public class ExerciseServiceUnitTests {
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "desc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("", "legs", "easy", "all", 1, pageable.getPageSize(), "desc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
@@ -563,8 +524,8 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getTargetBodyPart().equals(exerciseFind.targetBodyPart())
-                                && exercise.getMovementType().equals(exerciseFind.movementType())
+                        exercise.getTargetBodyPart().equals(TargetBodyPart.LEGS)
+                                && exercise.getMovementType().equals(MovementType.ISOLATION)
                                 && exercise.getApproved().equals(Boolean.TRUE))
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
@@ -583,7 +544,7 @@ public class ExerciseServiceUnitTests {
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "desc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("", "legs", "", "isolation", 1, pageable.getPageSize(), "desc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
@@ -593,9 +554,9 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getTargetBodyPart().equals(exerciseFind.targetBodyPart())
-                                && exercise.getComplexity().equals(exerciseFind.complexity())
-                                && exercise.getMovementType().equals(exerciseFind.movementType())
+                        exercise.getTargetBodyPart().equals(TargetBodyPart.LEGS)
+                                && exercise.getComplexity().equals(Complexity.EASY)
+                                && exercise.getMovementType().equals(MovementType.ISOLATION)
                                 && exercise.getApproved().equals(Boolean.TRUE)
                 )
                 .sorted(Comparator.comparing(Exercise::getName))
@@ -616,7 +577,7 @@ public class ExerciseServiceUnitTests {
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "desc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("", "legs", "easy", "isolation", 1, pageable.getPageSize(), "desc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
@@ -626,8 +587,8 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getComplexity().equals(exerciseFind.complexity())
-                                && exercise.getMovementType().equals(exerciseFind.movementType())
+                        exercise.getComplexity().equals(Complexity.EASY)
+                                && exercise.getMovementType().equals(MovementType.ISOLATION)
                                 && exercise.getApproved().equals(Boolean.TRUE)
                 )
                 .sorted(Comparator.comparing(Exercise::getName))
@@ -647,7 +608,7 @@ public class ExerciseServiceUnitTests {
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "asc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("", "all", "easy", "isolation", 1, pageable.getPageSize(), "asc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
@@ -676,7 +637,7 @@ public class ExerciseServiceUnitTests {
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "asc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("", "", "easy", "", 1, pageable.getPageSize(), "asc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
@@ -686,7 +647,7 @@ public class ExerciseServiceUnitTests {
 
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getMovementType().equals(exerciseFind.movementType())
+                        exercise.getMovementType().equals(MovementType.ISOLATION)
                                 && exercise.getApproved().equals(Boolean.TRUE)
                 )
                 .sorted(Comparator.comparing(Exercise::getName))
@@ -705,14 +666,12 @@ public class ExerciseServiceUnitTests {
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "asc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("", "", "", "isolation", 1, pageable.getPageSize(), "asc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
     @Test
     void testFindActiveExercisesPageReturnsCorrectPageOfExerciseFindViewModelWithNoFilters() {
-        ExerciseFindBindingModel exerciseFind = new ExerciseFindBindingModel(null, null, null, null);
-
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getApproved().equals(Boolean.TRUE)
@@ -732,7 +691,7 @@ public class ExerciseServiceUnitTests {
 
         addMapperStubbings(exerciseList);
 
-        assertThat(exerciseService.findActiveExercisesPage(exerciseFind, 1, pageable.getPageSize(), "asc").getContent())
+        assertThat(exerciseService.findActiveExercisesPage("", "", "", "", 1, pageable.getPageSize(), "asc").getContent())
                 .isEqualTo(expected.getContent());
     }
 
