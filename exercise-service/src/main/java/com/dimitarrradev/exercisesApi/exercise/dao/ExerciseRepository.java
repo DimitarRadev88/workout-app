@@ -1,9 +1,9 @@
 package com.dimitarrradev.exercisesApi.exercise.dao;
 
-import com.dimitarrradev.exercisesApi.exercise.Exercise;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
+import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,30 +16,24 @@ import java.util.List;
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     boolean existsExerciseByName(String name);
 
-    long countAllByApprovedFalse();
+    Page<Exercise> findAllBy(Pageable pageable);
 
-    Page<Exercise> findAllByApprovedIsAndNameContainingIgnoreCase(Pageable pageable, Boolean approved, String name);
+    Page<Exercise> findAllByTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType);
+    List<Exercise> findAllByTargetBodyPartIsIn(Collection<TargetBodyPart> targetBodyParts);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndComplexity(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity);
+    Page<Exercise> findAllByComplexity(Pageable pageable, Complexity complexity);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPartAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType);
+    Page<Exercise> findAllByMovementType(Pageable pageable, MovementType movementType);
 
-    Page<Exercise> findAllByApprovedTrueAndTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart);
+    Page<Exercise> findAllByNameContainingIgnoreCase(Pageable pageable, String name);
 
-    Page<Exercise> findAllByApprovedTrueAndComplexityAndMovementType(Pageable pageable, Complexity complexity, MovementType movementType);
+    Page<Exercise> findAllByTargetBodyPartAndComplexityAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType);
 
-    Page<Exercise> findAllByApprovedTrueAndComplexity(Pageable pageable, Complexity complexity);
+    Page<Exercise> findAllByTargetBodyPartAndComplexity(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity);
 
-    Page<Exercise> findAllByApprovedTrueAndMovementType(Pageable pageable, MovementType movementType);
+    Page<Exercise> findAllByTargetBodyPartAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType);
 
-    Page<Exercise> findAllByApprovedTrue(Pageable pageable);
-
-    List<Exercise> findAllByApprovedTrue();
-
-    List<Exercise> findAllByApprovedTrueAndTargetBodyPartIsIn(Collection<TargetBodyPart> targetBodyParts);
-
-    Page<Exercise> findAllByApprovedTrueAndNameContainingIgnoreCase(Pageable approved, String name);
+    Page<Exercise> findAllByComplexityAndMovementType(Pageable pageable, Complexity complexity, MovementType movementType);
 }
 

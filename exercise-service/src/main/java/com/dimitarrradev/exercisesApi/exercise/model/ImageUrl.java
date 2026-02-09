@@ -1,6 +1,5 @@
-package com.dimitarrradev.exercisesApi.image;
+package com.dimitarrradev.exercisesApi.exercise.model;
 
-import com.dimitarrradev.exercisesApi.exercise.Exercise;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,5 +18,4 @@ public class ImageUrl {
     private String url;
     @ManyToOne(fetch = FetchType.LAZY)
     private Exercise exercise;
-
 }

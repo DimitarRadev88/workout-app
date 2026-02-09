@@ -1,15 +1,17 @@
 package com.dimitarrradev.exercisesApi.exercise.service;
 
-import com.dimitarrradev.exercisesApi.exercise.Exercise;
 import com.dimitarrradev.exercisesApi.exercise.dao.ExerciseRepository;
-import com.dimitarrradev.exercisesApi.exercise.dto.ExerciseModel;
-import com.dimitarrradev.exercisesApi.exercise.dto.PageInformation;
+import com.dimitarrradev.exercisesApi.exercise.dao.ImageUrlRepository;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
+import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
+import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
+import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModelAssembler;
+import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseNotFoundException;
-import com.dimitarrradev.exercisesApi.util.mapping.ExerciseToViewModelMapper;
+import com.dimitarrradev.exercisesApi.web.ExerciseController;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +19,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
 @Service
@@ -27,9 +33,10 @@ import java.util.List;
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
-    private final ExerciseToViewModelMapper mapperTo;
+    private final ImageUrlRepository imageUrlRepository;
+    private final ExerciseModelAssembler assembler;
 
-    public Long addExerciseForReview(String name, String description, String bodyPart, String addedBy, String complexity, String movement) {
+    public Long addExerciseForReview(String name, String description, String bodyPart, String complexity, String movement) {
         if (exerciseRepository.existsExerciseByName(name)) {
             throw new ExerciseAlreadyExistsException("Exercise with name " + name + "  already exists");
         }
@@ -38,35 +45,29 @@ public class ExerciseService {
                 .name(name)
                 .description(description)
                 .targetBodyPart(TargetBodyPart.valueOf(bodyPart.toUpperCase()))
-                .addedBy(addedBy)
                 .complexity(Complexity.valueOf(complexity.toUpperCase()))
                 .movementType(MovementType.valueOf(movement.toUpperCase()))
-                .approved(Boolean.FALSE)
                 .build();
 
         return exerciseRepository.save(exercise).getId();
     }
 
-    public long getExercisesForReviewCount() {
-        return exerciseRepository.countAllByApprovedFalse();
-    }
-
-    public Page<ExerciseModel> getExercisesForReviewPage(int pageNumber, int pageSize, String orderBy) {
+    public CollectionModel<ExerciseModel> getExercises(int pageNumber, int pageSize, String orderBy) {
         Sort sort = Sort.by(Sort.Direction.fromString(orderBy), "name");
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        return exerciseRepository
-                .findAllByApprovedIsAndNameContainingIgnoreCase(pageable, false, "")
-                .map(mapperTo::toExerciseModel);
-    }
+        Page<Exercise> exercisesPage = exerciseRepository.findAllBy(pageable);
 
-    public void approveExercise(Long id) {
-        exerciseRepository.findById(id).map(exercise -> {
-            exercise.setApproved(true);
-            exerciseRepository.save(exercise);
-            return exercise;
-        }).orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
+        var result = assembler.toCollectionModel(exercisesPage);
+
+        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(pageNumber, pageSize, orderBy)).withSelfRel());
+        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(Math.min(exercisesPage.getTotalPages() - 1, pageNumber + 1), pageSize, orderBy)).withRel("next"));
+        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(Math.max(0, pageNumber - 1), pageSize, orderBy)).withRel("prev"));
+        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(0, pageSize, orderBy)).withRel("first"));
+        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(exercisesPage.getTotalPages() - 1, pageSize, orderBy)).withRel("last"));
+
+        return result;
     }
 
     public void deleteExercise(Long id) {
@@ -79,7 +80,7 @@ public class ExerciseService {
                 );
     }
 
-    public Page<ExerciseModel> findActiveExercisesPage(String name, String target, String complexity, String movement, int page, int size, String orderBy) {
+    public CollectionModel<ExerciseModel> findExercisesPage(String name, String target, String complexity, String movement, int page, int size, String orderBy) {
         Sort sort = orderBy.equalsIgnoreCase("asc") ?
                 Sort.by("name").ascending() :
                 Sort.by("name").descending();
@@ -95,112 +96,109 @@ public class ExerciseService {
         if (name != null && !name.trim().isEmpty()) {
             exercisesPage = getActiveExercisesWithNameContaining(name, pageable);
         } else if (!targetBodyPart.equals(TargetBodyPart.ALL) && !complexityEnum.equals(Complexity.ALL) && !movementType.equals(MovementType.ALL)) {
-            exercisesPage = getExerciseFindViewModelPageByTargetBodyPartComplexityMovementTypeAndActiveTrue(pageable, targetBodyPart, complexityEnum, movementType);
+            exercisesPage = getExerciseFindViewModelPageByTargetBodyPartComplexityMovementType(pageable, targetBodyPart, complexityEnum, movementType);
         } else if (!targetBodyPart.equals(TargetBodyPart.ALL) && !complexityEnum.equals(Complexity.ALL)) {
-            exercisesPage = getExerciseFindViewModelPageByTargetBodyPartComplexityAndActiveTrue(pageable, targetBodyPart, complexityEnum);
+            exercisesPage = getExerciseFindViewModelPageByTargetBodyPartComplexity(pageable, targetBodyPart, complexityEnum);
         } else if (!targetBodyPart.equals(TargetBodyPart.ALL) && !movementType.equals(MovementType.ALL)) {
-            exercisesPage = getExerciseFindViewModelPageByTargetBodyPartMovementTypeAndActiveTrue(pageable, targetBodyPart, movementType);
+            exercisesPage = getExerciseFindViewModelPageByTargetBodyPartMovementType(pageable, targetBodyPart, movementType);
         } else if (!targetBodyPart.equals(TargetBodyPart.ALL)) {
-            exercisesPage = getExerciseFindViewModelPageByTargetBodyPartAndActiveTrue(pageable, targetBodyPart);
+            exercisesPage = getExerciseFindViewModelPageByTargetBodyPart(pageable, targetBodyPart);
         } else if (!complexityEnum.equals(Complexity.ALL) && !movementType.equals(MovementType.ALL)) {
-            exercisesPage = getExerciseFindViewModelPageByComplexityMovementTypeAndActiveTrue(pageable, complexityEnum, movementType);
+            exercisesPage = getExerciseFindViewModelPageByComplexityMovementType(pageable, complexityEnum, movementType);
         } else if (!complexityEnum.equals(Complexity.ALL)) {
-            exercisesPage = getExerciseFindViewModelPageByComplexityAndActiveTrue(pageable, complexityEnum);
+            exercisesPage = getExerciseFindViewModelPageByComplexity(pageable, complexityEnum);
         } else if (!movementType.equals(MovementType.ALL)) {
-            exercisesPage = getExerciseFindViewModelPageByMovementTypeAndActiveTrue(pageable, movementType);
+            exercisesPage = getExerciseFindViewModelPageByMovementType(pageable, movementType);
         } else {
-            exercisesPage = getExerciseFindViewModelPageByActiveTrue(pageable);
+            exercisesPage = getExerciseFindViewModelPage(pageable);
         }
 
-        return exercisesPage.map(mapperTo::toExerciseModel);
+        return assembler.toCollectionModel(exercisesPage);
     }
 
-    private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPartAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart) {
+    private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart) {
         return exerciseRepository
-                .findAllByApprovedTrueAndTargetBodyPart(
+                .findAllByTargetBodyPart(
                         pageable,
                         targetBodyPart
                 );
     }
 
-    private Page<Exercise> getExerciseFindViewModelPageByActiveTrue(Pageable pageable) {
+    private Page<Exercise> getExerciseFindViewModelPage(Pageable pageable) {
         return exerciseRepository
-                .findAllByApprovedTrue(
+                .findAll(
                         pageable
                 );
     }
 
-    private Page<Exercise> getExerciseFindViewModelPageByMovementTypeAndActiveTrue(Pageable pageable, MovementType movementType) {
+    private Page<Exercise> getExerciseFindViewModelPageByMovementType(Pageable pageable, MovementType movementType) {
         return exerciseRepository
-                .findAllByApprovedTrueAndMovementType(
+                .findAllByMovementType(
                         pageable,
                         movementType
                 );
     }
 
-    private Page<Exercise> getExerciseFindViewModelPageByComplexityAndActiveTrue(Pageable pageable, Complexity complexity) {
+    private Page<Exercise> getExerciseFindViewModelPageByComplexity(Pageable pageable, Complexity complexity) {
         return exerciseRepository
-                .findAllByApprovedTrueAndComplexity(
+                .findAllByComplexity(
                         pageable,
                         complexity
                 );
     }
 
-    private Page<Exercise> getExerciseFindViewModelPageByComplexityMovementTypeAndActiveTrue(Pageable pageable, Complexity complexity, MovementType movementType) {
+    private Page<Exercise> getExerciseFindViewModelPageByComplexityMovementType(Pageable pageable, Complexity complexity, MovementType movementType) {
         return exerciseRepository
-                .findAllByApprovedTrueAndComplexityAndMovementType(
+                .findAllByComplexityAndMovementType(
                         pageable,
                         complexity,
                         movementType
                 );
     }
 
-    private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPartMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType) {
+    private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPartMovementType(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType) {
         return exerciseRepository
-                .findAllByApprovedTrueAndTargetBodyPartAndMovementType(
+                .findAllByTargetBodyPartAndMovementType(
                         pageable,
                         targetBodyPart,
                         movementType
                 );
     }
 
-    private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPartComplexityAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity) {
+    private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPartComplexity(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity) {
         return exerciseRepository
-                .findAllByApprovedTrueAndTargetBodyPartAndComplexity(
+                .findAllByTargetBodyPartAndComplexity(
                         pageable,
                         targetBodyPart,
                         complexity
                 );
     }
 
-    private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPartComplexityMovementTypeAndActiveTrue(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType) {
+    private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPartComplexityMovementType(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType) {
         return exerciseRepository
-                .findAllByApprovedTrueAndTargetBodyPartAndComplexityAndMovementType(
+                .findAllByTargetBodyPartAndComplexityAndMovementType(
                         pageable,
                         targetBodyPart,
                         complexity,
                         movementType
                 );
     }
-
 
     private Page<Exercise> getActiveExercisesWithNameContaining(String exerciseName, Pageable pageable) {
         return exerciseRepository
-                .findAllByApprovedTrueAndNameContainingIgnoreCase(pageable, exerciseName);
+                .findAllByNameContainingIgnoreCase(pageable, exerciseName);
     }
 
     @Transactional
     public ExerciseModel getExerciseModel(Long id) {
         log.info("Getting exercise view with id: {}", id);
-        Exercise exercise = exerciseRepository
-                .findById(id)
+        return exerciseRepository
+                .findById(id).map(assembler::toModel)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
-
-        return mapperTo.toExerciseModel(exercise);
     }
 
     @Transactional
-    public void editExercise(Long id, String name, String description, Boolean approved) {
+    public void editExercise(Long id, String name, String description) {
         Exercise exercise = exerciseRepository
                 .findById(id)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
@@ -213,18 +211,14 @@ public class ExerciseService {
             exercise.setDescription(description);
         }
 
-        if (approved != null) {
-            exercise.setApproved(approved);
-        }
-
         exerciseRepository.save(exercise);
     }
 
     public List<ExerciseModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
         return exerciseRepository
-                .findAllByApprovedTrueAndTargetBodyPartIsIn(targetBodyParts)
+                .findAllByTargetBodyPartIsIn(targetBodyParts)
                 .stream()
-                .map(mapperTo::toExerciseModel)
+                .map(assembler::toModel)
                 .toList();
     }
 
@@ -234,26 +228,19 @@ public class ExerciseService {
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
     }
 
-    public <T> PageInformation getPageInfo(Page<T> page) {
-        long elementsShownFrom = page.getTotalElements() == 0 ? 0 : Math.min(page.getTotalElements(), (long) (page.getNumber() + 1) * page.getSize());
-        long elementsShownTo = (page.getNumber() + 1) < page.getTotalPages() ? (long) (page.getNumber() + 1) * page.getSize() : page.getTotalElements();
-        List<Integer> pageSizes = List.of(5, 10, 25, 50);
-
-        return new PageInformation(
-                String.format("Showing %d to %d of %d exercises",
-                        elementsShownFrom,
-                        elementsShownTo,
-                        page.getTotalElements()
-                ),
-                pageSizes
-        );
-    }
-
-    public List<ExerciseModel> getAllActiveExercises() {
-        return exerciseRepository
-                .findAllByApprovedTrue()
+    public CollectionModel<ExerciseModel> getAllExercises() {
+        return assembler.toCollectionModel(exerciseRepository
+                .findAll()
                 .stream()
-                .map(mapperTo::toExerciseModel)
-                .toList();
+                .toList());
     }
+
+    public List<ImageUrl> getImages(Long id) {
+        if (!exerciseRepository.existsById(id)) {
+            throw new ExerciseNotFoundException("Exercise not found");
+        }
+
+        return imageUrlRepository.findByExercise_Id(id);
+    }
+
 }

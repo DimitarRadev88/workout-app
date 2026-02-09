@@ -1,6 +1,6 @@
 package com.dimitarrradev.exercisesApi;
 
-import com.dimitarrradev.exercisesApi.exercise.Exercise;
+import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
@@ -65,13 +65,11 @@ public class RandomValueGenerator {
             Exercise e = new Exercise(
                     RandomValueGenerator.randomId(),
                     randomExerciseName(),
+                    randomDescription(),
+                    randomComplexity(),
                     randomTargetBodyPart(),
                     randomMovementType(),
-                    randomDescription(),
-                    Collections.emptyList(),
-                    randomBoolean(),
-                    "user" + i,
-                    randomComplexity()
+                    Collections.emptyList()
             );
 
             exercises.add(e);

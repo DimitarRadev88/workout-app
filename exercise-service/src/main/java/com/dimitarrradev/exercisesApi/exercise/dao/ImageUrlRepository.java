@@ -1,6 +1,6 @@
-package com.dimitarrradev.exercisesApi.image.dao;
+package com.dimitarrradev.exercisesApi.exercise.dao;
 
-import com.dimitarrradev.exercisesApi.image.ImageUrl;
+import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
