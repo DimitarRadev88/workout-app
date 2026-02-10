@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface ImageUrlRepository extends JpaRepository<ImageUrl, Long> {
     List<ImageUrl> findByExercise_Id(Long exerciseId);
+
+    ImageUrl findByIdAndExercise_id(Long imageId, Long id);
+
 }

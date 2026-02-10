@@ -1,7 +1,7 @@
 package com.dimitarrradev.exercisesApi.web;
 
 import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
-import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
+import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/exercises")
@@ -33,7 +35,7 @@ public class ExerciseController {
             @RequestParam String complexity,
             @RequestParam String movement
     ) {
-        Long id = exerciseService.addExerciseForReview(name, description, bodyPart, complexity, movement);
+        Long id = exerciseService.addExercise(name, description, bodyPart, complexity, movement);
 
         return ResponseEntity
                 .created(URI.create("/exercises/" + id))
@@ -67,7 +69,7 @@ public class ExerciseController {
             @RequestParam(defaultValue = "asc") String orderBy
     ) {
 
-        return exerciseService.findExercisesPage(name, target, complexity, movement, page, size, orderBy);
+        return exerciseService.findExercises(name, target, complexity, movement, page, size, orderBy);
     }
 
     @GetMapping("/")
@@ -90,8 +92,28 @@ public class ExerciseController {
     }
 
     @GetMapping("/{id}/images")
-    public ResponseEntity<List<ImageUrl>> getImages(@PathVariable Long id) {
-        return ResponseEntity.ok(exerciseService.getImages(id));
+    public CollectionModel<ImageUrlModel> getImages(@PathVariable Long id) {
+        return exerciseService.getImages(id);
     }
 
+    @GetMapping("/{id}/images/{imageId}")
+    public ImageUrlModel getImage(@PathVariable Long id, @PathVariable Long imageId) {
+        return exerciseService.getImage(id, imageId);
+    }
+
+    @PostMapping("/{id}/images")
+    public ResponseEntity<Void> addImage(@PathVariable Long id, @RequestParam String url) {
+        Long imageId = exerciseService.addImage(id, url);
+
+        return ResponseEntity
+                .created(linkTo(methodOn(ExerciseController.class).getImage(id, imageId)).withSelfRel().toUri())
+                .build();
+    }
+
+    @DeleteMapping("/{id}/images/{imageId}")
+    public ResponseEntity<Void> deleteImage(@PathVariable Long id, @PathVariable Long imageId) {
+        exerciseService.deleteImage(id, imageId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

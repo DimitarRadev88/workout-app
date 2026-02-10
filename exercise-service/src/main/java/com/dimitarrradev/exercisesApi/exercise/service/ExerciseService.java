@@ -5,12 +5,10 @@ import com.dimitarrradev.exercisesApi.exercise.dao.ImageUrlRepository;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
-import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
-import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModelAssembler;
-import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
+import com.dimitarrradev.exercisesApi.exercise.model.*;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseNotFoundException;
+import com.dimitarrradev.exercisesApi.util.error.message.exception.ImageNotFoundException;
 import com.dimitarrradev.exercisesApi.web.ExerciseController;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +32,10 @@ public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
     private final ImageUrlRepository imageUrlRepository;
-    private final ExerciseModelAssembler assembler;
+    private final ExerciseModelAssembler exerciseModelAssembler;
+    private final ImageUrlModelAssembler imageUrlModelAssembler;
 
-    public Long addExerciseForReview(String name, String description, String bodyPart, String complexity, String movement) {
+    public Long addExercise(String name, String description, String bodyPart, String complexity, String movement) {
         if (exerciseRepository.existsExerciseByName(name)) {
             throw new ExerciseAlreadyExistsException("Exercise with name " + name + "  already exists");
         }
@@ -59,7 +58,7 @@ public class ExerciseService {
 
         Page<Exercise> exercisesPage = exerciseRepository.findAllBy(pageable);
 
-        var result = assembler.toCollectionModel(exercisesPage);
+        var result = exerciseModelAssembler.toCollectionModel(exercisesPage);
 
         result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(pageNumber, pageSize, orderBy)).withSelfRel());
         result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(Math.min(exercisesPage.getTotalPages() - 1, pageNumber + 1), pageSize, orderBy)).withRel("next"));
@@ -80,7 +79,7 @@ public class ExerciseService {
                 );
     }
 
-    public CollectionModel<ExerciseModel> findExercisesPage(String name, String target, String complexity, String movement, int page, int size, String orderBy) {
+    public CollectionModel<ExerciseModel> findExercises(String name, String target, String complexity, String movement, int page, int size, String orderBy) {
         Sort sort = orderBy.equalsIgnoreCase("asc") ?
                 Sort.by("name").ascending() :
                 Sort.by("name").descending();
@@ -113,7 +112,7 @@ public class ExerciseService {
             exercisesPage = getExerciseFindViewModelPage(pageable);
         }
 
-        return assembler.toCollectionModel(exercisesPage);
+        return exerciseModelAssembler.toCollectionModel(exercisesPage);
     }
 
     private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart) {
@@ -193,7 +192,7 @@ public class ExerciseService {
     public ExerciseModel getExerciseModel(Long id) {
         log.info("Getting exercise view with id: {}", id);
         return exerciseRepository
-                .findById(id).map(assembler::toModel)
+                .findById(id).map(exerciseModelAssembler::toModel)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
     }
 
@@ -218,29 +217,66 @@ public class ExerciseService {
         return exerciseRepository
                 .findAllByTargetBodyPartIsIn(targetBodyParts)
                 .stream()
-                .map(assembler::toModel)
+                .map(exerciseModelAssembler::toModel)
                 .toList();
     }
 
     public Exercise getExerciseEntity(Long id) {
         return exerciseRepository
                 .findById(id)
-                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found!"));
     }
 
     public CollectionModel<ExerciseModel> getAllExercises() {
-        return assembler.toCollectionModel(exerciseRepository
+        return exerciseModelAssembler.toCollectionModel(exerciseRepository
                 .findAll()
                 .stream()
                 .toList());
     }
 
-    public List<ImageUrl> getImages(Long id) {
+    public CollectionModel<ImageUrlModel> getImages(Long id) {
         if (!exerciseRepository.existsById(id)) {
-            throw new ExerciseNotFoundException("Exercise not found");
+            throw new ExerciseNotFoundException("Exercise not found!");
         }
 
-        return imageUrlRepository.findByExercise_Id(id);
+        return imageUrlModelAssembler.toCollectionModel(imageUrlRepository.findByExercise_Id(id));
+    }
+
+    public Long addImage(Long id, String url) {
+        Exercise exercise = exerciseRepository
+                .findById(id)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found!"));
+
+
+        if (isValidUrl(url)) {
+            ImageUrl image = new ImageUrl(null, url, exercise);
+            exercise.getImageURLs().add(image);
+            exerciseRepository.save(exercise);
+            ImageUrl saved = imageUrlRepository.save(image);
+            return saved.getId();
+        }
+
+        return null;
+    }
+
+    public ImageUrlModel getImage(Long id, Long imageId) {
+        ImageUrl imageUrl = imageUrlRepository.findByIdAndExercise_id(imageId, id);
+
+        if (imageUrl == null) {
+            throw new ImageNotFoundException("Image for this exercise with id " + imageId + " does not exist!");
+        }
+
+        return imageUrlModelAssembler.toModel(imageUrl);
+    }
+
+    public void deleteImage(Long id, Long imageId) {
+        ImageUrl imageUrl = imageUrlRepository.findByIdAndExercise_id(imageId, id);
+
+        imageUrlRepository.delete(imageUrl);
+    }
+
+    private boolean isValidUrl(String url) {
+        return url.startsWith("https://");
     }
 
 }
