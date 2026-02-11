@@ -247,7 +247,6 @@ public class ExerciseService {
                 .findById(id)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found!"));
 
-
         if (isValidUrl(url)) {
             ImageUrl image = new ImageUrl(null, url, exercise);
             exercise.getImageURLs().add(image);

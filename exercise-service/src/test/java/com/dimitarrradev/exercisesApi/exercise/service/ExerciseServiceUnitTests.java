@@ -10,7 +10,6 @@ import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModelAssembler;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseNotFoundException;
-import com.dimitarrradev.exercisesApi.web.binding.ExerciseFindBindingModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -464,8 +463,6 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        Page<ExerciseModel> expected = new PageImpl<>(exerciseModelList);
-
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
 
         Page<ExerciseModel> exerciseModelPage = new PageImpl<>(exerciseModelList);
@@ -474,7 +471,6 @@ public class ExerciseServiceUnitTests {
                 pageable,
                 Complexity.EASY
         )).thenReturn(new PageImpl<>(exerciseList));
-
 
         CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelPage);
 
@@ -486,8 +482,6 @@ public class ExerciseServiceUnitTests {
 
     @Test
     void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithMovementTypePage() {
-        ExerciseFindBindingModel exerciseFind = new ExerciseFindBindingModel(null, null, null, MovementType.ISOLATION);
-
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getMovementType().equals(MovementType.ISOLATION)
@@ -499,17 +493,17 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        Page<ExerciseModel> expected = new PageImpl<>(exerciseFindList);
-
         PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList);
+
+        Page<ExerciseModel> exerciseModelPage = new PageImpl<>(exerciseFindList);
 
         when(exerciseRepository.findAllByMovementType(
                 pageable,
-                exerciseFind.movementType()
+                MovementType.ISOLATION
         )).thenReturn(new PageImpl<>(exerciseList));
 
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(expected);
+        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelPage);
 
         when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
 

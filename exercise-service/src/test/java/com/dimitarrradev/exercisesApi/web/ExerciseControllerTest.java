@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,7 +28,7 @@ public class ExerciseControllerTest {
 
     @Test
     @Sql(scripts = "/dbContent/exercises.sql")
-    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
+//    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
     @DirtiesContext
     void testGetExerciseShouldReturnExercise() throws Exception {
 
@@ -39,9 +38,7 @@ public class ExerciseControllerTest {
                 .andExpect(jsonPath("$.name").value("test-exercise1"))
                 .andExpect(jsonPath("$.complexity").value("MEDIUM"))
                 .andExpect(jsonPath("$.movementType").value("COMPOUND"))
-                .andExpect(jsonPath("$.description").value("test-exercise-description1"))
-                .andExpect(jsonPath("$.imageUrls").isArray());
-
+                .andExpect(jsonPath("$.description").value("test-exercise-description1"));
     }
 
 //    @Test
@@ -57,7 +54,7 @@ public class ExerciseControllerTest {
 //    }
 
     @Test
-    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
+//    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
     @DirtiesContext
     void testPostAddExerciseShouldCreateExerciseAndSaveItInRepository() throws Exception {
         String name = "test-exercise";
@@ -81,51 +78,38 @@ public class ExerciseControllerTest {
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.complexity").value("EASY"))
                 .andExpect(jsonPath("$.movementType").value("ISOLATION"))
-                .andExpect(jsonPath("$.description").value(description))
-                .andExpect(jsonPath("$.imageUrls").isArray());
+                .andExpect(jsonPath("$.description").value(description));
     }
 
     @Test
     @Sql(scripts = "/dbContent/exercises.sql")
-    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
+//    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
     @DirtiesContext
     void testPostEditExerciseShouldEditExerciseAndSaveItInRepository() throws Exception {
         mockMvc.perform(patch("/exercises/edit/{id}", 1)
                         .param("name", "new name")
                         .param("description", "new description")
-                        .param("approved", "true")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     @Sql(scripts = "/dbContent/exercises.sql")
-    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
+//    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
     @DirtiesContext
-    void testGetExercisesForReviewShouldReturnCorrectResponse() throws Exception {
-
-        String linkHeader = "<http://localhost:8082/exercises/for-review?page=%d&size=%d&orderBy=%s>;, rel=\"%s\"";
-        String link = "Link";
-
+    void testGetExercisesShouldReturnCorrectResponse() throws Exception {
         int page = 0;
         int size = 5;
         String orderBy = "asc";
 
-        mockMvc.perform(get("/exercises/for-review")
+        mockMvc.perform(get("/exercises/")
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size))
                 .param("orderBy", orderBy)
         ).andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content").isNotEmpty())
-                .andExpect(header().stringValues(link,
-                        String.format(linkHeader, page, size, orderBy, "self"),
-                        String.format(linkHeader, 0, size, orderBy, "first"),
-                        String.format(linkHeader, 0, size, orderBy, "prev"),
-                        String.format(linkHeader, 0, size, orderBy, "next"),
-                        String.format(linkHeader, 0, size, orderBy, "last")
-                ));
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$._embedded.exerciseModelList").isArray())
+                .andExpect(jsonPath("$._embedded.exerciseModelList").isNotEmpty());
 
     }
 

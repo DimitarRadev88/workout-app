@@ -15,7 +15,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/exercises")
+@RequestMapping("/api/exercises")
 @RequiredArgsConstructor
 public class ExerciseController {
 
@@ -116,4 +116,5 @@ public class ExerciseController {
 
         return ResponseEntity.noContent().build();
     }
+
 }
