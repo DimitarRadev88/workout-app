@@ -1,11 +1,15 @@
 package com.dimitarrradev.userService.app.user.service;
 
 import com.dimitarrradev.userService.app.controller.binding.UserAddModel;
+import com.dimitarrradev.userService.app.controller.binding.UserEditModel;
 import com.dimitarrradev.userService.app.error.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.userService.app.error.exception.UserNotFoundException;
 import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
 import com.dimitarrradev.userService.app.role.service.RoleService;
 import com.dimitarrradev.userService.app.user.User;
+import com.dimitarrradev.userService.app.user.UserModel;
+import com.dimitarrradev.userService.app.user.UserModelAssembler;
 import com.dimitarrradev.userService.app.user.dao.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +25,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserModelAssembler assembler;
     private final RoleService roleService;
 
-    public long getUserCount() {
-        return userRepository.count();
-    }
-
     @Transactional
-    public User createUser(UserAddModel userAddModel) {
+    public UserModel createUser(UserAddModel userAddModel) {
         if (userRepository.existsUserByUsername(userAddModel.username())) {
             throw new UsernameAlreadyExistsException("Username already exists");
         }
@@ -52,13 +53,25 @@ public class UserService {
                 null
                 );
 
-        return userRepository.save(user);
+        return assembler.toModel(userRepository.save(user));
     }
 
+    public UserModel getUser(Long id) {
+        User user = userRepository
+                .findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with that id does not exist!"));
 
-    public User getUser(Long id) {
-        User user = userRepository.findById(id).orElse(null);
-        user.setRoles(null);
-        return user;
+        return assembler.toModel(user);
+    }
+
+    public void updateUser(Long id, UserEditModel userEditModel) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User does not exist"));
+
+        user.setFirstName(userEditModel.firstName());
+        user.setLastName(userEditModel.lastName());
+        user.setHeight(userEditModel.height());
+        user.setWeight(userEditModel.weight());
+        user.setFirstName(userEditModel.firstName());
+
     }
 }

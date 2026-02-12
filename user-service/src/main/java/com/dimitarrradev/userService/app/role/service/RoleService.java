@@ -1,9 +1,12 @@
 package com.dimitarrradev.userService.app.role.service;
 
 import com.dimitarrradev.userService.app.role.Role;
+import com.dimitarrradev.userService.app.role.RoleModel;
+import com.dimitarrradev.userService.app.role.RoleModelAssembler;
 import com.dimitarrradev.userService.app.role.dao.RoleRepository;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +16,7 @@ import java.util.List;
 public class RoleService {
 
     private final RoleRepository roleRepository;
+    private final RoleModelAssembler assembler;
 
     public List<Role> getRoles() {
         return roleRepository.getRolesBy();
@@ -30,4 +34,9 @@ public class RoleService {
         return roleRepository.getRoleByRoleType(roleType).
                 orElseThrow(() -> new IllegalArgumentException("Role type not found"));
     }
+
+    public CollectionModel<RoleModel> getUserRoles(Long id) {
+        return assembler.toCollectionModel(roleRepository.findAllByAndUsers_id(id));
+    }
+
 }

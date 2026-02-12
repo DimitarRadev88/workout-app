@@ -31,9 +31,9 @@ public class User {
     @Column(nullable = false)
     private String password;
     @Basic
-    private Integer weight;
+    private Double weight;
     @Basic
-    private Integer height;
+    private Double height;
     @Basic
     private Double bmi;
     @Basic

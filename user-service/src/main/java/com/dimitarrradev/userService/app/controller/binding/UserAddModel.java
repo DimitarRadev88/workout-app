@@ -6,8 +6,8 @@ public record UserAddModel(
         String lastName,
         String email,
         String password,
-        Integer weight,
-        Integer height,
+        Double weight,
+        Double height,
         String gym
 ) {
 
