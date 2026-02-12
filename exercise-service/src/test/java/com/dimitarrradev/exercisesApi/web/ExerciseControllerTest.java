@@ -11,7 +11,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -32,7 +31,7 @@ public class ExerciseControllerTest {
     @DirtiesContext
     void testGetExerciseShouldReturnExercise() throws Exception {
 
-        mockMvc.perform(get("/exercises/{id}", 1))
+        mockMvc.perform(get("/api/exercises/{id}", 1))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.name").value("test-exercise1"))
@@ -60,7 +59,7 @@ public class ExerciseControllerTest {
         String name = "test-exercise";
         String description = "test-exercise-description";
 
-        mockMvc.perform(post("/exercises/add")
+        mockMvc.perform(post("/api/exercises/add")
                         .param("name", name)
                         .param("description", description)
                         .param("bodyPart", "abs")
@@ -71,9 +70,9 @@ public class ExerciseControllerTest {
                 .andExpect(status().isCreated());
 
 
-        mockMvc.perform(get("/exercises/{id}", 1)
-                        .with(user("test-user").roles("ADMINISTRATOR")))
-                .andExpect(status().isOk())
+        mockMvc.perform(get("/api/exercises/{id}", 1)
+//                        .with(user("test-user").roles("ADMINISTRATOR")))
+                ).andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.complexity").value("EASY"))
@@ -86,7 +85,7 @@ public class ExerciseControllerTest {
 //    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
     @DirtiesContext
     void testPostEditExerciseShouldEditExerciseAndSaveItInRepository() throws Exception {
-        mockMvc.perform(patch("/exercises/edit/{id}", 1)
+        mockMvc.perform(patch("/api/exercises/edit/{id}", 1)
                         .param("name", "new name")
                         .param("description", "new description")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -102,7 +101,7 @@ public class ExerciseControllerTest {
         int size = 5;
         String orderBy = "asc";
 
-        mockMvc.perform(get("/exercises/")
+        mockMvc.perform(get("/api/exercises/")
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size))
                 .param("orderBy", orderBy)
