@@ -13,10 +13,9 @@ public class UserProcessor implements RepresentationModelProcessor<UserModel> {
     @Override
     public UserModel process(UserModel model) {
         model.add(linkTo(methodOn(UserController.class).getUser(model.getId())).withSelfRel());
-        model.add(linkTo(methodOn(UserController.class).updateUser(model.getId(), null)).withRel("update"));
+        model.add(linkTo(methodOn(UserController.class).updateUser(model.getId(), null, null)).withRel("update"));
         model.add(linkTo(methodOn(UserController.class).getRoles(model.getId())).withRel("roles"));
         return model;
     }
-
 
 }

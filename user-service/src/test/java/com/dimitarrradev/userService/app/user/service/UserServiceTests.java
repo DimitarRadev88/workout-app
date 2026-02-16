@@ -8,11 +8,11 @@ import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsEx
 import com.dimitarrradev.userService.app.role.Role;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
 import com.dimitarrradev.userService.app.role.service.RoleService;
-import com.dimitarrradev.userService.app.user.FromModelMapper;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.UserModel;
 import com.dimitarrradev.userService.app.user.UserModelAssembler;
 import com.dimitarrradev.userService.app.user.dao.UserRepository;
+import com.dimitarrradev.userService.app.user.util.FromModelMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -259,17 +260,36 @@ public class UserServiceTests {
     @Test
     void testUpdateUserSavesUserWithNewData() {
         when(this.userRepository.findById(this.savedUser.getId()))
-                .thenReturn(Optional.of(savedUser));
+                .thenReturn(Optional.of(this.savedUser));
+
+        User mappedUser = new User(
+                this.savedUser.getId(),
+                this.savedUser.getUsername(),
+                this.userEdit.firstName(),
+                this.userEdit.lastName(),
+                this.savedUser.getEmail(),
+                this.savedUser.getPassword(),
+                this.userEdit.weight(),
+                this.userEdit.height(),
+                null,
+                this.userEdit.gym(),
+                this.savedUser.getRoles(),
+                this.savedUser.getCreatedAt(),
+                null
+        );
+
+        when(fromModelMapper.fromUserEditModel(this.savedUser, this.userEdit))
+                .thenReturn(mappedUser);
 
         this.userService.updateUser(this.savedUser.getId(), this.userEdit);
 
-        assertEquals(this.userEdit.firstName(), this.savedUser.getFirstName());
-        assertEquals(this.userEdit.lastName(), this.savedUser.getLastName());
-        assertEquals(this.userEdit.height(), this.savedUser.getHeight());
-        assertEquals(this.userEdit.weight(), this.savedUser.getWeight());
-        assertEquals(this.userEdit.gym(), this.savedUser.getGym());
+        assertEquals(this.userEdit.firstName(), mappedUser.getFirstName());
+        assertEquals(this.userEdit.lastName(), mappedUser.getLastName());
+        assertEquals(this.userEdit.height(), mappedUser.getHeight());
+        assertEquals(this.userEdit.weight(), mappedUser.getWeight());
+        assertEquals(this.userEdit.gym(), mappedUser.getGym());
 
-        verify(this.userRepository, times(1)).save(this.savedUser);
+        verify(this.userRepository, times(1)).save(mappedUser);
     }
 
 }

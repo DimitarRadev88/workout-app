@@ -7,11 +7,11 @@ import com.dimitarrradev.userService.app.error.exception.UserNotFoundException;
 import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
 import com.dimitarrradev.userService.app.role.service.RoleService;
-import com.dimitarrradev.userService.app.user.FromModelMapper;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.UserModel;
 import com.dimitarrradev.userService.app.user.UserModelAssembler;
 import com.dimitarrradev.userService.app.user.dao.UserRepository;
+import com.dimitarrradev.userService.app.user.util.FromModelMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,7 +41,7 @@ public class UserService {
 
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
         user.getRoles().add(this.roleService.getRoleByType(RoleType.USER));
-        user.setBmi(userAddModel.weight() != null && userAddModel.height() != null ? userAddModel.height() / Math.pow(userAddModel.weight(), 2) : null);
+        user.setBmi(getBmi(user));
 
         return this.assembler.toModel(this.userRepository.save(user));
     }
@@ -54,16 +54,19 @@ public class UserService {
         return this.assembler.toModel(user);
     }
 
-    public void updateUser(Long id, UserEditModel userEditModel) {
+    public UserModel updateUser(Long id, UserEditModel userEditModel) {
         User user = this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User does not exist"));
 
-        user.setFirstName(userEditModel.firstName());
-        user.setLastName(userEditModel.lastName());
-        user.setHeight(userEditModel.height());
-        user.setWeight(userEditModel.weight());
-        user.setGym(userEditModel.gym());
+        User editedUser = fromModelMapper.fromUserEditModel(user, userEditModel);
+        editedUser.setBmi(getBmi(editedUser));
 
-        this.userRepository.save(user);
+        User updatedUser = this.userRepository.save(editedUser);
+
+        return this.assembler.toModel(updatedUser);
+    }
+
+    private static Double getBmi(User user) {
+        return user.getWeight() != null && user.getHeight() != null ? user.getHeight() / Math.pow(user.getWeight(), 2) : null;
     }
 
 }
