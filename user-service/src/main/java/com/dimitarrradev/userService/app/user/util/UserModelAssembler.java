@@ -1,6 +1,8 @@
-package com.dimitarrradev.userService.app.user;
+package com.dimitarrradev.userService.app.user.util;
 
 import com.dimitarrradev.userService.app.controller.UserController;
+import com.dimitarrradev.userService.app.user.User;
+import com.dimitarrradev.userService.app.user.UserModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 

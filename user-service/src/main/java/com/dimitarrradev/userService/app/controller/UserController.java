@@ -2,6 +2,7 @@ package com.dimitarrradev.userService.app.controller;
 
 import com.dimitarrradev.userService.app.controller.binding.UserAddModel;
 import com.dimitarrradev.userService.app.controller.binding.UserEditModel;
+import com.dimitarrradev.userService.app.controller.binding.UserPasswordChangeModel;
 import com.dimitarrradev.userService.app.error.exception.InvalidRequestBodyException;
 import com.dimitarrradev.userService.app.role.RoleModel;
 import com.dimitarrradev.userService.app.role.service.RoleService;
@@ -57,4 +58,23 @@ public class UserController {
         }
         return userService.updateUser(id, userEditModel);
     }
+
+    @PostMapping("/create-password-reset-token")
+    public ResponseEntity<Void> postPasswordChangeRequest(@RequestParam String email) {
+        userService.createPasswordResetToken(email);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/password-change")
+    public ResponseEntity<Void> editUserPassword(@Valid @RequestBody UserPasswordChangeModel passwordChangeModel, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new InvalidRequestBodyException(bindingResult);
+        }
+
+        userService.resetPassword(passwordChangeModel);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

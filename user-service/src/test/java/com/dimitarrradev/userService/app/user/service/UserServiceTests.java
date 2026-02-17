@@ -10,7 +10,7 @@ import com.dimitarrradev.userService.app.role.enums.RoleType;
 import com.dimitarrradev.userService.app.role.service.RoleService;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.UserModel;
-import com.dimitarrradev.userService.app.user.UserModelAssembler;
+import com.dimitarrradev.userService.app.user.util.UserModelAssembler;
 import com.dimitarrradev.userService.app.user.dao.UserRepository;
 import com.dimitarrradev.userService.app.user.util.FromModelMapper;
 import org.junit.jupiter.api.BeforeEach;

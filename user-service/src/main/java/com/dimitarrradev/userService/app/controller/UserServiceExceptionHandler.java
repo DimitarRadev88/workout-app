@@ -1,8 +1,6 @@
 package com.dimitarrradev.userService.app.controller;
 
-import com.dimitarrradev.userService.app.error.exception.EmailAlreadyExistsException;
-import com.dimitarrradev.userService.app.error.exception.InvalidRequestBodyException;
-import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsException;
+import com.dimitarrradev.userService.app.error.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
@@ -15,18 +13,23 @@ import java.util.List;
 public class UserServiceExceptionHandler {
 
     @ExceptionHandler(exception = UsernameAlreadyExistsException.class)
-    public ResponseEntity<String> handeUsernameOrEmailAlreadyExists(UsernameAlreadyExistsException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    public ResponseEntity<ExceptionModel> handeUsernameOrEmailAlreadyExists(UsernameAlreadyExistsException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionModel(exception.getClass().getSimpleName(), exception.getMessage()));
     }
 
     @ExceptionHandler(exception = EmailAlreadyExistsException.class)
-    public ResponseEntity<String> handeUsernameOrEmailAlreadyExists(EmailAlreadyExistsException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    public ResponseEntity<ExceptionModel> handeUsernameOrEmailAlreadyExists(EmailAlreadyExistsException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionModel(exception.getClass().getSimpleName(), exception.getMessage()));
     }
 
     @ExceptionHandler(exception = InvalidRequestBodyException.class)
     public ResponseEntity<List<ObjectError>> handeInvalidRequestBody(InvalidRequestBodyException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getBindingResult().getAllErrors());
+    }
+
+    @ExceptionHandler(exception = InvalidResetTokenException.class)
+    public ResponseEntity<ExceptionModel> handeUsernameOrEmailAlreadyExists(InvalidResetTokenException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new ExceptionModel(exception.getClass().getSimpleName(), exception.getMessage()));
     }
 
 }
