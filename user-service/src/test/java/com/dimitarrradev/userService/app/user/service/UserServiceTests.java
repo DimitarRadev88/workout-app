@@ -2,17 +2,21 @@ package com.dimitarrradev.userService.app.user.service;
 
 import com.dimitarrradev.userService.app.controller.binding.UserAddModel;
 import com.dimitarrradev.userService.app.controller.binding.UserEditModel;
+import com.dimitarrradev.userService.app.controller.binding.UserPasswordChangeModel;
 import com.dimitarrradev.userService.app.error.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.userService.app.error.exception.InvalidResetTokenException;
 import com.dimitarrradev.userService.app.error.exception.UserNotFoundException;
 import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.userService.app.role.Role;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
 import com.dimitarrradev.userService.app.role.service.RoleService;
+import com.dimitarrradev.userService.app.user.PasswordResetToken;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.UserModel;
-import com.dimitarrradev.userService.app.user.util.UserModelAssembler;
+import com.dimitarrradev.userService.app.user.dao.PasswordResetTokenRepository;
 import com.dimitarrradev.userService.app.user.dao.UserRepository;
 import com.dimitarrradev.userService.app.user.util.FromModelMapper;
+import com.dimitarrradev.userService.app.user.util.UserModelAssembler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,10 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,6 +39,8 @@ public class UserServiceTests {
     private UserService userService;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private PasswordResetTokenRepository passwordResetTokenRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -290,6 +293,62 @@ public class UserServiceTests {
         assertEquals(this.userEdit.gym(), mappedUser.getGym());
 
         verify(this.userRepository, times(1)).save(mappedUser);
+    }
+
+    @Test
+    void testCreatePasswordResetTokenThrowsWhenUserNotExisting() {
+        when(userRepository.findByEmail(anyString()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,
+                () -> userService.createPasswordResetToken("missing@email.com"));
+    }
+
+    @Test
+    void testCreatePasswordResetTokenCreatesNewTokenAndSavesItInRepository() {
+        when(userRepository.findByEmail(savedUser.getEmail()))
+                .thenReturn(Optional.of(savedUser));
+
+        userService.createPasswordResetToken(savedUser.getEmail());
+
+        verify(passwordResetTokenRepository, times(1)).save(any(PasswordResetToken.class));
+    }
+
+    @Test
+    void testResetPasswordThrowsWhenInvokedWithInvalidDataModelFields() {
+        when(passwordResetTokenRepository
+                .findByTokenAndUser_emailAndExpirationDateIsAfter(anyString(), anyString(), any(LocalDateTime.class)))
+                .thenReturn(Optional.empty());
+
+        assertThrows(InvalidResetTokenException.class, () -> userService
+                .resetPassword(new UserPasswordChangeModel("invalid@email.com", "new password", UUID.randomUUID().toString())));
+    }
+
+    @Test
+    void testResetPasswordSavesNewPasswordWhenDataModelFieldsAreValid() {
+        PasswordResetToken resetToken = new PasswordResetToken(
+                1L,
+                UUID.randomUUID().toString(),
+                savedUser
+        );
+
+        UserPasswordChangeModel passwordChangeModel = new UserPasswordChangeModel(
+                savedUser.getEmail(),
+                "@ValidPassword123",
+                resetToken.getToken()
+        );
+
+        when(passwordResetTokenRepository
+                .findByTokenAndUser_emailAndExpirationDateIsAfter(anyString(), anyString(), any(LocalDateTime.class)))
+                .thenReturn(Optional.of(resetToken));
+
+        when(passwordEncoder.encode(passwordChangeModel.password())).thenReturn("encoded" + passwordChangeModel.password());
+
+        userService.resetPassword(passwordChangeModel);
+
+        assertEquals("encoded" + passwordChangeModel.password(), savedUser.getPassword());
+        verify(userRepository, times(1)).save(savedUser);
+        verify(passwordResetTokenRepository, times(1)).delete(resetToken);
     }
 
 }

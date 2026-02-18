@@ -49,7 +49,7 @@ public class UserService {
 
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
         user.getRoles().add(this.roleService.getRoleByType(RoleType.USER));
-        user.setBmi(getBmi(user));
+        user.setBmi(calculateBMI(user));
 
         return this.assembler.toModel(this.userRepository.save(user));
     }
@@ -66,14 +66,14 @@ public class UserService {
         User user = this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User does not exist!"));
 
         User editedUser = fromModelMapper.fromUserEditModel(user, userEditModel);
-        editedUser.setBmi(getBmi(editedUser));
+        editedUser.setBmi(calculateBMI(editedUser));
 
         User updatedUser = this.userRepository.save(editedUser);
 
         return this.assembler.toModel(updatedUser);
     }
 
-    private static Double getBmi(User user) {
+    private static Double calculateBMI(User user) {
         return user.getWeight() != null && user.getHeight() != null ? user.getHeight() / Math.pow(user.getWeight(), 2) : null;
     }
 
