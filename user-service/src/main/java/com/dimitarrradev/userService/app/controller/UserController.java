@@ -34,7 +34,10 @@ public class UserController {
         }
 
         UserModel user = userService.createUser(userAddModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(user);
     }
 
     @GetMapping("/{id}")
