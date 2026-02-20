@@ -12,9 +12,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/users")
@@ -66,18 +69,19 @@ public class UserController {
     public ResponseEntity<Void> postPasswordChangeRequest(@RequestParam String email) {
         userService.createPasswordResetToken(email);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .created(URI.create(email))
+                .contentType(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    @PatchMapping("/password-change")
-    public ResponseEntity<Void> editUserPassword(@Valid @RequestBody UserPasswordChangeModel passwordChangeModel, BindingResult bindingResult) {
+    @PatchMapping("/change-password")
+    public UserModel updateUserPassword(@Valid @RequestBody UserPasswordChangeModel passwordChangeModel, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new InvalidRequestBodyException(bindingResult);
         }
 
-        userService.resetPassword(passwordChangeModel);
-
-        return ResponseEntity.noContent().build();
+        return userService.resetPassword(passwordChangeModel);
     }
 
 }

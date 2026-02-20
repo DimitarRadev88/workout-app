@@ -73,11 +73,6 @@ public class UserService {
         return this.assembler.toModel(updatedUser);
     }
 
-    private static Double calculateBMI(User user) {
-        return user.getWeight() != null && user.getHeight() != null ? user.getHeight() / Math.pow(user.getWeight(), 2) : null;
-    }
-
-
     public void createPasswordResetToken(String email) {
         User user = userRepository
                 .findByEmail(email)
@@ -88,18 +83,24 @@ public class UserService {
     }
 
     @Transactional
-    public void resetPassword(UserPasswordChangeModel passwordChangeModel) {
+    public UserModel resetPassword(UserPasswordChangeModel passwordChangeModel) {
         PasswordResetToken token = passwordResetTokenRepository
                 .findByTokenAndUser_emailAndExpirationDateIsAfter(passwordChangeModel.token(), passwordChangeModel.email(), LocalDateTime.now())
-                .orElseThrow(() -> new InvalidResetTokenException("Invalid reset token!"));;
+                .orElseThrow(() -> new InvalidResetTokenException("Invalid reset token!"));
 
         User user = token.getUser();
 
         user.setPassword(passwordEncoder.encode(passwordChangeModel.password()));
 
-        userRepository.save(user);
+        User saved = userRepository.save(user);
 
         passwordResetTokenRepository.delete(token);
+
+        return assembler.toModel(saved);
+    }
+
+    private static Double calculateBMI(User user) {
+        return user.getWeight() != null && user.getHeight() != null ? user.getWeight() / Math.pow(user.getHeight(), 2) : null;
     }
 
 }

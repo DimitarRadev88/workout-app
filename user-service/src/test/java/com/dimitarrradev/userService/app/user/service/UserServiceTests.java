@@ -65,7 +65,7 @@ public class UserServiceTests {
                 "some@email.com",
                 "strongpassword",
                 100.0,
-                180.0,
+                1.81,
                 "some gym"
         );
 
@@ -73,7 +73,7 @@ public class UserServiceTests {
                 "new first name",
                 "new last name",
                 101.1,
-                179.9,
+                1.79,
                 "new gym"
         );
 
@@ -165,7 +165,7 @@ public class UserServiceTests {
 
         this.userService.createUser(this.userAdd);
 
-        assertEquals(this.notSavedUser.getHeight() / Math.pow(this.notSavedUser.getWeight(), 2), this.notSavedUser.getBmi());
+        assertEquals(this.notSavedUser.getWeight() / Math.pow(this.notSavedUser.getHeight(), 2), this.notSavedUser.getBmi());
 
         verify(this.userRepository, times(1)).save(this.notSavedUser);
 

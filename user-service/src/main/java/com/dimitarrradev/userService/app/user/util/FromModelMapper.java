@@ -28,21 +28,12 @@ public class FromModelMapper {
     }
 
     public User fromUserEditModel(User user, UserEditModel userEditModel) {
-        return new User(
-                user.getId(),
-                user.getUsername(),
-                userEditModel.firstName(),
-                userEditModel.lastName(),
-                user.getEmail(),
-                user.getPassword(),
-                userEditModel.weight() != null && userEditModel.weight() > 0 ? userEditModel.weight(): user.getWeight(),
-                userEditModel.height() != null && userEditModel.height() > 0 ? userEditModel.height(): user.getHeight(),
-                null,
-                userEditModel.gym() != null && !userEditModel.gym().isBlank() ? userEditModel.gym(): user.getGym(),
-                user.getRoles(),
-                user.getCreatedAt(),
-                null
-        );
+        user.setFirstName(userEditModel.firstName());
+        user.setLastName(userEditModel.lastName());
+        user.setWeight(userEditModel.weight() != null && userEditModel.weight() > 0 ? userEditModel.weight(): user.getWeight());
+        user.setHeight(userEditModel.height() != null && userEditModel.height() > 0 ? userEditModel.height(): user.getHeight());
+        user.setGym(userEditModel.gym() != null && !userEditModel.gym().isBlank() ? userEditModel.gym(): user.getGym());
+        return user;
     }
 
 }
