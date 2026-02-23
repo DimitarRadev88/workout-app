@@ -9,5 +9,6 @@ import org.springframework.hateoas.RepresentationModel;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoleModel extends RepresentationModel<RoleModel> {
+    private Long id;
     private RoleType roleType;
 }

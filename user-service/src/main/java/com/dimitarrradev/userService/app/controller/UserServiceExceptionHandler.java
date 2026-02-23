@@ -1,6 +1,8 @@
 package com.dimitarrradev.userService.app.controller;
 
 import com.dimitarrradev.userService.app.error.exception.*;
+import com.dimitarrradev.userService.app.error.model.BindingExceptionModel;
+import com.dimitarrradev.userService.app.error.model.ExceptionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,19 +14,8 @@ import java.util.List;
 @RestControllerAdvice
 public class UserServiceExceptionHandler {
 
-    @ExceptionHandler(exception = UsernameAlreadyExistsException.class)
-    public ResponseEntity<ExceptionModel> handeUsernameOrEmailAlreadyExists(UsernameAlreadyExistsException exception) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(
-                        new ExceptionModel(
-                                exception.getClass().getSimpleName(),
-                                exception.getMessage())
-                );
-    }
-
     @ExceptionHandler(exception = UserNotFoundException.class)
-    public ResponseEntity<ExceptionModel> handeUsernameOrEmailAlreadyExists(UserNotFoundException exception) {
+    public ResponseEntity<ExceptionModel> handleUserNotFound(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(
@@ -34,8 +25,19 @@ public class UserServiceExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(exception = UsernameAlreadyExistsException.class)
+    public ResponseEntity<ExceptionModel> handleUsernameAlreadyExists(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        new ExceptionModel(
+                                exception.getClass().getSimpleName(),
+                                exception.getMessage())
+                );
+    }
+
     @ExceptionHandler(exception = EmailAlreadyExistsException.class)
-    public ResponseEntity<ExceptionModel> handeUsernameOrEmailAlreadyExists(EmailAlreadyExistsException exception) {
+    public ResponseEntity<ExceptionModel> handleEmailAlreadyExists(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(
@@ -47,7 +49,7 @@ public class UserServiceExceptionHandler {
     }
 
     @ExceptionHandler(exception = InvalidRequestBodyException.class)
-    public ResponseEntity<BindingExceptionModel> handeInvalidRequestBody(InvalidRequestBodyException exception) {
+    public ResponseEntity<BindingExceptionModel> handleInvalidRequestBody(InvalidRequestBodyException exception) {
         List<String> fieldNames = exception.getBindingResult().getFieldErrors().stream().map(FieldError::getField).toList();
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -60,7 +62,7 @@ public class UserServiceExceptionHandler {
     }
 
     @ExceptionHandler(exception = InvalidResetTokenException.class)
-    public ResponseEntity<ExceptionModel> handeUsernameOrEmailAlreadyExists(InvalidResetTokenException exception) {
+    public ResponseEntity<ExceptionModel> handleInvalidResetToken(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_ACCEPTABLE)
                 .body(

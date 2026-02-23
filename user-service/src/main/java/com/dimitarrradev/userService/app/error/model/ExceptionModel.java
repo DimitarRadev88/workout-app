@@ -1,4 +1,4 @@
-package com.dimitarrradev.userService.app.error.exception;
+package com.dimitarrradev.userService.app.error.model;
 
 public record ExceptionModel (
         String exception,

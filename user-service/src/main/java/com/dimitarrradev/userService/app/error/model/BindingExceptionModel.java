@@ -1,4 +1,4 @@
-package com.dimitarrradev.userService.app.error.exception;
+package com.dimitarrradev.userService.app.error.model;
 
 import java.util.List;
 

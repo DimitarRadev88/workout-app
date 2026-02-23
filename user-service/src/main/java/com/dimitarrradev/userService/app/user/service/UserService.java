@@ -7,8 +7,9 @@ import com.dimitarrradev.userService.app.error.exception.EmailAlreadyExistsExcep
 import com.dimitarrradev.userService.app.error.exception.InvalidResetTokenException;
 import com.dimitarrradev.userService.app.error.exception.UserNotFoundException;
 import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsException;
+import com.dimitarrradev.userService.app.role.Role;
+import com.dimitarrradev.userService.app.role.dao.RoleRepository;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
-import com.dimitarrradev.userService.app.role.service.RoleService;
 import com.dimitarrradev.userService.app.user.PasswordResetToken;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.UserModel;
@@ -22,6 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,7 +36,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserModelAssembler assembler;
     private final FromModelMapper fromModelMapper;
-    private final RoleService roleService;
+    private final RoleRepository roleRepository;
 
     @Transactional
     public UserModel createUser(UserAddModel userAddModel) {
@@ -48,7 +51,8 @@ public class UserService {
         User user = this.fromModelMapper.fromUserAddModel(userAddModel);
 
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-        user.getRoles().add(this.roleService.getRoleByType(RoleType.USER));
+        user.setRoles(new ArrayList<>(List.of(roleRepository.findRoleByRoleType(RoleType.USER)
+                .orElse(new Role(null, RoleType.USER, List.of(user))))));
         user.setBmi(calculateBMI(user));
 
         return this.assembler.toModel(this.userRepository.save(user));
@@ -74,29 +78,29 @@ public class UserService {
     }
 
     public void createPasswordResetToken(String email) {
-        User user = userRepository
+        User user = this.userRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User does not exist!"));
 
         PasswordResetToken token = new PasswordResetToken(null, UUID.randomUUID().toString(), user);
-        passwordResetTokenRepository.save(token);
+        this.passwordResetTokenRepository.save(token);
     }
 
     @Transactional
     public UserModel resetPassword(UserPasswordChangeModel passwordChangeModel) {
-        PasswordResetToken token = passwordResetTokenRepository
+        PasswordResetToken token = this.passwordResetTokenRepository
                 .findByTokenAndUser_emailAndExpirationDateIsAfter(passwordChangeModel.token(), passwordChangeModel.email(), LocalDateTime.now())
                 .orElseThrow(() -> new InvalidResetTokenException("Invalid reset token!"));
 
         User user = token.getUser();
 
-        user.setPassword(passwordEncoder.encode(passwordChangeModel.password()));
+        user.setPassword(this.passwordEncoder.encode(passwordChangeModel.password()));
 
-        User saved = userRepository.save(user);
+        User saved = this.userRepository.save(user);
 
-        passwordResetTokenRepository.delete(token);
+        this.passwordResetTokenRepository.delete(token);
 
-        return assembler.toModel(saved);
+        return this.assembler.toModel(saved);
     }
 
     private static Double calculateBMI(User user) {

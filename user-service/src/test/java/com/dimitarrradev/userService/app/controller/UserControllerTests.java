@@ -1,4 +1,4 @@
-package com.dimitarrradev.userService.app.user.controller;
+package com.dimitarrradev.userService.app.controller;
 
 import com.dimitarrradev.userService.app.controller.binding.UserAddModel;
 import com.dimitarrradev.userService.app.controller.binding.UserEditModel;
@@ -101,7 +101,7 @@ public class UserControllerTests {
                 .username("test-user-1")
                 .email("test_user_1@email.com")
                 .password("ValidPassword@123!")
-                .roles(roleRepository.getRolesBy())
+                .roles(roleRepository.findAll())
                 .build();
 
         entityManager.persist(user);
@@ -219,7 +219,7 @@ public class UserControllerTests {
                 .username("test-user-1")
                 .email("test_user_1@email.com")
                 .password("ValidPassword@123!")
-                .roles(roleRepository.getRolesBy())
+                .roles(roleRepository.findAll())
                 .build();
 
         entityManager.persist(user);
@@ -245,7 +245,7 @@ public class UserControllerTests {
                 username("test-user-1")
                 .email("test_user_1@email.com")
                 .password("ValidPassword@123!")
-                .roles(roleRepository.getRolesBy())
+                .roles(roleRepository.findAll())
                 .build();
 
         entityManager.persist(user);
@@ -310,7 +310,7 @@ public class UserControllerTests {
                 username("test-user-1")
                 .email("test_user_1@email.com")
                 .password("ValidPassword@123!")
-                .roles(roleRepository.getRolesBy())
+                .roles(roleRepository.findAll())
                 .build();
 
         entityManager.persist(user);
@@ -339,7 +339,7 @@ public class UserControllerTests {
                 username("test-user-1")
                 .email("test_user_1@email.com")
                 .password("ValidPassword@123!")
-                .roles(roleRepository.getRolesBy())
+                .roles(roleRepository.findAll())
                 .build();
 
         entityManager.persist(user);

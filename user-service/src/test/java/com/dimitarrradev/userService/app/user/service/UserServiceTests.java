@@ -8,8 +8,8 @@ import com.dimitarrradev.userService.app.error.exception.InvalidResetTokenExcept
 import com.dimitarrradev.userService.app.error.exception.UserNotFoundException;
 import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.userService.app.role.Role;
+import com.dimitarrradev.userService.app.role.dao.RoleRepository;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
-import com.dimitarrradev.userService.app.role.service.RoleService;
 import com.dimitarrradev.userService.app.user.PasswordResetToken;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.UserModel;
@@ -48,7 +48,7 @@ public class UserServiceTests {
     @Mock
     private FromModelMapper fromModelMapper;
     @Mock
-    private RoleService roleService;
+    private RoleRepository roleRepository;
 
     private UserAddModel userAdd;
     private UserEditModel userEdit;
@@ -160,8 +160,8 @@ public class UserServiceTests {
         when(this.passwordEncoder.encode(this.notSavedUser.getPassword()))
                 .thenReturn("encoded password");
 
-        when(this.roleService.getRoleByType(RoleType.USER))
-                .thenReturn(new Role(1L, RoleType.USER, new ArrayList<>()));
+        when(this.roleRepository.findRoleByRoleType(RoleType.USER))
+                .thenReturn(Optional.of(new Role(1L, RoleType.USER, new ArrayList<>())));
 
         this.userService.createUser(this.userAdd);
 
@@ -186,8 +186,8 @@ public class UserServiceTests {
         when(this.passwordEncoder.encode(this.notSavedUser.getPassword()))
                 .thenReturn("encoded password");
 
-        when(this.roleService.getRoleByType(RoleType.USER))
-                .thenReturn(new Role(1L, RoleType.USER, new ArrayList<>()));
+        when(this.roleRepository.findRoleByRoleType(RoleType.USER))
+                .thenReturn(Optional.of(new Role(1L, RoleType.USER, new ArrayList<>())));
 
         when(this.userRepository.save(this.notSavedUser))
                 .thenReturn(this.savedUser);

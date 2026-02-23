@@ -1,6 +1,8 @@
-package com.dimitarrradev.userService.app.role;
+package com.dimitarrradev.userService.app.role.util;
 
 import com.dimitarrradev.userService.app.controller.UserController;
+import com.dimitarrradev.userService.app.role.Role;
+import com.dimitarrradev.userService.app.role.RoleModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +15,7 @@ public class RoleModelAssembler extends RepresentationModelAssemblerSupport<Role
 
     @Override
     public RoleModel toModel(Role entity) {
-        return new RoleModel(entity.getRoleType());
+        return new RoleModel(entity.getId(), entity.getRoleType());
     }
 
 }
