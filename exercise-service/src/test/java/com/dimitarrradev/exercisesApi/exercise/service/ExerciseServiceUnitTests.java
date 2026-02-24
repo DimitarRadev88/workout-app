@@ -1,15 +1,16 @@
 package com.dimitarrradev.exercisesApi.exercise.service;
 
+import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.error.exception.ExerciseAlreadyExistsException;
+import com.dimitarrradev.exercisesApi.error.exception.ExerciseNotFoundException;
 import com.dimitarrradev.exercisesApi.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
 import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
-import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModelAssembler;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
-import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
-import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseNotFoundException;
+import com.dimitarrradev.exercisesApi.exercise.util.ExerciseModelAssembler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 
 import java.util.*;
@@ -34,6 +36,8 @@ public class ExerciseServiceUnitTests {
     private ExerciseRepository exerciseRepository;
     @Mock
     private ExerciseModelAssembler assembler;
+    @Mock
+    private PagedResourcesAssembler<Exercise> pagedResourcesAssembler;
     @InjectMocks
     private ExerciseService exerciseService;
 
@@ -61,13 +65,17 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.existsExerciseByName("test-exercise"))
                 .thenReturn(true);
 
+        ExerciseAddModel addModel = new ExerciseAddModel(
+                "test-exercise",
+                "test-exercise-description",
+                TargetBodyPart.ABDUCTORS,
+                Complexity.EASY,
+                MovementType.ISOLATION
+        );
+
         assertThrows(
                 ExerciseAlreadyExistsException.class,
-                () -> exerciseService.addExercise("test-exercise",
-                        "test-exercise-description",
-                        "ABDUCTORS",
-                        "EASY",
-                        "COMPOUND")
+                () -> exerciseService.addExercise(addModel)
         );
     }
 
@@ -244,8 +252,8 @@ public class ExerciseServiceUnitTests {
 
         when(assembler.toCollectionModel(page)).thenReturn(model);
 
-        assertThat(exerciseService.getExercises(0, 10, "asc"))
-                .isEqualTo(model);
+        throw new IllegalArgumentException("TODO");
+
     }
 
     @Test

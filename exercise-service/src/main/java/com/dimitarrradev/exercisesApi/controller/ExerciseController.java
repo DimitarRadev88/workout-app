@@ -1,15 +1,14 @@
-package com.dimitarrradev.exercisesApi.web;
+package com.dimitarrradev.exercisesApi.controller;
 
+import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
 import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.http.MediaType;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -22,28 +21,14 @@ public class ExerciseController {
     private final ExerciseService exerciseService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExerciseModel> getExercise(@PathVariable Long id) {
-        return ResponseEntity
-                .ok(exerciseService.getExerciseModel(id));
+    public ExerciseModel getExercise(@PathVariable Long id) {
+        return exerciseService.getExerciseModel(id);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addExercise(
-            @RequestParam String name,
-            @RequestParam String description,
-            @RequestParam String bodyPart,
-            @RequestParam String complexity,
-            @RequestParam String movement
-    ) {
-        Long id = exerciseService.addExercise(name, description, bodyPart, complexity, movement);
-
-        return ResponseEntity
-                .created(URI.create("/exercises/" + id))
-                .header("Link", "")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("Exercise " + id + " added successfully!");
+    public ExerciseModel addExercise(@RequestBody ExerciseAddModel addModel) {
+        return exerciseService.addExercise(addModel);
     }
-
     @PatchMapping("/edit/{id}")
     public ResponseEntity<Void> editExercise(
             @PathVariable Long id,
@@ -73,7 +58,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/")
-    public CollectionModel<ExerciseModel> getExercisesPage(
+    public PagedModel<ExerciseModel> getExercisesPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "asc") String orderBy

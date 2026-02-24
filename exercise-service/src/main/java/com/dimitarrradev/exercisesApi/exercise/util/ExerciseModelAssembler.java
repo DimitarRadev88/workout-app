@@ -1,5 +1,7 @@
-package com.dimitarrradev.exercisesApi.exercise.model;
+package com.dimitarrradev.exercisesApi.exercise.util;
 
+import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
+import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 

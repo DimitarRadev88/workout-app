@@ -1,15 +1,21 @@
 package com.dimitarrradev.exercisesApi.exercise.service;
 
+import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.error.exception.ExerciseAlreadyExistsException;
+import com.dimitarrradev.exercisesApi.error.exception.ExerciseNotFoundException;
+import com.dimitarrradev.exercisesApi.error.exception.ImageNotFoundException;
 import com.dimitarrradev.exercisesApi.exercise.dao.ExerciseRepository;
 import com.dimitarrradev.exercisesApi.exercise.dao.ImageUrlRepository;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
-import com.dimitarrradev.exercisesApi.exercise.model.*;
-import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseAlreadyExistsException;
-import com.dimitarrradev.exercisesApi.util.error.message.exception.ExerciseNotFoundException;
-import com.dimitarrradev.exercisesApi.util.error.message.exception.ImageNotFoundException;
-import com.dimitarrradev.exercisesApi.web.ExerciseController;
+import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
+import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
+import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
+import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
+import com.dimitarrradev.exercisesApi.exercise.util.ExerciseFromModelMapper;
+import com.dimitarrradev.exercisesApi.exercise.util.ExerciseModelAssembler;
+import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlModelAssembler;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +23,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
 @Service
@@ -34,39 +39,27 @@ public class ExerciseService {
     private final ImageUrlRepository imageUrlRepository;
     private final ExerciseModelAssembler exerciseModelAssembler;
     private final ImageUrlModelAssembler imageUrlModelAssembler;
+    private final ExerciseFromModelMapper mapper;
+    private final PagedResourcesAssembler<Exercise> resourcesAssembler;
 
-    public Long addExercise(String name, String description, String bodyPart, String complexity, String movement) {
-        if (exerciseRepository.existsExerciseByName(name)) {
-            throw new ExerciseAlreadyExistsException("Exercise with name " + name + "  already exists");
+    public ExerciseModel addExercise(ExerciseAddModel exerciseAddModel) {
+        if (exerciseRepository.existsExerciseByName(exerciseAddModel.name())) {
+            throw new ExerciseAlreadyExistsException("Exercise with name " + exerciseAddModel.name() + "  already exists");
         }
 
-        Exercise exercise = Exercise.builder()
-                .name(name)
-                .description(description)
-                .targetBodyPart(TargetBodyPart.valueOf(bodyPart.toUpperCase()))
-                .complexity(Complexity.valueOf(complexity.toUpperCase()))
-                .movementType(MovementType.valueOf(movement.toUpperCase()))
-                .build();
+        Exercise exercise = mapper.fromExerciseAddModel(exerciseAddModel);
 
-        return exerciseRepository.save(exercise).getId();
+        return exerciseModelAssembler.toModel(exerciseRepository.save(exercise));
     }
 
-    public CollectionModel<ExerciseModel> getExercises(int pageNumber, int pageSize, String orderBy) {
+    public PagedModel<ExerciseModel> getExercises(int pageNumber, int pageSize, String orderBy) {
         Sort sort = Sort.by(Sort.Direction.fromString(orderBy), "name");
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         Page<Exercise> exercisesPage = exerciseRepository.findAllBy(pageable);
 
-        var result = exerciseModelAssembler.toCollectionModel(exercisesPage);
-
-        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(pageNumber, pageSize, orderBy)).withSelfRel());
-        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(Math.min(exercisesPage.getTotalPages() - 1, pageNumber + 1), pageSize, orderBy)).withRel("next"));
-        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(Math.max(0, pageNumber - 1), pageSize, orderBy)).withRel("prev"));
-        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(0, pageSize, orderBy)).withRel("first"));
-        result.add(linkTo(methodOn(ExerciseController.class).getExercisesPage(exercisesPage.getTotalPages() - 1, pageSize, orderBy)).withRel("last"));
-
-        return result;
+        return resourcesAssembler.toModel(exercisesPage, exerciseModelAssembler);
     }
 
     public void deleteExercise(Long id) {

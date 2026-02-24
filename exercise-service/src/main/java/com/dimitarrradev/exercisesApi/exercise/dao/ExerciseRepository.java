@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
@@ -35,5 +36,7 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     Page<Exercise> findAllByTargetBodyPartAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType);
 
     Page<Exercise> findAllByComplexityAndMovementType(Pageable pageable, Complexity complexity, MovementType movementType);
+
+    Optional<Exercise> findByName(String name);
 }
 
