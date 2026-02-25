@@ -1,6 +1,7 @@
 package com.dimitarrradev.exercisesApi.exercise.service;
 
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseNotFoundException;
 import com.dimitarrradev.exercisesApi.error.exception.ImageNotFoundException;
@@ -15,6 +16,7 @@ import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.exercise.util.ExerciseFromModelMapper;
 import com.dimitarrradev.exercisesApi.exercise.util.ExerciseModelAssembler;
+import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlFromModelMapper;
 import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlModelAssembler;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +41,8 @@ public class ExerciseService {
     private final ImageUrlRepository imageUrlRepository;
     private final ExerciseModelAssembler exerciseModelAssembler;
     private final ImageUrlModelAssembler imageUrlModelAssembler;
-    private final ExerciseFromModelMapper mapper;
+    private final ExerciseFromModelMapper exerciseFromModelMapper;
+    private final ImageUrlFromModelMapper imageUrlFromModelMapper;
     private final PagedResourcesAssembler<Exercise> resourcesAssembler;
 
     public ExerciseModel addExercise(ExerciseAddModel exerciseAddModel) {
@@ -47,7 +50,7 @@ public class ExerciseService {
             throw new ExerciseAlreadyExistsException("Exercise with name " + exerciseAddModel.name() + "  already exists");
         }
 
-        Exercise exercise = mapper.fromExerciseAddModel(exerciseAddModel);
+        Exercise exercise = exerciseFromModelMapper.fromExerciseAddModel(exerciseAddModel);
 
         return exerciseModelAssembler.toModel(exerciseRepository.save(exercise));
     }
@@ -57,7 +60,7 @@ public class ExerciseService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        Page<Exercise> exercisesPage = exerciseRepository.findAllBy(pageable);
+        Page<Exercise> exercisesPage = exerciseRepository.findAll(pageable);
 
         return resourcesAssembler.toModel(exercisesPage, exerciseModelAssembler);
     }
@@ -72,7 +75,7 @@ public class ExerciseService {
                 );
     }
 
-    public CollectionModel<ExerciseModel> findExercises(String name, String target, String complexity, String movement, int page, int size, String orderBy) {
+    public PagedModel<ExerciseModel> findExercises(String name, String target, String complexity, String movement, int page, int size, String orderBy) {
         Sort sort = orderBy.equalsIgnoreCase("asc") ?
                 Sort.by("name").ascending() :
                 Sort.by("name").descending();
@@ -105,7 +108,7 @@ public class ExerciseService {
             exercisesPage = getExerciseFindViewModelPage(pageable);
         }
 
-        return exerciseModelAssembler.toCollectionModel(exercisesPage);
+        return resourcesAssembler.toModel(exercisesPage, exerciseModelAssembler);
     }
 
     private Page<Exercise> getExerciseFindViewModelPageByTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart) {
@@ -206,12 +209,9 @@ public class ExerciseService {
         exerciseRepository.save(exercise);
     }
 
-    public List<ExerciseModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
-        return exerciseRepository
-                .findAllByTargetBodyPartIsIn(targetBodyParts)
-                .stream()
-                .map(exerciseModelAssembler::toModel)
-                .toList();
+    public CollectionModel<ExerciseModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
+        return exerciseModelAssembler.toCollectionModel(exerciseRepository
+                .findAllByTargetBodyPartIsIn(targetBodyParts));
     }
 
     public Exercise getExerciseEntity(Long id) {
@@ -232,43 +232,35 @@ public class ExerciseService {
             throw new ExerciseNotFoundException("Exercise not found!");
         }
 
-        return imageUrlModelAssembler.toCollectionModel(imageUrlRepository.findByExercise_Id(id));
+        return imageUrlModelAssembler.toCollectionModel(
+                imageUrlRepository.findByExercise_Id(id)
+        );
     }
 
-    public Long addImage(Long id, String url) {
+    public ImageUrlModel addImage(Long id, ImageUrlAddModel addModel) {
         Exercise exercise = exerciseRepository
                 .findById(id)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found!"));
 
-        if (isValidUrl(url)) {
-            ImageUrl image = new ImageUrl(null, url, exercise);
-            exercise.getImageURLs().add(image);
-            exerciseRepository.save(exercise);
-            ImageUrl saved = imageUrlRepository.save(image);
-            return saved.getId();
-        }
+        ImageUrl image = imageUrlFromModelMapper.fromImageUrlAddModel(addModel);
 
-        return null;
+        image.setExercise(exercise);
+
+        return imageUrlModelAssembler.toModel(imageUrlRepository.save(image));
     }
 
     public ImageUrlModel getImage(Long id, Long imageId) {
-        ImageUrl imageUrl = imageUrlRepository.findByIdAndExercise_id(imageId, id);
-
-        if (imageUrl == null) {
-            throw new ImageNotFoundException("Image for this exercise with id " + imageId + " does not exist!");
-        }
+        ImageUrl imageUrl = imageUrlRepository.findByIdAndExercise_id(imageId, id)
+                .orElseThrow(() ->  new ImageNotFoundException("Image for exercise with id " + imageId + " does not exist!"));
 
         return imageUrlModelAssembler.toModel(imageUrl);
     }
 
     public void deleteImage(Long id, Long imageId) {
-        ImageUrl imageUrl = imageUrlRepository.findByIdAndExercise_id(imageId, id);
+        ImageUrl imageUrl = imageUrlRepository.findByIdAndExercise_id(imageId, id)
+                .orElseThrow(() ->  new ImageNotFoundException("Image for exercise with id " + imageId + " does not exist!"));
 
         imageUrlRepository.delete(imageUrl);
-    }
-
-    private boolean isValidUrl(String url) {
-        return url.startsWith("https://");
     }
 
 }

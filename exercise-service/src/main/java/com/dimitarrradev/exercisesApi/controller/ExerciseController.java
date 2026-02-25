@@ -1,6 +1,7 @@
 package com.dimitarrradev.exercisesApi.controller;
 
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
 import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
@@ -9,9 +10,6 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/exercises")
@@ -44,12 +42,12 @@ public class ExerciseController {
     }
 
     @GetMapping("/find")
-    public CollectionModel<ExerciseModel> findExercises(
+    public PagedModel<ExerciseModel> findExercises(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String target,
             @RequestParam(required = false) String complexity,
             @RequestParam(required = false) String movement,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "asc") String orderBy
     ) {
@@ -87,12 +85,8 @@ public class ExerciseController {
     }
 
     @PostMapping("/{id}/images")
-    public ResponseEntity<Void> addImage(@PathVariable Long id, @RequestParam String url) {
-        Long imageId = exerciseService.addImage(id, url);
-
-        return ResponseEntity
-                .created(linkTo(methodOn(ExerciseController.class).getImage(id, imageId)).withSelfRel().toUri())
-                .build();
+    public ImageUrlModel addImage(@PathVariable Long id, @RequestBody ImageUrlAddModel urlModel) {
+        return exerciseService.addImage(id, urlModel);
     }
 
     @DeleteMapping("/{id}/images/{imageId}")

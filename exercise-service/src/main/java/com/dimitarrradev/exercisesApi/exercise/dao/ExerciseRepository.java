@@ -17,8 +17,6 @@ import java.util.Optional;
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     boolean existsExerciseByName(String name);
 
-    Page<Exercise> findAllBy(Pageable pageable);
-
     Page<Exercise> findAllByTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart);
 
     List<Exercise> findAllByTargetBodyPartIsIn(Collection<TargetBodyPart> targetBodyParts);

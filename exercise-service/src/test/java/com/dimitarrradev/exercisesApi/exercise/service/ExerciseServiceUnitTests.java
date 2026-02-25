@@ -1,16 +1,23 @@
 package com.dimitarrradev.exercisesApi.exercise.service;
 
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseNotFoundException;
+import com.dimitarrradev.exercisesApi.error.exception.ImageNotFoundException;
 import com.dimitarrradev.exercisesApi.exercise.dao.ExerciseRepository;
+import com.dimitarrradev.exercisesApi.exercise.dao.ImageUrlRepository;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
 import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
 import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
+import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
+import com.dimitarrradev.exercisesApi.exercise.util.ExerciseFromModelMapper;
 import com.dimitarrradev.exercisesApi.exercise.util.ExerciseModelAssembler;
+import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlFromModelMapper;
+import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlModelAssembler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,13 +28,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.PagedModel;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ExerciseServiceUnitTests {
@@ -35,7 +43,15 @@ public class ExerciseServiceUnitTests {
     @Mock
     private ExerciseRepository exerciseRepository;
     @Mock
-    private ExerciseModelAssembler assembler;
+    private ImageUrlRepository imageUrlRepository;
+    @Mock
+    private ExerciseModelAssembler exerciseModelAssembler;
+    @Mock
+    private ImageUrlModelAssembler imageUrlModelAssembler;
+    @Mock
+    private ExerciseFromModelMapper exerciseFromModelMapper;
+    @Mock
+    private ImageUrlFromModelMapper imageUrlFromModelMapper;
     @Mock
     private PagedResourcesAssembler<Exercise> pagedResourcesAssembler;
     @InjectMocks
@@ -57,6 +73,7 @@ public class ExerciseServiceUnitTests {
                 MovementType.COMPOUND,
                 new ArrayList<>(List.of(imageUrl))
         );
+        imageUrl.setExercise(exercise);
     }
 
 
@@ -77,6 +94,59 @@ public class ExerciseServiceUnitTests {
                 ExerciseAlreadyExistsException.class,
                 () -> exerciseService.addExercise(addModel)
         );
+    }
+
+    @Test
+    void testAddExerciseCreatesNewExercise() {
+        when(exerciseRepository.existsExerciseByName("test-exercise-1"))
+                .thenReturn(false);
+
+        ExerciseAddModel addModel = new ExerciseAddModel(
+                "test-exercise-1",
+                "test-exercise-description",
+                TargetBodyPart.ABDUCTORS,
+                Complexity.EASY,
+                MovementType.ISOLATION
+        );
+
+        Exercise exercise = Exercise.builder()
+                .name(addModel.name())
+                .description(addModel.description())
+                .targetBodyPart(addModel.bodyPart())
+                .complexity(addModel.complexity())
+                .movementType(addModel.movement())
+                .build();
+
+        when(exerciseFromModelMapper.fromExerciseAddModel(addModel))
+                .thenReturn(exercise);
+
+        Exercise savedExercise = Exercise.builder()
+                .id(2L)
+                .name(addModel.name())
+                .description(addModel.description())
+                .targetBodyPart(addModel.bodyPart())
+                .complexity(addModel.complexity())
+                .movementType(addModel.movement())
+                .build();
+
+        when(exerciseRepository.save(exercise))
+                .thenReturn(savedExercise);
+
+        ExerciseModel expected = new ExerciseModel(
+                savedExercise.getId(),
+                savedExercise.getName(),
+                savedExercise.getComplexity(),
+                savedExercise.getDescription(),
+                savedExercise.getMovementType(),
+                savedExercise.getTargetBodyPart()
+        );
+        when(exerciseModelAssembler.toModel(savedExercise))
+                .thenReturn(expected);
+
+        ExerciseModel exerciseModel = exerciseService.addExercise(addModel);
+
+        verify(exerciseRepository, times(1)).save(exercise);
+        assertEquals(expected, exerciseModel);
     }
 
     @Test
@@ -115,7 +185,7 @@ public class ExerciseServiceUnitTests {
                 exercise.getTargetBodyPart()
         );
 
-        when(assembler.toModel(exercise))
+        when(exerciseModelAssembler.toModel(exercise))
                 .thenReturn(expected);
 
         assertThat(exerciseService.getExerciseModel(1L))
@@ -178,36 +248,14 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findAllByTargetBodyPartIsIn(List.of(randomTargetBodyPart)))
                 .thenReturn(exercises);
 
-        List<ExerciseModel> expectedExercises = exercises
-                .stream()
-                .map(ex -> new ExerciseModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getDescription(),
-                                exercise.getMovementType(),
-                                exercise.getTargetBodyPart()
-                        )
-                )
-                .toList();
+        CollectionModel<ExerciseModel> expectedExercises = CollectionModel.of(mapToExerciseModelList(exercises));
 
-        exercises.forEach(ex -> {
-            when(assembler.toModel(ex))
-                    .thenReturn(new ExerciseModel(
-                                    exercise.getId(),
-                                    exercise.getName(),
-                                    exercise.getComplexity(),
-                                    exercise.getDescription(),
-                                    exercise.getMovementType(),
-                                    exercise.getTargetBodyPart()
-                            )
-                    );
-        });
+        when(exerciseModelAssembler.toCollectionModel(exercises))
+                .thenReturn(expectedExercises);
 
-        List<ExerciseModel> exercisesViewByTargets = exerciseService.getExercisesForTargetBodyParts(List.of(randomTargetBodyPart));
+        CollectionModel<ExerciseModel> exercisesViewByTargets = exerciseService.getExercisesForTargetBodyParts(List.of(randomTargetBodyPart));
 
-        assertThat(exercisesViewByTargets)
-                .isEqualTo(expectedExercises);
+        assertEquals(CollectionModel.of(expectedExercises), exercisesViewByTargets);
     }
 
     @Test
@@ -235,24 +283,24 @@ public class ExerciseServiceUnitTests {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
         Page<Exercise> page = new PageImpl<>(generateExerciseList(6));
-        when(exerciseRepository.findAllBy(pageable))
+
+        when(exerciseRepository.findAll(pageable))
                 .thenReturn(page);
 
-        Page<ExerciseModel> mappedExercisesPage = page.map(exercise -> new ExerciseModel(
-                        exercise.getId(),
-                        exercise.getName(),
-                        exercise.getComplexity(),
-                        exercise.getDescription(),
-                        exercise.getMovementType(),
-                        exercise.getTargetBodyPart()
-                )
+        List<ExerciseModel> mappedExercises = mapToExerciseModelList(page.getContent());
+
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                page.getSize(),
+                page.getNumber(),
+                page.getTotalElements(),
+                page.getTotalPages()
         );
 
-        CollectionModel<ExerciseModel> model = CollectionModel.of(mappedExercisesPage);
+        when(pagedResourcesAssembler.toModel(page, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(mappedExercises, pageMetadata));
 
-        when(assembler.toCollectionModel(page)).thenReturn(model);
 
-        throw new IllegalArgumentException("TODO");
+        assertEquals(PagedModel.of(mappedExercises, pageMetadata), exerciseService.getExercises(0, 10, "asc"));
 
     }
 
@@ -262,14 +310,14 @@ public class ExerciseServiceUnitTests {
                 .stream()
                 .toList();
 
-        List<ExerciseModel> mappedExercises = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> mappedExercises = mapToExerciseModelList(exerciseList);
 
         when(exerciseRepository.findAll())
                 .thenReturn(exerciseList);
 
         CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(mappedExercises);
 
-        when(assembler.toCollectionModel(exerciseList)).thenReturn(collectionModel);
+        when(exerciseModelAssembler.toCollectionModel(exerciseList)).thenReturn(collectionModel);
 
         assertThat(exerciseService.getAllExercises())
                 .isEqualTo(collectionModel);
@@ -282,21 +330,27 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseModelList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        Page<Exercise> exerciseModelPage = new PageImpl<>(exerciseList);
+        Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
 
         when(exerciseRepository.findAllByNameContainingIgnoreCase(pageable, "1"))
                 .thenReturn(new PageImpl<>(exerciseList));
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelList);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        when(assembler.toCollectionModel(exerciseModelPage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
         assertThat(exerciseService.findExercises("1", "all", "all", "all", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
     @Test
@@ -307,7 +361,7 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseModelList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
@@ -319,12 +373,19 @@ public class ExerciseServiceUnitTests {
         )).thenReturn(exercisePage);
 
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelList);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+
 
         assertThat(exerciseService.findExercises("", "back", "all", "", 1, pageable.getPageSize(), "desc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
     @Test
@@ -336,13 +397,11 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseModelList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
-
-        Page<ExerciseModel> exerciseModelPage = new PageImpl<>(exerciseModelList);
 
         when(exerciseRepository.findAllByTargetBodyPartAndComplexity(
                 pageable,
@@ -351,13 +410,19 @@ public class ExerciseServiceUnitTests {
         )).thenReturn(new PageImpl<>(exerciseList));
 
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelPage);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
 
         assertThat(exerciseService.findExercises("", "legs", "easy", "all", 1, pageable.getPageSize(), "desc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
     @Test
@@ -369,13 +434,11 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseModelList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
-
-        Page<ExerciseModel> exerciseModelPage = new PageImpl<>(exerciseModelList);
 
         when(exerciseRepository.findAllByTargetBodyPartAndMovementType(
                 pageable,
@@ -383,12 +446,18 @@ public class ExerciseServiceUnitTests {
                 MovementType.ISOLATION
         )).thenReturn(new PageImpl<>(exerciseList));
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelPage);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
         assertThat(exerciseService.findExercises("", "legs", "", "isolation", 1, pageable.getPageSize(), "desc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
     @Test
@@ -402,13 +471,11 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseModelList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
-
-        Page<ExerciseModel> exerciseModelPage = new PageImpl<>(exerciseModelList);
 
         when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndMovementType(
                 pageable,
@@ -417,13 +484,18 @@ public class ExerciseServiceUnitTests {
                 MovementType.ISOLATION
         )).thenReturn(new PageImpl<>(exerciseList));
 
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelPage);
-
-        when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
         assertThat(exerciseService.findExercises("", "legs", "easy", "isolation", 1, pageable.getPageSize(), "desc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
     @Test
@@ -436,13 +508,11 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseModelList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
-
-        Page<ExerciseModel> exerciseModelPage = new PageImpl<>(exerciseModelList);
 
         when(exerciseRepository.findAllByComplexityAndMovementType(
                 pageable,
@@ -450,12 +520,18 @@ public class ExerciseServiceUnitTests {
                 MovementType.ISOLATION
         )).thenReturn(new PageImpl<>(exerciseList));
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelPage);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
         assertThat(exerciseService.findExercises("", "all", "easy", "isolation", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
     @Test
@@ -467,25 +543,29 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseModelList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
-
-        Page<ExerciseModel> exerciseModelPage = new PageImpl<>(exerciseModelList);
 
         when(exerciseRepository.findAllByComplexity(
                 pageable,
                 Complexity.EASY
         )).thenReturn(new PageImpl<>(exerciseList));
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelPage);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
         assertThat(exerciseService.findExercises("", "", "easy", "", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
     @Test
@@ -497,26 +577,29 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseFindList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
         PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList);
-
-        Page<ExerciseModel> exerciseModelPage = new PageImpl<>(exerciseFindList);
 
         when(exerciseRepository.findAllByMovementType(
                 pageable,
                 MovementType.ISOLATION
         )).thenReturn(new PageImpl<>(exerciseList));
 
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(exerciseModelPage);
-
-        when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
         assertThat(exerciseService.findExercises("", "", "", "isolation", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
     @Test
@@ -525,11 +608,9 @@ public class ExerciseServiceUnitTests {
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
-        List<ExerciseModel> exerciseFindList = mapToExerciseModelLst(exerciseList);
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
-
-        Page<ExerciseModel> expected = new PageImpl<>(exerciseFindList);
 
         PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList);
 
@@ -537,15 +618,146 @@ public class ExerciseServiceUnitTests {
                 pageable
         )).thenReturn(exercisePage);
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(expected);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
 
-        when(assembler.toCollectionModel(exercisePage)).thenReturn(collectionModel);
+        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
+                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
         assertThat(exerciseService.findExercises("", "", "", "", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(collectionModel);
+                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
     }
 
-    private static List<ExerciseModel> mapToExerciseModelLst(List<Exercise> exerciseList) {
+    @Test
+    void testGetImagesThrowsWhenExerciseIsNotFound() {
+        when(exerciseRepository.existsById(anyLong()))
+                .thenReturn(false);
+
+        assertThrows(ExerciseNotFoundException.class,
+                () -> exerciseService.getImages(0L)
+        );
+    }
+
+    @Test
+    void testGetImagesThrowsWhenExerciseExists() {
+        when(exerciseRepository.existsById(exercise.getId()))
+                .thenReturn(true);
+
+        when(imageUrlRepository.findByExercise_Id(exercise.getId()))
+                .thenReturn(exercise.getImageURLs());
+
+        List<ImageUrlModel> urlModelStream = exercise
+                .getImageURLs()
+                .stream()
+                .map(url ->
+                        new ImageUrlModel(
+                                url.getId(),
+                                url.getUrl(),
+                                exercise.getId()
+                        )
+                ).toList();
+
+
+        when(imageUrlModelAssembler.toCollectionModel(exercise.getImageURLs()))
+                .thenReturn(CollectionModel.of(urlModelStream));
+
+        assertEquals(CollectionModel.of(urlModelStream),
+                exerciseService.getImages(exercise.getId()));
+    }
+
+    @Test
+    void testAddImageThrowsWhenExerciseIsNotFound() {
+        when(exerciseRepository.findById(anyLong()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ExerciseNotFoundException.class,
+                () -> exerciseService.addImage(0L, new ImageUrlAddModel("https://some-url.com"))
+        );
+    }
+
+    @Test
+    void testAddImageCreatesNewImageAndSavesItWhenExerciseExists() {
+        when(exerciseRepository.findById(exercise.getId()))
+                .thenReturn(Optional.of(exercise));
+
+        ImageUrlAddModel addModel = new ImageUrlAddModel("https://some-image.com");
+
+        ImageUrl imageUrl = new ImageUrl(null, addModel.url(), null);
+
+        when(imageUrlFromModelMapper.fromImageUrlAddModel(addModel))
+                .thenReturn(imageUrl);
+
+        ImageUrl savedImageUrl = new ImageUrl(2L, addModel.url(), exercise);
+
+        when(imageUrlRepository.save(imageUrl))
+                .thenReturn(savedImageUrl);
+
+        ImageUrlModel expectedModel = new ImageUrlModel(
+                savedImageUrl.getId(),
+                savedImageUrl.getUrl(),
+                savedImageUrl.getExercise().getId());
+
+        when(imageUrlModelAssembler.toModel(savedImageUrl))
+                .thenReturn(expectedModel);
+
+        ImageUrlModel imageUrlModel = exerciseService.addImage(exercise.getId(), addModel);
+
+        assertEquals(expectedModel, imageUrlModel);
+        assertEquals(exercise, imageUrl.getExercise(), "Exercise should not be null!");
+    }
+
+    @Test
+    void testGetImageThrowsWhenImageIsNotFound() {
+        when(imageUrlRepository.findByIdAndExercise_id(anyLong(), anyLong()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ImageNotFoundException.class,
+                () -> exerciseService.getImage(0L, 0L));
+    }
+
+    @Test
+    void testGetImageReturnsCorrectModel() {
+        ImageUrl imageUrl = exercise.getImageURLs().getFirst();
+
+        when(imageUrlRepository.findByIdAndExercise_id(exercise.getId(), imageUrl.getId()))
+                .thenReturn(Optional.of(imageUrl));
+
+        ImageUrlModel expected = new ImageUrlModel(imageUrl.getId(), imageUrl.getUrl(), exercise.getId());
+
+        when(imageUrlModelAssembler.toModel(imageUrl))
+                .thenReturn(expected);
+
+        ImageUrlModel imageUrlModel = exerciseService.getImage(imageUrl.getId(), exercise.getId());
+
+        assertEquals(expected, imageUrlModel);
+    }
+
+    @Test
+    void testDeleteImageThrowsWhenImageIsNotFound() {
+        when(imageUrlRepository.findByIdAndExercise_id(anyLong(), anyLong()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ImageNotFoundException.class,
+                () -> exerciseService.deleteImage(0L, 0L));
+    }
+
+    @Test
+    void testDeleteImageDeletesWhenFound() {
+        ImageUrl imageUrl = exercise.getImageURLs().getFirst();
+
+        when(imageUrlRepository.findByIdAndExercise_id(imageUrl.getId(), exercise.getId()))
+                .thenReturn(Optional.of(imageUrl));
+
+        exerciseService.deleteImage(exercise.getId(), imageUrl.getId());
+
+        verify(imageUrlRepository, times(1)).delete(imageUrl);
+    }
+
+    private static List<ExerciseModel> mapToExerciseModelList(List<Exercise> exerciseList) {
         return exerciseList.stream()
                 .map(exercise -> new ExerciseModel(
                                 exercise.getId(),
