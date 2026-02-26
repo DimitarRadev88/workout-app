@@ -15,46 +15,39 @@ import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrl;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.exercise.util.ExerciseFromModelMapper;
-import com.dimitarrradev.exercisesApi.exercise.util.ExerciseModelAssembler;
 import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlFromModelMapper;
 import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlModelAssembler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
-import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class ExerciseServiceUnitTests {
 
-    @Mock
+    @MockitoBean
     private ExerciseRepository exerciseRepository;
-    @Mock
+    @MockitoBean
     private ImageUrlRepository imageUrlRepository;
-    @Mock
-    private ExerciseModelAssembler exerciseModelAssembler;
-    @Mock
+    @MockitoBean
     private ImageUrlModelAssembler imageUrlModelAssembler;
-    @Mock
+    @MockitoBean
     private ExerciseFromModelMapper exerciseFromModelMapper;
-    @Mock
+    @MockitoBean
     private ImageUrlFromModelMapper imageUrlFromModelMapper;
-    @Mock
-    private PagedResourcesAssembler<Exercise> pagedResourcesAssembler;
-    @InjectMocks
+    @Autowired
     private ExerciseService exerciseService;
 
     private Exercise exercise;
@@ -140,8 +133,6 @@ public class ExerciseServiceUnitTests {
                 savedExercise.getMovementType(),
                 savedExercise.getTargetBodyPart()
         );
-        when(exerciseModelAssembler.toModel(savedExercise))
-                .thenReturn(expected);
 
         ExerciseModel exerciseModel = exerciseService.addExercise(addModel);
 
@@ -185,11 +176,8 @@ public class ExerciseServiceUnitTests {
                 exercise.getTargetBodyPart()
         );
 
-        when(exerciseModelAssembler.toModel(exercise))
-                .thenReturn(expected);
+        assertEquals(expected, exerciseService.getExerciseModel(1L));
 
-        assertThat(exerciseService.getExerciseModel(1L))
-                .isEqualTo(expected);
     }
 
     @Test
@@ -250,12 +238,9 @@ public class ExerciseServiceUnitTests {
 
         CollectionModel<ExerciseModel> expectedExercises = CollectionModel.of(mapToExerciseModelList(exercises));
 
-        when(exerciseModelAssembler.toCollectionModel(exercises))
-                .thenReturn(expectedExercises);
-
         CollectionModel<ExerciseModel> exercisesViewByTargets = exerciseService.getExercisesForTargetBodyParts(List.of(randomTargetBodyPart));
 
-        assertEquals(CollectionModel.of(expectedExercises), exercisesViewByTargets);
+        assertEquals(expectedExercises, exercisesViewByTargets);
     }
 
     @Test
@@ -263,8 +248,7 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.of(exercise));
 
-        assertThat(exerciseService.getExerciseEntity(1L))
-                .isEqualTo(exercise);
+        assertEquals(exercise, exerciseService.getExerciseEntity(1L));
     }
 
     @Test
@@ -282,12 +266,12 @@ public class ExerciseServiceUnitTests {
     void testGetExercisesReturnsCorrectListOfExercisesForReviewViewModel() {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        Page<Exercise> page = new PageImpl<>(generateExerciseList(6));
+        Page<Exercise> page = new PageImpl<>(generateExerciseList(6), pageable, 6);
 
         when(exerciseRepository.findAll(pageable))
                 .thenReturn(page);
 
-        List<ExerciseModel> mappedExercises = mapToExerciseModelList(page.getContent());
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(page.getContent());
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
                 page.getSize(),
@@ -296,11 +280,12 @@ public class ExerciseServiceUnitTests {
                 page.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(page, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(mappedExercises, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.getExercises(0, 10, "asc");
 
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        assertEquals(PagedModel.of(mappedExercises, pageMetadata), exerciseService.getExercises(0, 10, "asc"));
+        assertEquals(expected, actual);
 
     }
 
@@ -315,12 +300,10 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findAll())
                 .thenReturn(exerciseList);
 
-        CollectionModel<ExerciseModel> collectionModel = CollectionModel.of(mappedExercises);
+        CollectionModel<ExerciseModel> expected = CollectionModel.of(mappedExercises);
 
-        when(exerciseModelAssembler.toCollectionModel(exerciseList)).thenReturn(collectionModel);
+        assertEquals(expected, exerciseService.getAllExercises());
 
-        assertThat(exerciseService.getAllExercises())
-                .isEqualTo(collectionModel);
     }
 
     @Test
@@ -334,10 +317,10 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAllByNameContainingIgnoreCase(pageable, "1"))
-                .thenReturn(new PageImpl<>(exerciseList));
+                .thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
                 exercisePage.getSize(),
@@ -346,18 +329,20 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("1", "all", "all", "all", 0, pageable.getPageSize(), "asc");
 
-        assertThat(exerciseService.findExercises("1", "all", "all", "all", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
+
+        assertEquals(expected, actual);
+
     }
 
     @Test
     void testFindExercisesReturnsCorrectCollectionModelOfExerciseModelWithTargetBodyPart() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getTargetBodyPart().equals(TargetBodyPart.BACK))
+                        exercise.getTargetBodyPart().equals(TargetBodyPart.ABS))
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
@@ -365,11 +350,11 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
-        Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAllByTargetBodyPart(
                 pageable,
-                TargetBodyPart.BACK
+                TargetBodyPart.ABS
         )).thenReturn(exercisePage);
 
 
@@ -380,20 +365,22 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
 
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "abs", "all", "", 0, pageable.getPageSize(), "desc");
 
-        assertThat(exerciseService.findExercises("", "back", "all", "", 1, pageable.getPageSize(), "desc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
+
+        assertEquals(expected, actual);
+
     }
 
     @Test
     void testFindExercisesReturnsCorrectCollectionModelOfExerciseModelWithTargetBodyPartAndComplexity() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getTargetBodyPart().equals(TargetBodyPart.LEGS)
-                                && exercise.getComplexity().equals(Complexity.EASY))
+                        exercise.getTargetBodyPart().equals(TargetBodyPart.ABS)
+                                && exercise.getComplexity().equals(Complexity.HARD))
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
 
@@ -401,14 +388,13 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
-        Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAllByTargetBodyPartAndComplexity(
                 pageable,
-                TargetBodyPart.LEGS,
-                Complexity.EASY
-        )).thenReturn(new PageImpl<>(exerciseList));
-
+                TargetBodyPart.ABS,
+                Complexity.HARD
+        )).thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
                 exercisePage.getSize(),
@@ -417,19 +403,20 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "ABS", "HARD", "all", 0, pageable.getPageSize(), "desc");
 
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
 
-        assertThat(exerciseService.findExercises("", "legs", "easy", "all", 1, pageable.getPageSize(), "desc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        assertEquals(expected, actual);
+
     }
 
     @Test
     void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithTargetBodyPartAndMovementType() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getTargetBodyPart().equals(TargetBodyPart.LEGS)
+                        exercise.getTargetBodyPart().equals(TargetBodyPart.ABS)
                                 && exercise.getMovementType().equals(MovementType.ISOLATION))
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
@@ -438,13 +425,13 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
-        Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAllByTargetBodyPartAndMovementType(
                 pageable,
-                TargetBodyPart.LEGS,
+                TargetBodyPart.ABS,
                 MovementType.ISOLATION
-        )).thenReturn(new PageImpl<>(exerciseList));
+        )).thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
                 exercisePage.getSize(),
@@ -453,19 +440,21 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
 
-        assertThat(exerciseService.findExercises("", "legs", "", "isolation", 1, pageable.getPageSize(), "desc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "ABS", "", "isolation", 0, pageable.getPageSize(), "desc");
+
+        assertEquals(expected, actual);
+
     }
 
     @Test
     void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithTargetBodyPartComplexityAndMovementType() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getTargetBodyPart().equals(TargetBodyPart.LEGS)
-                                && exercise.getComplexity().equals(Complexity.EASY)
+                        exercise.getTargetBodyPart().equals(TargetBodyPart.ABS)
+                                && exercise.getComplexity().equals(Complexity.HARD)
                                 && exercise.getMovementType().equals(MovementType.ISOLATION)
                 )
                 .sorted(Comparator.comparing(Exercise::getName))
@@ -475,14 +464,14 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
 
-        Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndMovementType(
                 pageable,
-                TargetBodyPart.LEGS,
-                Complexity.EASY,
+                TargetBodyPart.ABS,
+                Complexity.HARD,
                 MovementType.ISOLATION
-        )).thenReturn(new PageImpl<>(exerciseList));
+        )).thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
                 exercisePage.getSize(),
@@ -491,18 +480,20 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
 
-        assertThat(exerciseService.findExercises("", "legs", "easy", "isolation", 1, pageable.getPageSize(), "desc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "abs", "hard", "isolation", 0, pageable.getPageSize(), "desc");
+
+        assertEquals(expected, actual);
+
     }
 
     @Test
     void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithComplexityAndMovementType() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getComplexity().equals(Complexity.EASY)
+                        exercise.getComplexity().equals(Complexity.HARD)
                                 && exercise.getMovementType().equals(MovementType.ISOLATION)
                 )
                 .sorted(Comparator.comparing(Exercise::getName))
@@ -512,13 +503,13 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAllByComplexityAndMovementType(
                 pageable,
-                Complexity.EASY,
+                Complexity.HARD,
                 MovementType.ISOLATION
-        )).thenReturn(new PageImpl<>(exerciseList));
+        )).thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
                 exercisePage.getSize(),
@@ -527,18 +518,19 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        assertThat(exerciseService.findExercises("", "all", "easy", "isolation", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "all", "HARD", "isolation", 0, pageable.getPageSize(), "asc");
+
+        assertEquals(expected, actual);
     }
 
     @Test
     void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithComplexity() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
-                        exercise.getComplexity().equals(Complexity.EASY)
+                        exercise.getComplexity().equals(Complexity.HARD)
                 )
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
@@ -547,12 +539,12 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        Page<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAllByComplexity(
                 pageable,
-                Complexity.EASY
-        )).thenReturn(new PageImpl<>(exerciseList));
+                Complexity.HARD
+        )).thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
                 exercisePage.getSize(),
@@ -561,11 +553,12 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        assertThat(exerciseService.findExercises("", "", "easy", "", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "", "HARD", "", 0, pageable.getPageSize(), "asc");
+
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -581,12 +574,12 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAllByMovementType(
                 pageable,
                 MovementType.ISOLATION
-        )).thenReturn(new PageImpl<>(exerciseList));
+        )).thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
                 exercisePage.getSize(),
@@ -595,11 +588,13 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        assertThat(exerciseService.findExercises("", "", "", "isolation", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "", "", "isolation", 0, pageable.getPageSize(), "asc");
+
+        assertEquals(expected, actual);
+
     }
 
     @Test
@@ -612,7 +607,7 @@ public class ExerciseServiceUnitTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList);
+        PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
         when(exerciseRepository.findAll(
                 pageable
@@ -625,11 +620,13 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        when(pagedResourcesAssembler.toModel(exercisePage, exerciseModelAssembler))
-                .thenReturn(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        assertThat(exerciseService.findExercises("", "", "", "", 1, pageable.getPageSize(), "asc"))
-                .isEqualTo(PagedModel.of(exerciseModelList, pageMetadata));
+        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "", "", "", 0, pageable.getPageSize(), "asc");
+
+        assertEquals(expected, actual);
+
     }
 
     @Test

@@ -80,15 +80,15 @@ public class ExerciseService {
                 Sort.by("name").ascending() :
                 Sort.by("name").descending();
 
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        TargetBodyPart targetBodyPart = target == null || target.trim().isEmpty() ? TargetBodyPart.ALL : TargetBodyPart.valueOf(target.toUpperCase());
-        Complexity complexityEnum = complexity == null || complexity.trim().isEmpty() ? Complexity.ALL : Complexity.valueOf(complexity.toUpperCase());
-        MovementType movementType = movement == null || movement.trim().isEmpty() ? MovementType.ALL : MovementType.valueOf(movement.toUpperCase());
+        TargetBodyPart targetBodyPart = target == null || target.isBlank() ? TargetBodyPart.ALL : TargetBodyPart.valueOf(target.toUpperCase());
+        Complexity complexityEnum = complexity == null || complexity.isBlank() ? Complexity.ALL : Complexity.valueOf(complexity.toUpperCase());
+        MovementType movementType = movement == null || movement.isBlank() ? MovementType.ALL : MovementType.valueOf(movement.toUpperCase());
 
         Page<Exercise> exercisesPage = null;
 
-        if (name != null && !name.trim().isEmpty()) {
+        if (name != null && !name.isBlank()) {
             exercisesPage = getActiveExercisesWithNameContaining(name, pageable);
         } else if (!targetBodyPart.equals(TargetBodyPart.ALL) && !complexityEnum.equals(Complexity.ALL) && !movementType.equals(MovementType.ALL)) {
             exercisesPage = getExerciseFindViewModelPageByTargetBodyPartComplexityMovementType(pageable, targetBodyPart, complexityEnum, movementType);
