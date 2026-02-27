@@ -5,6 +5,8 @@ import com.dimitarrradev.userService.app.error.exception.*;
 import com.dimitarrradev.userService.app.error.model.BindingExceptionModel;
 import com.dimitarrradev.userService.app.error.model.ExceptionModel;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -15,9 +17,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest
 public class UserServiceExceptionHandlerTests {
 
-    private final UserServiceExceptionHandler exceptionHandler = new UserServiceExceptionHandler();
+    @Autowired()
+    private UserServiceExceptionHandler exceptionHandler;
 
     @Test
     void testHandleUserNotFoundReturnsCorrectResponse() {

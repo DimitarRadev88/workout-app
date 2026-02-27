@@ -27,18 +27,17 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@TestPropertySource("/application-test.properties")
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -93,6 +92,18 @@ public class UserControllerTests {
     void setUpDatabase() {
         jdbc.execute(createUser);
         jdbc.execute(createRole);
+        jdbc.execute(createUsersRoles);
+    }
+
+    @AfterEach
+    void cleanUpDatabase() {
+        jdbc.execute(deleteUsersRoles);
+        jdbc.execute(deletePasswordResetToken);
+        jdbc.execute("ALTER TABLE password_reset_tokens ALTER COLUMN ID RESTART WITH 1");
+        jdbc.execute(deleteUser);
+        jdbc.execute("ALTER TABLE users ALTER COLUMN ID RESTART WITH 1");
+        jdbc.execute(deleteRole);
+        jdbc.execute("ALTER TABLE roles ALTER COLUMN ID RESTART WITH 1");
     }
 
     @Test
@@ -107,11 +118,11 @@ public class UserControllerTests {
         entityManager.persist(user);
         entityManager.flush();
 
-        Optional<User> byEmail = userRepository.findByEmail(user.getEmail());
+        Optional<User> byId = userRepository.findById(1L);
 
-        assertTrue(byEmail.isPresent());
+        assertTrue(byId.isPresent());
 
-        User savedUser = byEmail.get();
+        User savedUser = byId.get();
 
         mockMvc.perform(get("https://localhost:8083/api/users/{id}", savedUser.getId()))
                 .andExpect(status().isOk())
@@ -125,9 +136,9 @@ public class UserControllerTests {
 
     @Test
     void testGetUserResponseWithNotExistingUser() throws Exception {
-        Optional<User> byEmail = userRepository.findByEmail("test_user_1@email.com");
+        Optional<User> byId = userRepository.findById(0L);
 
-        assertFalse(byEmail.isPresent());
+        assertFalse(byId.isPresent());
 
         mockMvc.perform(get("/api/users/{id}", 0))
                 .andExpect(status().isNotFound())
@@ -150,6 +161,7 @@ public class UserControllerTests {
         );
 
         assertFalse(userRepository.existsUserByUsername(userAddModel.username()));
+        assertFalse(userRepository.existsUserByEmail(userAddModel.email()));
 
         mockMvc.perform(post("/api/users/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -215,72 +227,52 @@ public class UserControllerTests {
 
     @Test
     void testGetRolesReturnsCorrectResponseWhenUserExists() throws Exception {
-        User user = User.builder()
-                .username("test-user-1")
-                .email("test_user_1@email.com")
-                .password("ValidPassword@123!")
-                .roles(roleRepository.findAll())
-                .build();
+        Optional<User> byId = userRepository.findById(1L);
 
-        entityManager.persist(user);
-        entityManager.flush();
+        assertTrue(byId.isPresent());
 
-        Optional<User> byUsername = userRepository.findByUsername(user.getUsername());
+        User user = byId.get();
 
-        assertTrue(byUsername.isPresent());
-
-        User savedUser = byUsername.get();
-
-        mockMvc.perform(get("/api/users/{id}/roles", savedUser.getId()))
+        mockMvc.perform(get("/api/users/{id}/roles", user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_HAL_PLUS_JSON))
-                .andExpect(jsonPath("$._embedded.roleModelList", hasSize(savedUser.getRoles().size())))
+                .andExpect(jsonPath("$._embedded.roleModelList", hasSize(user.getRoles().size())))
                 .andExpect(jsonPath("$._embedded.roleModelList.[0]", hasKey("roleType")))
-                .andExpect(jsonPath("$._embedded.roleModelList.[0]", hasValue(savedUser.getRoles().getFirst().getRoleType().name())));
+                .andExpect(jsonPath("$._embedded.roleModelList.[0]", hasValue(user.getRoles().getFirst().getRoleType().name())));
     }
 
     @Test
     void testUpdateUserReturnsCorrectResponseWhenUserExistsAndBodyIsValid() throws Exception {
-        User user = User.builder().
-                username("test-user-1")
-                .email("test_user_1@email.com")
-                .password("ValidPassword@123!")
-                .roles(roleRepository.findAll())
-                .build();
+        Optional<User> byId = userRepository.findById(1L);
 
-        entityManager.persist(user);
-        entityManager.flush();
+        assertTrue(byId.isPresent());
 
-        Optional<User> byUsername = userRepository.findByUsername(user.getUsername());
-
-        assertTrue(byUsername.isPresent());
-
-        User savedUser = byUsername.get();
+        User user = byId.get();
 
         UserEditModel editModel = new UserEditModel(
-                "firstName",
-                "lastName",
-                101.0,
-                1.81,
+                "firstName112",
+                "lastName11",
+                103.0,
+                1.88,
                 "gym"
         );
 
-        mockMvc.perform(patch("https://localhost:8083/api/users/{id}", savedUser.getId())
+        mockMvc.perform(patch("https://localhost:8083/api/users/{id}", user.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(editModel)))
                 .andExpect(content().contentType(APPLICATION_HAL_PLUS_JSON))
-                .andExpect(jsonPath("$.id", is(savedUser.getId().intValue())))
-                .andExpect(jsonPath("$.firstName", is("firstName")))
-                .andExpect(jsonPath("$.lastName", is("lastName")))
-                .andExpect(jsonPath("$.weight", is(101.0)))
-                .andExpect(jsonPath("$.height", is(1.81)))
+                .andExpect(jsonPath("$.id", is(user.getId().intValue())))
+                .andExpect(jsonPath("$.firstName", is(editModel.firstName())))
+                .andExpect(jsonPath("$.lastName", is(editModel.lastName())))
+                .andExpect(jsonPath("$.weight", is(editModel.weight())))
+                .andExpect(jsonPath("$.height", is(editModel.height())))
                 .andExpect(jsonPath("$.bmi", notNullValue()))
-                .andExpect(jsonPath("$.gym", is("gym")))
-                .andExpect(jsonPath("$.email", is(savedUser.getEmail())))
+                .andExpect(jsonPath("$.gym", is(editModel.gym())))
+                .andExpect(jsonPath("$.email", is(user.getEmail())))
                 .andExpect(jsonPath("$.updatedAt", notNullValue()))
-                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:8083/api/users/%d", savedUser.getId()))))
-                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:8083/api/users/%d", savedUser.getId()))))
-                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:8083/api/users/%d/roles", savedUser.getId()))));
+                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:8083/api/users/%d", user.getId()))))
+                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:8083/api/users/%d", user.getId()))))
+                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:8083/api/users/%d/roles", user.getId()))));
     }
 
     @Test
@@ -306,50 +298,30 @@ public class UserControllerTests {
 
     @Test
     void testCreatePasswordResetTokenCreatesTokenWhenUserExists() throws Exception {
-        User user = User.builder().
-                username("test-user-1")
-                .email("test_user_1@email.com")
-                .password("ValidPassword@123!")
-                .roles(roleRepository.findAll())
-                .build();
+        Optional<User> byId = userRepository.findById(1L);
 
-        entityManager.persist(user);
-        entityManager.flush();
+        assertTrue(byId.isPresent());
 
-        Optional<User> byUsername = userRepository.findByUsername(user.getUsername());
-
-        assertTrue(byUsername.isPresent());
-
-        User savedUser = byUsername.get();
+        User user = byId.get();
 
         mockMvc.perform(post("https://localhost:8083/api/users/create-password-reset-token")
-                .param("email", savedUser.getEmail()))
+                .param("email", user.getEmail()))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", savedUser.getEmail()));
+                .andExpect(header().string("Location", user.getEmail()));
 
-        Optional<PasswordResetToken> resetToken = resetTokenRepository.findByUser_email(savedUser.getEmail());
+        Optional<PasswordResetToken> resetToken = resetTokenRepository.findByUser_email(user.getEmail());
 
         assertTrue(resetToken.isPresent());
     }
 
     @Test
     void testUpdateUserPasswordReturnsCorrectResponseWhenUserExistsAndBodyIsValid() throws Exception {
-        User user = User.builder().
-                username("test-user-1")
-                .email("test_user_1@email.com")
-                .password("ValidPassword@123!")
-                .roles(roleRepository.findAll())
-                .build();
+        Optional<User> byId = userRepository.findById(1L);
 
-        entityManager.persist(user);
-        entityManager.flush();
+        assertTrue(byId.isPresent());
 
-        Optional<User> byUsername = userRepository.findByUsername(user.getUsername());
-
-        assertTrue(byUsername.isPresent());
-
-        User savedUser = byUsername.get();
+        User user = byId.get();
 
         PasswordResetToken passwordResetToken = new PasswordResetToken(
                 null,
@@ -361,7 +333,7 @@ public class UserControllerTests {
         entityManager.flush();
 
         UserPasswordChangeModel changeModel = new UserPasswordChangeModel(
-                savedUser.getEmail(),
+                user.getEmail(),
                 "1NewValidPassword@321",
                 passwordResetToken.getToken()
         );
@@ -371,21 +343,24 @@ public class UserControllerTests {
                         .content(objectMapper.writeValueAsString(changeModel)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_HAL_PLUS_JSON))
-                .andExpect(jsonPath("$.id", is(savedUser.getId().intValue())))
-                .andExpect(jsonPath("$.username", is(savedUser.getUsername())))
-                .andExpect(jsonPath("$.email", is(savedUser.getEmail())))
+                .andExpect(jsonPath("$.id", is(user.getId().intValue())))
+                .andExpect(jsonPath("$.username", is(user.getUsername())))
+                .andExpect(jsonPath("$.email", is(user.getEmail())))
                 .andExpect(jsonPath("$.updatedAt", notNullValue()))
-                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:8083/api/users/%d", savedUser.getId()))))
-                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:8083/api/users/%d", savedUser.getId()))))
-                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:8083/api/users/%d/roles", savedUser.getId()))));
+                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:8083/api/users/%d", user.getId()))))
+                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:8083/api/users/%d", user.getId()))))
+                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:8083/api/users/%d/roles", user.getId()))));
 
-        User updatedUser = userRepository.findById(savedUser.getId()).get();
+        Optional<User> optionalUser = userRepository.findById(user.getId());
+        assertTrue(optionalUser.isPresent());
+
+        User updatedUser = optionalUser.get();
 
         assertTrue(passwordEncoder.matches(changeModel.password(), updatedUser.getPassword()));
     }
 
     @Test
-    void estUpdateUserPasswordReturnsClientErrorWithInvalidRequestBody() throws Exception {
+    void testUpdateUserPasswordReturnsClientErrorWithInvalidRequestBody() throws Exception {
         UserPasswordChangeModel changeModel = new UserPasswordChangeModel(
                "",
                 "notvalidpassword",
@@ -405,13 +380,7 @@ public class UserControllerTests {
     }
 
 
-    @AfterEach
-    void cleanUpDatabase() {
-        jdbc.execute(deleteUsersRoles);
-        jdbc.execute(deletePasswordResetToken);
-        jdbc.execute(deleteUser);
-        jdbc.execute(deleteRole);
-    }
+
 
 
 }

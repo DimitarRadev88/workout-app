@@ -19,10 +19,9 @@ import com.dimitarrradev.userService.app.user.util.FromModelMapper;
 import com.dimitarrradev.userService.app.user.util.UserModelAssembler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -32,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class UserServiceTests {
 
     @InjectMocks
@@ -265,34 +264,18 @@ public class UserServiceTests {
         when(this.userRepository.findById(this.savedUser.getId()))
                 .thenReturn(Optional.of(this.savedUser));
 
-        User mappedUser = new User(
-                this.savedUser.getId(),
-                this.savedUser.getUsername(),
-                this.userEdit.firstName(),
-                this.userEdit.lastName(),
-                this.savedUser.getEmail(),
-                this.savedUser.getPassword(),
-                this.userEdit.weight(),
-                this.userEdit.height(),
-                null,
-                this.userEdit.gym(),
-                this.savedUser.getRoles(),
-                this.savedUser.getCreatedAt(),
-                null
-        );
-
-        when(fromModelMapper.fromUserEditModel(this.savedUser, this.userEdit))
-                .thenReturn(mappedUser);
+        when(this.userRepository.saveAndFlush(this.savedUser))
+                .thenReturn(this.savedUser);
 
         this.userService.updateUser(this.savedUser.getId(), this.userEdit);
 
-        assertEquals(this.userEdit.firstName(), mappedUser.getFirstName());
-        assertEquals(this.userEdit.lastName(), mappedUser.getLastName());
-        assertEquals(this.userEdit.height(), mappedUser.getHeight());
-        assertEquals(this.userEdit.weight(), mappedUser.getWeight());
-        assertEquals(this.userEdit.gym(), mappedUser.getGym());
+        assertEquals(this.userEdit.firstName(), this.savedUser.getFirstName());
+        assertEquals(this.userEdit.lastName(), this.savedUser.getLastName());
+        assertEquals(this.userEdit.height(), this.savedUser.getHeight());
+        assertEquals(this.userEdit.weight(), this.savedUser.getWeight());
+        assertEquals(this.userEdit.gym(), this.savedUser.getGym());
 
-        verify(this.userRepository, times(1)).save(mappedUser);
+        verify(this.userRepository, times(1)).saveAndFlush(this.savedUser);
     }
 
     @Test
@@ -347,7 +330,7 @@ public class UserServiceTests {
         userService.resetPassword(passwordChangeModel);
 
         assertEquals("encoded" + passwordChangeModel.password(), savedUser.getPassword());
-        verify(userRepository, times(1)).save(savedUser);
+        verify(userRepository, times(1)).saveAndFlush(savedUser);
         verify(passwordResetTokenRepository, times(1)).delete(resetToken);
     }
 

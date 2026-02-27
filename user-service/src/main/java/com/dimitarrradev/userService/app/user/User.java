@@ -4,6 +4,7 @@ import com.dimitarrradev.userService.app.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -45,8 +46,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles;
-    @CreationTimestamp
+    @CreationTimestamp(source = SourceType.DB)
     private LocalDateTime createdAt;
-    @UpdateTimestamp
+    @UpdateTimestamp(source = SourceType.DB)
     private LocalDateTime updatedAt;
 }

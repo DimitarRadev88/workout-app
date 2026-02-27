@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserService {
 
@@ -38,7 +39,6 @@ public class UserService {
     private final FromModelMapper fromModelMapper;
     private final RoleRepository roleRepository;
 
-    @Transactional
     public UserModel createUser(UserAddModel userAddModel) {
         if (this.userRepository.existsUserByUsername(userAddModel.username())) {
             throw new UsernameAlreadyExistsException("Username already exists");
@@ -69,10 +69,14 @@ public class UserService {
     public UserModel updateUser(Long id, UserEditModel userEditModel) {
         User user = this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User does not exist!"));
 
-        User editedUser = fromModelMapper.fromUserEditModel(user, userEditModel);
-        editedUser.setBmi(calculateBMI(editedUser));
+        user.setFirstName(userEditModel.firstName());
+        user.setLastName(userEditModel.lastName());
+        user.setWeight(userEditModel.weight() != null && userEditModel.weight() > 0 ? userEditModel.weight(): user.getWeight());
+        user.setHeight(userEditModel.height() != null && userEditModel.height() > 0 ? userEditModel.height(): user.getHeight());
+        user.setGym(userEditModel.gym() != null && !userEditModel.gym().isBlank() ? userEditModel.gym(): user.getGym());
+        user.setBmi(calculateBMI(user));
 
-        User updatedUser = this.userRepository.save(editedUser);
+        User updatedUser = this.userRepository.saveAndFlush(user);
 
         return this.assembler.toModel(updatedUser);
     }
@@ -86,7 +90,6 @@ public class UserService {
         this.passwordResetTokenRepository.save(token);
     }
 
-    @Transactional
     public UserModel resetPassword(UserPasswordChangeModel passwordChangeModel) {
         PasswordResetToken token = this.passwordResetTokenRepository
                 .findByTokenAndUser_emailAndExpirationDateIsAfter(passwordChangeModel.token(), passwordChangeModel.email(), LocalDateTime.now())
@@ -96,7 +99,7 @@ public class UserService {
 
         user.setPassword(this.passwordEncoder.encode(passwordChangeModel.password()));
 
-        User saved = this.userRepository.save(user);
+        User saved = this.userRepository.saveAndFlush(user);
 
         this.passwordResetTokenRepository.delete(token);
 
