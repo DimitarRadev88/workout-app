@@ -1,14 +1,18 @@
 package com.dimitarrradev.exercisesApi.controller;
 
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ExerciseEditModel;
 import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
+import com.dimitarrradev.exercisesApi.error.exception.InvalidRequestBodyException;
 import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,21 +28,28 @@ public class ExerciseController {
     }
 
     @PostMapping("/add")
-    public ExerciseModel addExercise(@RequestBody ExerciseAddModel addModel) {
+    public ExerciseModel addExercise(
+            @RequestBody @Valid ExerciseAddModel addModel,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            throw new InvalidRequestBodyException(bindingResult);
+        }
+
         return exerciseService.addExercise(addModel);
     }
-    @PatchMapping("/edit/{id}")
-    public ResponseEntity<Void> editExercise(
+    @PatchMapping("/{id}")
+    public ExerciseModel editExercise(
             @PathVariable Long id,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String description
+            @RequestBody @Valid ExerciseEditModel editModel,
+            BindingResult bindingResult
     ) {
 
-        exerciseService.editExercise(id, name, description);
+        if (bindingResult.hasErrors()) {
+            throw new InvalidRequestBodyException(bindingResult);
+        }
 
-        return ResponseEntity
-                .noContent()
-                .build();
+        return exerciseService.editExercise(id, editModel);
     }
 
     @GetMapping("/find")

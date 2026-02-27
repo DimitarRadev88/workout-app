@@ -1,6 +1,7 @@
 package com.dimitarrradev.exercisesApi.exercise.service;
 
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ExerciseEditModel;
 import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseNotFoundException;
@@ -193,20 +194,18 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void editExercise(Long id, String name, String description) {
+    public ExerciseModel editExercise(Long id, ExerciseEditModel editModel) {
         Exercise exercise = exerciseRepository
                 .findById(id)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
 
-        if (name != null && !name.trim().isEmpty()) {
-            exercise.setName(name);
-        }
+        exercise.setName(editModel.name());
+        exercise.setDescription(editModel.description());
+        exercise.setComplexity(editModel.complexity());
+        exercise.setTargetBodyPart(editModel.bodyPart());
+        exercise.setMovementType(editModel.movement());
 
-        if (description != null && !description.trim().isEmpty()) {
-            exercise.setDescription(description);
-        }
-
-        exerciseRepository.save(exercise);
+        return exerciseModelAssembler.toModel(exerciseRepository.saveAndFlush(exercise));
     }
 
     public CollectionModel<ExerciseModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {

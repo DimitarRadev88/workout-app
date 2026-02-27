@@ -1,6 +1,11 @@
 package com.dimitarrradev.exercisesApi.controller;
 
+import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ExerciseEditModel;
 import com.dimitarrradev.exercisesApi.exercise.dao.ExerciseRepository;
+import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
+import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
+import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,17 +22,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@TestPropertySource("/application-test.properties")
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -60,6 +64,7 @@ public class ExerciseControllerTest {
     @AfterEach
     void teardown() {
         jdbc.execute(deleteExercise);
+        jdbc.execute("ALTER TABLE exercises ALTER COLUMN ID RESTART WITH 1");
     }
 
     @Test
@@ -95,6 +100,142 @@ public class ExerciseControllerTest {
                 .andExpect(jsonPath("$.message", is("Exercise not found")));
     }
 
+    @Test
+    void addExerciseReturnsBadRequestWhenRequestBodyIsNotValid() throws Exception {
+        ExerciseAddModel addModel = new ExerciseAddModel("", "", null, null, null);
+
+        mockMvc.perform(post("https://localhost:8082/api/exercises/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addModel)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.exception", is("InvalidRequestBodyException")))
+                .andExpect(jsonPath("$.message", is("Invalid request body fields!")))
+                .andExpect(jsonPath("$.fields", hasSize(5)));
+    }
+
+    @Test
+    void addExerciseReturnsConflictWhenExerciseNameExists() throws Exception {
+        Optional<Exercise> optionalExercise = exerciseRepository.findById(1L);
+
+        assertTrue(optionalExercise.isPresent());
+
+        Exercise exercise = optionalExercise.get();
+
+        ExerciseAddModel addModel = new ExerciseAddModel(
+                exercise.getName(),
+                exercise.getDescription(),
+                exercise.getTargetBodyPart(),
+                exercise.getComplexity(),
+                exercise.getMovementType()
+        );
+
+        mockMvc.perform(post("https://localhost:8082/api/exercises/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addModel)))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.exception", is("ExerciseAlreadyExistsException")))
+                .andExpect(jsonPath("$.message", is("Exercise with name test-exercise  already exists")));
+    }
+
+    @Test
+    void addExerciseCreatesNewExerciseWhenRequestBodyIsValid() throws Exception {
+        ExerciseAddModel addModel = new ExerciseAddModel(
+                "new-test-exercise",
+                "this is a valid description",
+                TargetBodyPart.ABDUCTORS,
+                Complexity.HARD,
+                MovementType.ISOLATION
+        );
+
+        mockMvc.perform(post("https://localhost:8082/api/exercises/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addModel)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.name", is(addModel.name())))
+                .andExpect(jsonPath("$.complexity", is(addModel.complexity().toString())))
+                .andExpect(jsonPath("$.description", is(addModel.description())))
+                .andExpect(jsonPath("$.movementType", is(addModel.movement().toString())))
+                .andExpect(jsonPath("$.targetBodyPart", is(addModel.bodyPart().toString())))
+                .andExpect(jsonPath("$.targetBodyPart", is(addModel.bodyPart().toString())))
+                .andExpect(jsonPath("$._links", hasKey("self")))
+                .andExpect(jsonPath("$._links", hasKey("update")))
+                .andExpect(jsonPath("$._links", hasKey("delete")))
+                .andExpect(jsonPath("$._links", hasKey("images")));
+    }
+
+    @Test
+    void testEditExerciseReturnsBadRequestWhenModelIsNotValid() throws Exception {
+        ExerciseEditModel editModel = new ExerciseEditModel(null, null, null, null, null);
+
+        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(editModel)))
+                .andExpect(jsonPath("$.exception", is("InvalidRequestBodyException")))
+                .andExpect(jsonPath("$.message", is("Invalid request body fields!")))
+                .andExpect(jsonPath("$.fields", hasSize(5)));
+    }
+
+    @Test
+    void testEditExerciseEditsExistingExerciseWhenRequestBodyIsValid() throws Exception {
+        Optional<Exercise> optionalExercise = exerciseRepository.findById(1L);
+
+        assertTrue(optionalExercise.isPresent());
+
+        Exercise exercise = optionalExercise.get();
+
+        ExerciseEditModel editModel = new ExerciseEditModel(
+                "new-test-exercise-name",
+                "this is a valid description",
+                TargetBodyPart.ABDUCTORS,
+                Complexity.HARD,
+                MovementType.ISOLATION
+        );
+
+        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}", exercise.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(editModel)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.name", is(editModel.name())))
+                .andExpect(jsonPath("$.complexity", is(editModel.complexity().toString())))
+                .andExpect(jsonPath("$.description", is(editModel.description())))
+                .andExpect(jsonPath("$.movementType", is(editModel.movement().toString())))
+                .andExpect(jsonPath("$.targetBodyPart", is(editModel.bodyPart().toString())))
+                .andExpect(jsonPath("$.targetBodyPart", is(editModel.bodyPart().toString())))
+                .andExpect(jsonPath("$._links", hasKey("self")))
+                .andExpect(jsonPath("$._links", hasKey("update")))
+                .andExpect(jsonPath("$._links", hasKey("delete")))
+                .andExpect(jsonPath("$._links", hasKey("images")));
+    }
+
+    @Test
+    void testEditExerciseReturnsNotFoundWhenExerciseNotFoundAndRequestBodyIsValid() throws Exception {
+        Optional<Exercise> optionalExercise = exerciseRepository.findById(0L);
+
+        assertFalse(optionalExercise.isPresent());
+
+        ExerciseEditModel editModel = new ExerciseEditModel(
+                "new-test-exercise-name",
+                "this is a valid description",
+                TargetBodyPart.ABDUCTORS,
+                Complexity.HARD,
+                MovementType.ISOLATION
+        );
+
+        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}", 0L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(editModel)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.exception", is("ExerciseNotFoundException")))
+                .andExpect(jsonPath("$.message", is("Exercise not found")));
+
+    }
 
 
 //

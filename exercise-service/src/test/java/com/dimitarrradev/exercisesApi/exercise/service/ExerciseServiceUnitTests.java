@@ -1,6 +1,7 @@
 package com.dimitarrradev.exercisesApi.exercise.service;
 
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ExerciseEditModel;
 import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseNotFoundException;
@@ -64,7 +65,9 @@ public class ExerciseServiceUnitTests {
                 Complexity.EASY,
                 TargetBodyPart.ABDUCTORS,
                 MovementType.COMPOUND,
-                new ArrayList<>(List.of(imageUrl))
+                new ArrayList<>(List.of(imageUrl)),
+                null,
+                null
         );
         imageUrl.setExercise(exercise);
     }
@@ -196,20 +199,21 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.of(exercise));
 
-        Exercise toSave = new Exercise(
-                exercise.getId(),
-                "test-exercise",
-                "test-exercise-description",
-                exercise.getComplexity(),
-                exercise.getTargetBodyPart(),
-                exercise.getMovementType(),
-                exercise.getImageURLs()
+        ExerciseEditModel editModel = new ExerciseEditModel(
+                "test-exercise-updated",
+                "test-exercise-description-updated",
+                TargetBodyPart.ABDUCTORS,
+                Complexity.EASY,
+                MovementType.ISOLATION
         );
 
-        exerciseService.editExercise(exercise.getId(), "test-exercise", "test-exercise-description");
+        when(exerciseRepository.saveAndFlush(exercise))
+                .thenReturn(exercise);
+
+        exerciseService.editExercise(exercise.getId(), editModel);
 
         verify(exerciseRepository, Mockito.times(1))
-                .save(toSave);
+                .saveAndFlush(exercise);
     }
 
     @Test
@@ -217,9 +221,17 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
+        ExerciseEditModel editModel = new ExerciseEditModel(
+                "test-exercise-updated",
+                "test-exercise-description-updated",
+                TargetBodyPart.ABDUCTORS,
+                Complexity.EASY,
+                MovementType.ISOLATION
+        );
+
         assertThrows(
                 ExerciseNotFoundException.class,
-                () -> exerciseService.editExercise(1L, "test-exercise", "test-exercise-description")
+                () -> exerciseService.editExercise(1L, editModel)
         );
 
     }
@@ -777,7 +789,9 @@ public class ExerciseServiceUnitTests {
                     i % 2 == 0 ? exercise.getComplexity() : Complexity.HARD,
                     i % 2 == 0 ? exercise.getTargetBodyPart() : TargetBodyPart.ABS,
                     i % 2 == 0 ? exercise.getMovementType() : MovementType.ISOLATION,
-                    Collections.emptyList()
+                    Collections.emptyList(),
+                    null,
+                    null
             );
 
             exercises.add(e);
