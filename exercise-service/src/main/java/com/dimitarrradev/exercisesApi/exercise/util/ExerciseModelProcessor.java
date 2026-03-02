@@ -15,7 +15,9 @@ public class ExerciseModelProcessor implements RepresentationModelProcessor<Exer
     public ExerciseModel process(ExerciseModel model) {
         model.add(linkTo(methodOn(ExerciseController.class).getExercise(model.getId())).withSelfRel());
         model.add(linkTo(methodOn(ExerciseController.class).editExercise(model.getId(), null, null)).withRel("update"));
-        model.add(linkTo(methodOn(ExerciseController.class).deleteExercise(model.getId())).withRel("delete"));
+        if (!model.getIsDeleted()) {
+            model.add(linkTo(methodOn(ExerciseController.class).deleteExercise(model.getId())).withRel("delete"));
+        }
         model.add(linkTo(methodOn(ExerciseController.class).getImages(model.getId())).withRel("images"));
 
         return model;

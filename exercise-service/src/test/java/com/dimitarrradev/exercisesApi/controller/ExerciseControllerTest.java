@@ -58,7 +58,7 @@ public class ExerciseControllerTest {
 
     @BeforeEach
     void setup() {
-        jdbc.execute(createExercise);
+        jdbc.execute(String.format(createExercise, "test-exercise-1", "test-exercise-description", "ABS", "EASY", "ISOLATION"));
     }
 
     @AfterEach
@@ -69,11 +69,11 @@ public class ExerciseControllerTest {
 
     @Test
     void testGetExerciseReturnsExistingExercise() throws Exception {
-        Optional<Exercise> byName = exerciseRepository.findByName("test-exercise");
+        Optional<Exercise> byId = exerciseRepository.findById(1L);
 
-        assertTrue(byName.isPresent());
+        assertTrue(byId.isPresent());
 
-        Exercise exercise = byName.get();
+        Exercise exercise = byId.get();
 
         mockMvc.perform(get("https://localhost:8082/api/exercises/{id}", exercise.getId()))
                 .andExpect(status().isOk())
@@ -136,7 +136,7 @@ public class ExerciseControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.exception", is("ExerciseAlreadyExistsException")))
-                .andExpect(jsonPath("$.message", is("Exercise with name test-exercise  already exists")));
+                .andExpect(jsonPath("$.message", is("Exercise with name " + exercise.getName() + " already exists!")));
     }
 
     @Test
@@ -237,79 +237,25 @@ public class ExerciseControllerTest {
 
     }
 
+    @Test
+    void testSearchReturnsCorrectPagedModelOfExerciseModel() throws Exception {
+        jdbc.execute(String.format(createExercise, "test-exercise-2", "test-exercise-description", "ABS", "EASY", "ISOLATION"));
+        jdbc.execute(String.format(createExercise, "test-exercise-3", "test-exercise-description", "ABS", "EASY", "ISOLATION"));
+        jdbc.execute(String.format(createExercise, "test-exercise-4", "test-exercise-description", "ABS", "EASY", "ISOLATION"));
+        jdbc.execute(String.format(createExercise, "test-exercise-5", "test-exercise-description", "ABS", "EASY", "ISOLATION"));
 
-//
-////    @Test
-////    @Sql(scripts = {"/dbContent/users.sql", "/dbContent/exercises.sql"})
-////    void testSecurity() throws Exception {
-////
-////        ResponseEntity<String> forEntity = restTemplate
-////                .withBasicAuth("test-user", "password")
-////                .getForEntity("/exercises/1", String.class, 1);
-////
-////        assertThat(forEntity.getStatusCode())
-////                .isEqualTo(HttpStatus.OK);
-////    }
-//
-//    @Test
-////    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
-//    @DirtiesContext
-//    void testPostAddExerciseShouldCreateExerciseAndSaveItInRepository() throws Exception {
-//        String name = "test-exercise";
-//        String description = "test-exercise-description";
-//
-//        mockMvc.perform(post("/api/exercises/add")
-//                        .param("name", name)
-//                        .param("description", description)
-//                        .param("bodyPart", "abs")
-//                        .param("addedBy", "user")
-//                        .param("complexity", "easy")
-//                        .param("movement", "isolation")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isCreated());
-//
-//
-//        mockMvc.perform(get("/api/exercises/{id}", 1)
-////                        .with(user("test-user").roles("ADMINISTRATOR")))
-//                ).andExpect(status().isOk())
-//                .andExpect(content().contentType("application/hal+json"))
-//                .andExpect(jsonPath("$.name").value(name))
-//                .andExpect(jsonPath("$.complexity").value("EASY"))
-//                .andExpect(jsonPath("$.movementType").value("ISOLATION"))
-//                .andExpect(jsonPath("$.description").value(description));
-//    }
-//
-//    @Test
-//    @Sql(scripts = "/dbContent/exercises.sql")
-////    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
-//    @DirtiesContext
-//    void testPostEditExerciseShouldEditExerciseAndSaveItInRepository() throws Exception {
-//        mockMvc.perform(patch("/api/exercises/edit/{id}", 1)
-//                        .param("name", "new name")
-//                        .param("description", "new description")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isNoContent());
-//    }
-//
-//    @Test
-//    @Sql(scripts = "/dbContent/exercises.sql")
-////    @WithMockUser(username = "test-user", roles = {"ADMINISTRATOR"})
-//    @DirtiesContext
-//    void testGetExercisesShouldReturnCorrectResponse() throws Exception {
-//        int page = 0;
-//        int size = 5;
-//        String orderBy = "asc";
-//
-//        mockMvc.perform(get("/api/exercises/")
-//                .param("page", String.valueOf(page))
-//                .param("size", String.valueOf(size))
-//                .param("orderBy", orderBy)
-//        ).andExpect(status().isOk())
-//                .andExpect(content().contentType("application/hal+json"))
-//                .andExpect(jsonPath("$._embedded.exerciseModelList").isArray())
-//                .andExpect(jsonPath("$._embedded.exerciseModelList").isNotEmpty());
-//
-//    }
-
+        mockMvc.perform(get("https://localhost:8082/api/exercises/search").param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$._embedded.exerciseModelList", hasSize(2)))
+                .andExpect(jsonPath("$.page.size", is(2)))
+                .andExpect(jsonPath("$.page.totalElements", is(5)))
+                .andExpect(jsonPath("$.page.totalPages", is(3)))
+                .andExpect(jsonPath("$.page.number", is(0)))
+                .andExpect(jsonPath("$._links", hasKey("first")))
+                .andExpect(jsonPath("$._links", hasKey("self")))
+                .andExpect(jsonPath("$._links", hasKey("next")))
+                .andExpect(jsonPath("$._links", hasKey("last")));
+    }
 
 }

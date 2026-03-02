@@ -24,7 +24,7 @@ public class Exercise {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -43,6 +43,8 @@ public class Exercise {
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private Boolean isDeleted;
 
 }
 

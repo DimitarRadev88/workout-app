@@ -4,6 +4,9 @@ import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseEditModel;
 import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
 import com.dimitarrradev.exercisesApi.error.exception.InvalidRequestBodyException;
+import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
+import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
+import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.exercisesApi.exercise.model.ExerciseModel;
 import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.exercise.service.ExerciseService;
@@ -52,37 +55,23 @@ public class ExerciseController {
         return exerciseService.editExercise(id, editModel);
     }
 
-    @GetMapping("/find")
-    public PagedModel<ExerciseModel> findExercises(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String target,
-            @RequestParam(required = false) String complexity,
-            @RequestParam(required = false) String movement,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "asc") String orderBy
-    ) {
-
-        return exerciseService.findExercises(name, target, complexity, movement, page, size, orderBy);
-    }
-
-    @GetMapping("/")
-    public PagedModel<ExerciseModel> getExercisesPage(
+    @GetMapping("/search")
+    public PagedModel<ExerciseModel> searchExercises(
+            @RequestParam(required = false, defaultValue = "") String name,
+            @RequestParam(required = false, defaultValue = "ALL") TargetBodyPart target,
+            @RequestParam(required = false, defaultValue = "ALL") Complexity complexity,
+            @RequestParam(required = false, defaultValue = "ALL") MovementType movement,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "asc") String orderBy
     ) {
 
-        return exerciseService.getExercises(page, size, orderBy);
+        return exerciseService.searchExercises(name, target, complexity, movement, page, size, orderBy);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExercise(@PathVariable Long id) {
-        exerciseService.deleteExercise(id);
-
-        return ResponseEntity
-                .noContent()
-                .build();
+    public ExerciseModel deleteExercise(@PathVariable Long id) {
+        return exerciseService.deleteExercise(id);
     }
 
     @GetMapping("/{id}/images")

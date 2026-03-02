@@ -11,30 +11,29 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
-    boolean existsExerciseByName(String name);
+    boolean existsExerciseByNameAndIsDeletedFalse(String name);
 
-    Page<Exercise> findAllByTargetBodyPart(Pageable pageable, TargetBodyPart targetBodyPart);
+    List<Exercise> findAllByTargetBodyPartIsInAndIsDeletedFalse(Collection<TargetBodyPart> targetBodyParts);
 
-    List<Exercise> findAllByTargetBodyPartIsIn(Collection<TargetBodyPart> targetBodyParts);
+    Page<Exercise> findAllByTargetBodyPartAndMovementTypeAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, MovementType movement);
 
-    Page<Exercise> findAllByComplexity(Pageable pageable, Complexity complexity);
+    Page<Exercise> findAllByTargetBodyPartAndComplexityAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, Complexity complexity);
 
-    Page<Exercise> findAllByMovementType(Pageable pageable, MovementType movementType);
+    Page<Exercise> findAllByComplexityAndMovementTypeAndIsDeletedFalse(Pageable pageable, Complexity complexity, MovementType movement);
 
-    Page<Exercise> findAllByNameContainingIgnoreCase(Pageable pageable, String name);
+    Page<Exercise> findAllByTargetBodyPartAndComplexityAndMovementTypeAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, Complexity complexity, MovementType movement);
 
-    Page<Exercise> findAllByTargetBodyPartAndComplexityAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity, MovementType movementType);
+    Page<Exercise> findAllByTargetBodyPartAndIsDeletedFalse(Pageable pageable, TargetBodyPart target);
 
-    Page<Exercise> findAllByTargetBodyPartAndComplexity(Pageable pageable, TargetBodyPart targetBodyPart, Complexity complexity);
+    Page<Exercise> findAllByComplexityAndIsDeletedFalse(Pageable pageable, Complexity complexity);
 
-    Page<Exercise> findAllByTargetBodyPartAndMovementType(Pageable pageable, TargetBodyPart targetBodyPart, MovementType movementType);
+    Page<Exercise> findAllByMovementTypeAndIsDeletedFalse(Pageable pageable, MovementType movement);
 
-    Page<Exercise> findAllByComplexityAndMovementType(Pageable pageable, Complexity complexity, MovementType movementType);
+    Page<Exercise> findAllByIsDeletedFalse(Pageable pageable);
 
-    Optional<Exercise> findByName(String name);
+    Page<Exercise> findAllByNameContainingIgnoreCaseAndIsDeletedFalse(Pageable pageable, String name);
 }
 

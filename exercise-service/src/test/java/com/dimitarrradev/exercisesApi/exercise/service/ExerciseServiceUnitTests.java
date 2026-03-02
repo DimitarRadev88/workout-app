@@ -18,6 +18,7 @@ import com.dimitarrradev.exercisesApi.exercise.model.ImageUrlModel;
 import com.dimitarrradev.exercisesApi.exercise.util.ExerciseFromModelMapper;
 import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlFromModelMapper;
 import com.dimitarrradev.exercisesApi.exercise.util.ImageUrlModelAssembler;
+import jakarta.annotation.Nonnull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,8 +32,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -67,7 +67,8 @@ public class ExerciseServiceUnitTests {
                 MovementType.COMPOUND,
                 new ArrayList<>(List.of(imageUrl)),
                 null,
-                null
+                null,
+                false
         );
         imageUrl.setExercise(exercise);
     }
@@ -75,7 +76,7 @@ public class ExerciseServiceUnitTests {
 
     @Test
     void testAddExerciseThrowsWhenNameFoundInRepository() {
-        when(exerciseRepository.existsExerciseByName("test-exercise"))
+        when(exerciseRepository.existsExerciseByNameAndIsDeletedFalse("test-exercise"))
                 .thenReturn(true);
 
         ExerciseAddModel addModel = new ExerciseAddModel(
@@ -94,7 +95,7 @@ public class ExerciseServiceUnitTests {
 
     @Test
     void testAddExerciseCreatesNewExercise() {
-        when(exerciseRepository.existsExerciseByName("test-exercise-1"))
+        when(exerciseRepository.existsExerciseByNameAndIsDeletedFalse("test-exercise-1"))
                 .thenReturn(false);
 
         ExerciseAddModel addModel = new ExerciseAddModel(
@@ -123,19 +124,13 @@ public class ExerciseServiceUnitTests {
                 .targetBodyPart(addModel.bodyPart())
                 .complexity(addModel.complexity())
                 .movementType(addModel.movement())
+                .isDeleted(Boolean.FALSE)
                 .build();
 
         when(exerciseRepository.save(exercise))
                 .thenReturn(savedExercise);
 
-        ExerciseModel expected = new ExerciseModel(
-                savedExercise.getId(),
-                savedExercise.getName(),
-                savedExercise.getComplexity(),
-                savedExercise.getDescription(),
-                savedExercise.getMovementType(),
-                savedExercise.getTargetBodyPart()
-        );
+        ExerciseModel expected = toExerciseModel(savedExercise);
 
         ExerciseModel exerciseModel = exerciseService.addExercise(addModel);
 
@@ -144,14 +139,19 @@ public class ExerciseServiceUnitTests {
     }
 
     @Test
-    void testDeleteExerciseDeletesExerciseWhenFoundInRepository() {
+    void testDeleteExerciseSetsIsDeletedToExerciseWhenFoundInRepositoryAndReturnsCorrectModel() {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.of(exercise));
 
-        exerciseService.deleteExercise(1L);
+        ExerciseModel expected = toExerciseModel(exercise);
+        expected.setIsDeleted(Boolean.TRUE);
 
+        ExerciseModel exerciseModel = exerciseService.deleteExercise(1L);
+
+        assertTrue(exercise.getIsDeleted());
+        assertEquals(expected, exerciseModel);
         verify(exerciseRepository, Mockito.times(1))
-                .delete(exercise);
+                .saveAndFlush(exercise);
     }
 
     @Test
@@ -170,17 +170,23 @@ public class ExerciseServiceUnitTests {
         when(exerciseRepository.findById(1L))
                 .thenReturn(Optional.of(exercise));
 
-        ExerciseModel expected = new ExerciseModel(
+        ExerciseModel expected = toExerciseModel(exercise);
+
+        assertEquals(expected, exerciseService.getExerciseModel(1L));
+
+    }
+
+    @Nonnull
+    private static ExerciseModel toExerciseModel(Exercise exercise) {
+        return new ExerciseModel(
                 exercise.getId(),
                 exercise.getName(),
                 exercise.getComplexity(),
                 exercise.getDescription(),
                 exercise.getMovementType(),
-                exercise.getTargetBodyPart()
+                exercise.getTargetBodyPart(),
+                exercise.getIsDeleted()
         );
-
-        assertEquals(expected, exerciseService.getExerciseModel(1L));
-
     }
 
     @Test
@@ -245,7 +251,7 @@ public class ExerciseServiceUnitTests {
                 .filter(ex -> ex.getTargetBodyPart().equals(randomTargetBodyPart))
                 .toList();
 
-        when(exerciseRepository.findAllByTargetBodyPartIsIn(List.of(randomTargetBodyPart)))
+        when(exerciseRepository.findAllByTargetBodyPartIsInAndIsDeletedFalse(List.of(randomTargetBodyPart)))
                 .thenReturn(exercises);
 
         CollectionModel<ExerciseModel> expectedExercises = CollectionModel.of(mapToExerciseModelList(exercises));
@@ -275,33 +281,6 @@ public class ExerciseServiceUnitTests {
     }
 
     @Test
-    void testGetExercisesReturnsCorrectListOfExercisesForReviewViewModel() {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
-
-        Page<Exercise> page = new PageImpl<>(generateExerciseList(6), pageable, 6);
-
-        when(exerciseRepository.findAll(pageable))
-                .thenReturn(page);
-
-        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(page.getContent());
-
-        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
-                page.getSize(),
-                page.getNumber(),
-                page.getTotalElements(),
-                page.getTotalPages()
-        );
-
-        PagedModel<ExerciseModel> actual = exerciseService.getExercises(0, 10, "asc");
-
-        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
-        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
-
-        assertEquals(expected, actual);
-
-    }
-
-    @Test
     void testGetAllExercisesReturnsCorrectListOfExercises() {
         List<Exercise> exerciseList = generateExerciseList(5)
                 .stream()
@@ -319,7 +298,7 @@ public class ExerciseServiceUnitTests {
     }
 
     @Test
-    void testFindExercisesReturnsCorrectCollectionModelOfExerciseModelWithExerciseName() {
+    void testSearchExercisesByFilterReturnsCorrectCollectionModelOfExerciseModelWithExerciseName() {
         List<Exercise> exerciseList = generateExerciseList(12).stream()
                 .filter(exercise -> exercise.getName().contains("1"))
                 .sorted(Comparator.comparing(Exercise::getName))
@@ -331,7 +310,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByNameContainingIgnoreCase(pageable, "1"))
+        when(exerciseRepository.findAllByNameContainingIgnoreCaseAndIsDeletedFalse(pageable, "1"))
                 .thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
@@ -341,7 +320,7 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("1", "all", "all", "all", 0, pageable.getPageSize(), "asc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises("1", TargetBodyPart.ALL, Complexity.ALL, MovementType.ALL, 0, pageable.getPageSize(), "asc");
 
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
@@ -351,7 +330,7 @@ public class ExerciseServiceUnitTests {
     }
 
     @Test
-    void testFindExercisesReturnsCorrectCollectionModelOfExerciseModelWithTargetBodyPart() {
+    void testSearchExercisesByFilterReturnsCorrectCollectionModelOfExerciseModelWithTargetBodyPart() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getTargetBodyPart().equals(TargetBodyPart.ABS))
@@ -364,7 +343,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByTargetBodyPart(
+        when(exerciseRepository.findAllByTargetBodyPartAndIsDeletedFalse(
                 pageable,
                 TargetBodyPart.ABS
         )).thenReturn(exercisePage);
@@ -378,7 +357,7 @@ public class ExerciseServiceUnitTests {
         );
 
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "abs", "all", "", 0, pageable.getPageSize(), "desc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises("", TargetBodyPart.ABS, Complexity.ALL, MovementType.ALL, 0, pageable.getPageSize(), "desc");
 
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
@@ -388,7 +367,7 @@ public class ExerciseServiceUnitTests {
     }
 
     @Test
-    void testFindExercisesReturnsCorrectCollectionModelOfExerciseModelWithTargetBodyPartAndComplexity() {
+    void testSearchExercisesByFilterReturnsCorrectCollectionModelOfExerciseModelWithTargetBodyPartAndComplexity() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getTargetBodyPart().equals(TargetBodyPart.ABS)
@@ -402,7 +381,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByTargetBodyPartAndComplexity(
+        when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndIsDeletedFalse(
                 pageable,
                 TargetBodyPart.ABS,
                 Complexity.HARD
@@ -415,7 +394,7 @@ public class ExerciseServiceUnitTests {
                 exercisePage.getTotalPages()
         );
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "ABS", "HARD", "all", 0, pageable.getPageSize(), "desc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises("", TargetBodyPart.ABS, Complexity.HARD, MovementType.ALL, 0, pageable.getPageSize(), "desc");
 
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
@@ -425,7 +404,7 @@ public class ExerciseServiceUnitTests {
     }
 
     @Test
-    void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithTargetBodyPartAndMovementType() {
+    void testFindExercisesReturnsCorrectCollectionModelOfExerciseSearchViewModelWithTargetBodyPartAndMovementTypeByFilter() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getTargetBodyPart().equals(TargetBodyPart.ABS)
@@ -439,7 +418,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByTargetBodyPartAndMovementType(
+        when(exerciseRepository.findAllByTargetBodyPartAndMovementTypeAndIsDeletedFalse(
                 pageable,
                 TargetBodyPart.ABS,
                 MovementType.ISOLATION
@@ -455,14 +434,15 @@ public class ExerciseServiceUnitTests {
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "ABS", "", "isolation", 0, pageable.getPageSize(), "desc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises(
+                "", TargetBodyPart.ABS, Complexity.ALL, MovementType.ISOLATION, 0, pageable.getPageSize(), "desc");
 
         assertEquals(expected, actual);
 
     }
 
     @Test
-    void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithTargetBodyPartComplexityAndMovementType() {
+    void testFindExercisesReturnsCorrectCollectionModelOfExerciseSearchViewModelWithTargetBodyPartComplexityAndMovementTypeByFilter() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getTargetBodyPart().equals(TargetBodyPart.ABS)
@@ -478,7 +458,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndMovementType(
+        when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndMovementTypeAndIsDeletedFalse(
                 pageable,
                 TargetBodyPart.ABS,
                 Complexity.HARD,
@@ -495,14 +475,15 @@ public class ExerciseServiceUnitTests {
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "abs", "hard", "isolation", 0, pageable.getPageSize(), "desc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises(
+                "", TargetBodyPart.ABS, Complexity.HARD, MovementType.ISOLATION, 0, pageable.getPageSize(), "desc");
 
         assertEquals(expected, actual);
 
     }
 
     @Test
-    void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithComplexityAndMovementType() {
+    void testFindExercisesReturnsCorrectCollectionModelOfExerciseSearchViewModelWithComplexityAndMovementTypeByFilter() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getComplexity().equals(Complexity.HARD)
@@ -517,7 +498,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByComplexityAndMovementType(
+        when(exerciseRepository.findAllByComplexityAndMovementTypeAndIsDeletedFalse(
                 pageable,
                 Complexity.HARD,
                 MovementType.ISOLATION
@@ -533,13 +514,13 @@ public class ExerciseServiceUnitTests {
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "all", "HARD", "isolation", 0, pageable.getPageSize(), "asc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises("", TargetBodyPart.ALL, Complexity.HARD, MovementType.ISOLATION, 0, pageable.getPageSize(), "asc");
 
         assertEquals(expected, actual);
     }
 
     @Test
-    void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithComplexity() {
+    void testFindExercisesReturnsCorrectCollectionModelOfExerciseSearchViewModelWithComplexityByFilter() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getComplexity().equals(Complexity.HARD)
@@ -553,7 +534,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByComplexity(
+        when(exerciseRepository.findAllByComplexityAndIsDeletedFalse(
                 pageable,
                 Complexity.HARD
         )).thenReturn(exercisePage);
@@ -568,13 +549,13 @@ public class ExerciseServiceUnitTests {
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "", "HARD", "", 0, pageable.getPageSize(), "asc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises("", TargetBodyPart.ALL, Complexity.HARD, MovementType.ALL, 0, pageable.getPageSize(), "asc");
 
         assertEquals(expected, actual);
     }
 
     @Test
-    void testFindExercisesReturnsCorrectCollectionModelOfExerciseFindViewModelWithMovementTypePage() {
+    void testFindExercisesReturnsCorrectCollectionModelOfExerciseSearchViewModelWithMovementTypePageByFilter() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .filter(exercise ->
                         exercise.getMovementType().equals(MovementType.ISOLATION)
@@ -588,7 +569,7 @@ public class ExerciseServiceUnitTests {
 
         PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByMovementType(
+        when(exerciseRepository.findAllByMovementTypeAndIsDeletedFalse(
                 pageable,
                 MovementType.ISOLATION
         )).thenReturn(exercisePage);
@@ -603,14 +584,14 @@ public class ExerciseServiceUnitTests {
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "", "", "isolation", 0, pageable.getPageSize(), "asc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises("", TargetBodyPart.ALL, Complexity.ALL, MovementType.ISOLATION, 0, pageable.getPageSize(), "asc");
 
         assertEquals(expected, actual);
 
     }
 
     @Test
-    void testFindExercisesPageReturnsCorrectCollectionModelOfExerciseFindViewModelWithNoFiltersPage() {
+    void testFindExercisesPageReturnsCorrectCollectionModelOfExerciseSearchViewModelWithNoFiltersPageByFilter() {
         List<Exercise> exerciseList = generateExerciseList(10).stream()
                 .sorted(Comparator.comparing(Exercise::getName))
                 .toList();
@@ -621,7 +602,7 @@ public class ExerciseServiceUnitTests {
 
         PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAll(
+        when(exerciseRepository.findAllByIsDeletedFalse(
                 pageable
         )).thenReturn(exercisePage);
 
@@ -635,7 +616,7 @@ public class ExerciseServiceUnitTests {
         PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
         expected.add(Link.of("http://localhost?page=0&size=10&sort=name,asc", "self"));
 
-        PagedModel<ExerciseModel> actual = exerciseService.findExercises("", "", "", "", 0, pageable.getPageSize(), "asc");
+        PagedModel<ExerciseModel> actual = exerciseService.searchExercises("", TargetBodyPart.ALL, Complexity.ALL, MovementType.ALL, 0, pageable.getPageSize(), "asc");
 
         assertEquals(expected, actual);
 
@@ -768,14 +749,7 @@ public class ExerciseServiceUnitTests {
 
     private static List<ExerciseModel> mapToExerciseModelList(List<Exercise> exerciseList) {
         return exerciseList.stream()
-                .map(exercise -> new ExerciseModel(
-                                exercise.getId(),
-                                exercise.getName(),
-                                exercise.getComplexity(),
-                                exercise.getDescription(),
-                                exercise.getMovementType(),
-                                exercise.getTargetBodyPart()
-                        )
+                .map(exercise -> toExerciseModel(exercise)
                 ).toList();
     }
 
@@ -791,7 +765,8 @@ public class ExerciseServiceUnitTests {
                     i % 2 == 0 ? exercise.getMovementType() : MovementType.ISOLATION,
                     Collections.emptyList(),
                     null,
-                    null
+                    null,
+                    Boolean.FALSE
             );
 
             exercises.add(e);
