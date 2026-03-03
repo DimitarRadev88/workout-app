@@ -18,4 +18,5 @@ public class ImageUrl {
     private String url;
     @ManyToOne(fetch = FetchType.LAZY)
     private Exercise exercise;
+    private Boolean isDeleted;
 }

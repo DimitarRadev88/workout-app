@@ -2,7 +2,7 @@ package com.dimitarrradev.exercisesApi.controller;
 
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseEditModel;
-import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlsAddModel;
 import com.dimitarrradev.exercisesApi.error.exception.InvalidRequestBodyException;
 import com.dimitarrradev.exercisesApi.exercise.enums.Complexity;
 import com.dimitarrradev.exercisesApi.exercise.enums.MovementType;
@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,15 +84,13 @@ public class ExerciseController {
     }
 
     @PostMapping("/{id}/images")
-    public ImageUrlModel addImage(@PathVariable Long id, @RequestBody ImageUrlAddModel urlModel) {
-        return exerciseService.addImage(id, urlModel);
+    public CollectionModel<ImageUrlModel> addImages(@PathVariable Long id, @RequestBody ImageUrlsAddModel urlsModel) {
+        return exerciseService.addImages(id, urlsModel);
     }
 
     @DeleteMapping("/{id}/images/{imageId}")
-    public ResponseEntity<Void> deleteImage(@PathVariable Long id, @PathVariable Long imageId) {
-        exerciseService.deleteImage(id, imageId);
-
-        return ResponseEntity.noContent().build();
+    public ImageUrlModel deleteImage(@PathVariable Long id, @PathVariable Long imageId) {
+        return exerciseService.deleteImage(id, imageId);
     }
 
 }

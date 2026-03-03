@@ -12,7 +12,7 @@ public class ImageUrlModelAssembler implements RepresentationModelAssembler<Imag
     @Override
     public ImageUrlModel toModel(ImageUrl imageUrl) {
 
-        return new ImageUrlModel(imageUrl.getId(), imageUrl.getUrl(), imageUrl.getExercise().getId());
+        return new ImageUrlModel(imageUrl.getId(), imageUrl.getUrl(), imageUrl.getExercise().getId(), imageUrl.getIsDeleted());
     }
 
 }

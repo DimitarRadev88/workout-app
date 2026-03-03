@@ -2,7 +2,7 @@ package com.dimitarrradev.exercisesApi.exercise.service;
 
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseAddModel;
 import com.dimitarrradev.exercisesApi.controller.binding.ExerciseEditModel;
-import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlAddModel;
+import com.dimitarrradev.exercisesApi.controller.binding.ImageUrlsAddModel;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseNotFoundException;
 import com.dimitarrradev.exercisesApi.error.exception.ImageNotFoundException;
@@ -647,7 +647,8 @@ public class ExerciseServiceUnitTests {
                         new ImageUrlModel(
                                 url.getId(),
                                 url.getUrl(),
-                                exercise.getId()
+                                exercise.getId(),
+                                Boolean.FALSE
                         )
                 ).toList();
 
@@ -660,43 +661,54 @@ public class ExerciseServiceUnitTests {
     }
 
     @Test
-    void testAddImageThrowsWhenExerciseIsNotFound() {
+    void testAddImagesThrowsWhenExerciseIsNotFound() {
         when(exerciseRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
 
         assertThrows(ExerciseNotFoundException.class,
-                () -> exerciseService.addImage(0L, new ImageUrlAddModel("https://some-url.com"))
+                () -> exerciseService.addImages(0L, new ImageUrlsAddModel(List.of("https://some-url.com")))
         );
     }
 
     @Test
-    void testAddImageCreatesNewImageAndSavesItWhenExerciseExists() {
+    void testAddImageCreatesNewImagesAndSavesItWhenExerciseExists() {
         when(exerciseRepository.findById(exercise.getId()))
                 .thenReturn(Optional.of(exercise));
 
-        ImageUrlAddModel addModel = new ImageUrlAddModel("https://some-image.com");
+        ImageUrlsAddModel addModel = new ImageUrlsAddModel(List.of("https://some-image.com"));
 
-        ImageUrl imageUrl = new ImageUrl(null, addModel.url(), null);
+        ImageUrl imageUrl = new ImageUrl(null, addModel.urls().getFirst(), null, Boolean.FALSE);
 
-        when(imageUrlFromModelMapper.fromImageUrlAddModel(addModel))
-                .thenReturn(imageUrl);
+        List<ImageUrl> imageUrls = List.of(imageUrl);
 
-        ImageUrl savedImageUrl = new ImageUrl(2L, addModel.url(), exercise);
+        when(imageUrlFromModelMapper.fromImageUrlsAddModel(addModel))
+                .thenReturn(List.of(imageUrl));
 
-        when(imageUrlRepository.save(imageUrl))
-                .thenReturn(savedImageUrl);
+        ImageUrl savedImage = new ImageUrl(2L, addModel.urls().getFirst(), exercise, Boolean.FALSE);
 
-        ImageUrlModel expectedModel = new ImageUrlModel(
-                savedImageUrl.getId(),
-                savedImageUrl.getUrl(),
-                savedImageUrl.getExercise().getId());
+        List<ImageUrl> savedImageUrls = List.of(savedImage);
 
-        when(imageUrlModelAssembler.toModel(savedImageUrl))
+        when(imageUrlRepository.saveAllAndFlush(imageUrls))
+                .thenReturn(savedImageUrls);
+
+        CollectionModel<ImageUrlModel> expectedModel = CollectionModel.of(
+                List.of(
+                        new ImageUrlModel(
+                                savedImage.getId(),
+                                savedImage.getUrl(),
+                                savedImage.getExercise().getId(),
+                                Boolean.FALSE
+                        )
+                )
+        );
+
+
+        when(imageUrlModelAssembler.toCollectionModel(savedImageUrls))
                 .thenReturn(expectedModel);
 
-        ImageUrlModel imageUrlModel = exerciseService.addImage(exercise.getId(), addModel);
+        CollectionModel<ImageUrlModel> result = exerciseService.addImages(exercise.getId(), addModel);
 
-        assertEquals(expectedModel, imageUrlModel);
+        assertEquals(expectedModel, result);
         assertEquals(exercise, imageUrl.getExercise(), "Exercise should not be null!");
     }
 
@@ -716,7 +728,7 @@ public class ExerciseServiceUnitTests {
         when(imageUrlRepository.findByIdAndExercise_id(exercise.getId(), imageUrl.getId()))
                 .thenReturn(Optional.of(imageUrl));
 
-        ImageUrlModel expected = new ImageUrlModel(imageUrl.getId(), imageUrl.getUrl(), exercise.getId());
+        ImageUrlModel expected = new ImageUrlModel(imageUrl.getId(), imageUrl.getUrl(), exercise.getId(), Boolean.FALSE);
 
         when(imageUrlModelAssembler.toModel(imageUrl))
                 .thenReturn(expected);
@@ -742,9 +754,15 @@ public class ExerciseServiceUnitTests {
         when(imageUrlRepository.findByIdAndExercise_id(imageUrl.getId(), exercise.getId()))
                 .thenReturn(Optional.of(imageUrl));
 
-        exerciseService.deleteImage(exercise.getId(), imageUrl.getId());
+        ImageUrlModel expected = new ImageUrlModel(imageUrl.getId(), imageUrl.getUrl(), exercise.getId(), Boolean.TRUE);
+        when(imageUrlModelAssembler.toModel(imageUrl))
+                .thenReturn(expected);
+
+        ImageUrlModel deletedImage = exerciseService.deleteImage(exercise.getId(), imageUrl.getId());
 
         verify(imageUrlRepository, times(1)).delete(imageUrl);
+        assertTrue(imageUrl.getIsDeleted());
+        assertEquals(expected, deletedImage);
     }
 
     private static List<ExerciseModel> mapToExerciseModelList(List<Exercise> exerciseList) {

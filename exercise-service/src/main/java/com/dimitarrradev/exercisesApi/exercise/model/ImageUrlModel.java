@@ -14,4 +14,5 @@ public class ImageUrlModel extends RepresentationModel<ImageUrlModel> {
     private Long id;
     private String url;
     private Long exerciseId;
+    private Boolean isDeleted;
 }

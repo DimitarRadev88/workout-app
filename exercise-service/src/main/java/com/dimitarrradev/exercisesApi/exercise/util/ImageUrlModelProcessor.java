@@ -13,10 +13,11 @@ public class ImageUrlModelProcessor implements RepresentationModelProcessor<Imag
 
     @Override
     public ImageUrlModel process(ImageUrlModel model) {
-        model.add(linkTo(methodOn(ExerciseController.class).getImage(model.getExerciseId(), model.getId())).withRel("self"));
-        model.add(linkTo(methodOn(ExerciseController.class).deleteImage(model.getExerciseId(), model.getId())).withRel("delete"));
+        if (!model.getIsDeleted()) {
+            model.add(linkTo(methodOn(ExerciseController.class).getImage(model.getExerciseId(), model.getId())).withRel("self"));
+            model.add(linkTo(methodOn(ExerciseController.class).deleteImage(model.getExerciseId(), model.getId())).withRel("delete"));
+        }
         model.add(linkTo(methodOn(ExerciseController.class).getExercise(model.getExerciseId())).withRel("exercise"));
-
         return model;
     }
 

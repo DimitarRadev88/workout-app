@@ -2,6 +2,7 @@ package com.dimitarrradev.exercisesApi.controller;
 
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.exercisesApi.error.exception.ExerciseNotFoundException;
+import com.dimitarrradev.exercisesApi.error.exception.ImageNotFoundException;
 import com.dimitarrradev.exercisesApi.error.exception.InvalidRequestBodyException;
 import com.dimitarrradev.exercisesApi.error.model.BindingExceptionModel;
 import com.dimitarrradev.exercisesApi.error.model.ExceptionModel;
@@ -21,6 +22,7 @@ public class ExerciseAPIExceptionHandler {
     public ResponseEntity<ExceptionModel> handleExerciseAlreadyExistsException(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(
                         new ExceptionModel(
                                 exception.getClass().getSimpleName(),
@@ -32,6 +34,19 @@ public class ExerciseAPIExceptionHandler {
     public ResponseEntity<ExceptionModel> handleExerciseNotFoundException(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(
+                        new ExceptionModel(
+                                exception.getClass().getSimpleName(),
+                                exception.getMessage())
+                );
+    }
+
+    @ExceptionHandler(ImageNotFoundException.class)
+    public ResponseEntity<ExceptionModel> handleImageNotFoundException(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(
                         new ExceptionModel(
                                 exception.getClass().getSimpleName(),
