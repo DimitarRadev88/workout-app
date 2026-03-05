@@ -35,6 +35,7 @@ public class Schedule {
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+    private Boolean isCompleted;
     private Boolean isDeleted;
 
 }

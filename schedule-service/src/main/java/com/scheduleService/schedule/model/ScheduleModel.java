@@ -16,7 +16,8 @@ import java.util.Map;
 public class ScheduleModel extends RepresentationModel<ScheduleModel> {
     private Long id;
     private Long userId;
-    private Map<Long, Long> exerciseIds;
+    private Map<Long, Long> exercisesReps;
     private LocalDate date;
+    private Boolean isCompleted;
     private Boolean isDeleted;
 }
