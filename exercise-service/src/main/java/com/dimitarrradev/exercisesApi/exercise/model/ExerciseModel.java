@@ -12,15 +12,15 @@ import org.springframework.hateoas.RepresentationModel;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@JsonRootName(value="exercise")
+@JsonRootName(value = "exercise")
 public class ExerciseModel extends RepresentationModel<ExerciseModel> {
-        private Long id;
-        private String name;
-        private Complexity complexity;
-        private String description;
-        private MovementType movementType;
-        private TargetBodyPart targetBodyPart;
-        private Boolean isDeleted;
-        private Boolean approved;
-        private String addedBy;
+    private Long id;
+    private String name;
+    private Complexity complexity;
+    private String description;
+    private MovementType movementType;
+    private TargetBodyPart targetBodyPart;
+    private Boolean isDeleted;
+    private Boolean approved;
+    private String addedBy;
 }
