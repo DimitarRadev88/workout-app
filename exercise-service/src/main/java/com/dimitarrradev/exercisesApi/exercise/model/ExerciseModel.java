@@ -21,4 +21,6 @@ public class ExerciseModel extends RepresentationModel<ExerciseModel> {
         private MovementType movementType;
         private TargetBodyPart targetBodyPart;
         private Boolean isDeleted;
+        private Boolean approved;
+        private String addedBy;
 }

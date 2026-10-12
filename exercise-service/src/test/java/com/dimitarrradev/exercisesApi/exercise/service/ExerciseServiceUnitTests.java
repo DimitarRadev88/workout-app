@@ -68,7 +68,9 @@ public class ExerciseServiceUnitTests {
                 new ArrayList<>(List.of(imageUrl)),
                 null,
                 null,
-                false
+                false,
+                true,
+                "test-user"
         );
         imageUrl.setExercise(exercise);
     }
@@ -84,7 +86,8 @@ public class ExerciseServiceUnitTests {
                 "test-exercise-description",
                 TargetBodyPart.ABDUCTORS,
                 Complexity.EASY,
-                MovementType.ISOLATION
+                MovementType.ISOLATION,
+                "test-user"
         );
 
         assertThrows(
@@ -103,7 +106,8 @@ public class ExerciseServiceUnitTests {
                 "test-exercise-description",
                 TargetBodyPart.ABDUCTORS,
                 Complexity.EASY,
-                MovementType.ISOLATION
+                MovementType.ISOLATION,
+                "test-user"
         );
 
         Exercise exercise = Exercise.builder()
@@ -125,6 +129,8 @@ public class ExerciseServiceUnitTests {
                 .complexity(addModel.complexity())
                 .movementType(addModel.movement())
                 .isDeleted(Boolean.FALSE)
+                .approved(Boolean.FALSE)
+                .addedBy(addModel.addedBy())
                 .build();
 
         when(exerciseRepository.save(exercise))
@@ -135,6 +141,7 @@ public class ExerciseServiceUnitTests {
         ExerciseModel exerciseModel = exerciseService.addExercise(addModel);
 
         verify(exerciseRepository, times(1)).save(exercise);
+        assertFalse(exercise.getApproved());
         assertEquals(expected, exerciseModel);
     }
 
@@ -185,7 +192,9 @@ public class ExerciseServiceUnitTests {
                 exercise.getDescription(),
                 exercise.getMovementType(),
                 exercise.getTargetBodyPart(),
-                exercise.getIsDeleted()
+                exercise.getIsDeleted(),
+                exercise.getApproved(),
+                exercise.getAddedBy()
         );
     }
 
@@ -251,7 +260,7 @@ public class ExerciseServiceUnitTests {
                 .filter(ex -> ex.getTargetBodyPart().equals(randomTargetBodyPart))
                 .toList();
 
-        when(exerciseRepository.findAllByTargetBodyPartIsInAndIsDeletedFalse(List.of(randomTargetBodyPart)))
+        when(exerciseRepository.findAllByTargetBodyPartIsInAndApprovedTrueAndIsDeletedFalse(List.of(randomTargetBodyPart)))
                 .thenReturn(exercises);
 
         CollectionModel<ExerciseModel> expectedExercises = CollectionModel.of(mapToExerciseModelList(exercises));
@@ -310,7 +319,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByNameContainingIgnoreCaseAndIsDeletedFalse(pageable, "1"))
+        when(exerciseRepository.findAllByNameContainingIgnoreCaseAndApprovedTrueAndIsDeletedFalse(pageable, "1"))
                 .thenReturn(exercisePage);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
@@ -343,7 +352,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByTargetBodyPartAndIsDeletedFalse(
+        when(exerciseRepository.findAllByTargetBodyPartAndApprovedTrueAndIsDeletedFalse(
                 pageable,
                 TargetBodyPart.ABS
         )).thenReturn(exercisePage);
@@ -381,7 +390,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndIsDeletedFalse(
+        when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndApprovedTrueAndIsDeletedFalse(
                 pageable,
                 TargetBodyPart.ABS,
                 Complexity.HARD
@@ -418,7 +427,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByTargetBodyPartAndMovementTypeAndIsDeletedFalse(
+        when(exerciseRepository.findAllByTargetBodyPartAndMovementTypeAndApprovedTrueAndIsDeletedFalse(
                 pageable,
                 TargetBodyPart.ABS,
                 MovementType.ISOLATION
@@ -458,7 +467,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndMovementTypeAndIsDeletedFalse(
+        when(exerciseRepository.findAllByTargetBodyPartAndComplexityAndMovementTypeAndApprovedTrueAndIsDeletedFalse(
                 pageable,
                 TargetBodyPart.ABS,
                 Complexity.HARD,
@@ -498,7 +507,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByComplexityAndMovementTypeAndIsDeletedFalse(
+        when(exerciseRepository.findAllByComplexityAndMovementTypeAndApprovedTrueAndIsDeletedFalse(
                 pageable,
                 Complexity.HARD,
                 MovementType.ISOLATION
@@ -534,7 +543,7 @@ public class ExerciseServiceUnitTests {
 
         Page<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByComplexityAndIsDeletedFalse(
+        when(exerciseRepository.findAllByComplexityAndApprovedTrueAndIsDeletedFalse(
                 pageable,
                 Complexity.HARD
         )).thenReturn(exercisePage);
@@ -569,7 +578,7 @@ public class ExerciseServiceUnitTests {
 
         PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByMovementTypeAndIsDeletedFalse(
+        when(exerciseRepository.findAllByMovementTypeAndApprovedTrueAndIsDeletedFalse(
                 pageable,
                 MovementType.ISOLATION
         )).thenReturn(exercisePage);
@@ -602,7 +611,7 @@ public class ExerciseServiceUnitTests {
 
         PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
 
-        when(exerciseRepository.findAllByIsDeletedFalse(
+        when(exerciseRepository.findAllByApprovedTrueAndIsDeletedFalse(
                 pageable
         )).thenReturn(exercisePage);
 
@@ -620,6 +629,68 @@ public class ExerciseServiceUnitTests {
 
         assertEquals(expected, actual);
 
+    }
+
+    @Test
+    void testGetExercisesForReviewCountReturnsRepositoryCount() {
+        when(exerciseRepository.countByApprovedFalseAndIsDeletedFalse())
+                .thenReturn(3L);
+
+        assertEquals(3L, exerciseService.getExercisesForReviewCount());
+    }
+
+    @Test
+    void testGetExercisesForReviewReturnsCorrectPagedModel() {
+        List<Exercise> exerciseList = generateExerciseList(3);
+        exerciseList.forEach(e -> e.setApproved(Boolean.FALSE));
+
+        List<ExerciseModel> exerciseModelList = mapToExerciseModelList(exerciseList);
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("name").descending());
+
+        PageImpl<Exercise> exercisePage = new PageImpl<>(exerciseList, pageable, exerciseList.size());
+
+        when(exerciseRepository.findAllByApprovedFalseAndIsDeletedFalse(pageable))
+                .thenReturn(exercisePage);
+
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
+                exercisePage.getSize(),
+                exercisePage.getNumber(),
+                exercisePage.getTotalElements(),
+                exercisePage.getTotalPages()
+        );
+
+        PagedModel<ExerciseModel> expected = PagedModel.of(exerciseModelList, pageMetadata);
+        expected.add(Link.of("http://localhost?page=0&size=10&sort=name,desc", "self"));
+
+        assertEquals(expected, exerciseService.getExercisesForReview(0, 10, "desc"));
+    }
+
+    @Test
+    void testApproveExerciseApprovesWhenFoundInRepository() {
+        exercise.setApproved(Boolean.FALSE);
+
+        when(exerciseRepository.findById(exercise.getId()))
+                .thenReturn(Optional.of(exercise));
+        when(exerciseRepository.saveAndFlush(exercise))
+                .thenReturn(exercise);
+
+        ExerciseModel approved = exerciseService.approveExercise(exercise.getId());
+
+        assertTrue(exercise.getApproved());
+        assertTrue(approved.getApproved());
+        verify(exerciseRepository, times(1)).saveAndFlush(exercise);
+    }
+
+    @Test
+    void testApproveExerciseThrowsWhenNotFoundInRepository() {
+        when(exerciseRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> exerciseService.approveExercise(1L)
+        );
     }
 
     @Test
@@ -784,7 +855,9 @@ public class ExerciseServiceUnitTests {
                     Collections.emptyList(),
                     null,
                     null,
-                    Boolean.FALSE
+                    Boolean.FALSE,
+                    Boolean.TRUE,
+                    "test-user"
             );
 
             exercises.add(e);

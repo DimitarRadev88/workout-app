@@ -14,6 +14,7 @@ public class ExerciseFromModelMapper {
                 .targetBodyPart(addModel.bodyPart())
                 .complexity(addModel.complexity())
                 .movementType(addModel.movement())
+                .addedBy(addModel.addedBy())
                 .build();
     }
 

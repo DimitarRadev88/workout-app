@@ -68,6 +68,25 @@ public class ExerciseController {
         return exerciseService.searchExercises(name, target, complexity, movement, page, size, orderBy);
     }
 
+    @GetMapping("/for-review")
+    public PagedModel<ExerciseModel> getExercisesForReview(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String orderBy
+    ) {
+        return exerciseService.getExercisesForReview(page, size, orderBy);
+    }
+
+    @GetMapping("/for-review/count")
+    public long getExercisesForReviewCount() {
+        return exerciseService.getExercisesForReviewCount();
+    }
+
+    @PatchMapping("/{id}/approve")
+    public ExerciseModel approveExercise(@PathVariable Long id) {
+        return exerciseService.approveExercise(id);
+    }
+
     @DeleteMapping("/{id}")
     public ExerciseModel deleteExercise(@PathVariable Long id) {
         return exerciseService.deleteExercise(id);

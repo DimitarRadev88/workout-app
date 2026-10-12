@@ -55,6 +55,7 @@ public class ExerciseService {
         Exercise exercise = exerciseFromModelMapper.fromExerciseAddModel(exerciseAddModel);
 
         exercise.setIsDeleted(Boolean.FALSE);
+        exercise.setApproved(Boolean.FALSE);
 
         return exerciseModelAssembler.toModel(exerciseRepository.save(exercise));
     }
@@ -72,15 +73,34 @@ public class ExerciseService {
     }
 
     public PagedModel<ExerciseModel> searchExercises(String name, TargetBodyPart target, Complexity complexity, MovementType movement, int page, int size, String orderBy) {
-        Sort sort = orderBy.equalsIgnoreCase("asc") ?
-                Sort.by("name").ascending() :
-                Sort.by("name").descending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, getNameSort(orderBy));
 
         Page<Exercise> exercisesPage = getExercisePage(name, target, complexity, movement, pageable);
 
         return resourcesAssembler.toModel(exercisesPage, exerciseModelAssembler);
+    }
+
+    public long getExercisesForReviewCount() {
+        return exerciseRepository.countByApprovedFalseAndIsDeletedFalse();
+    }
+
+    public PagedModel<ExerciseModel> getExercisesForReview(int page, int size, String orderBy) {
+        Pageable pageable = PageRequest.of(page, size, getNameSort(orderBy));
+
+        return resourcesAssembler.toModel(
+                exerciseRepository.findAllByApprovedFalseAndIsDeletedFalse(pageable),
+                exerciseModelAssembler
+        );
+    }
+
+    public ExerciseModel approveExercise(Long id) {
+        Exercise exercise = exerciseRepository
+                .findById(id)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
+
+        exercise.setApproved(Boolean.TRUE);
+
+        return exerciseModelAssembler.toModel(exerciseRepository.saveAndFlush(exercise));
     }
 
     public ExerciseModel getExerciseModel(Long id) {
@@ -106,7 +126,7 @@ public class ExerciseService {
 
     public CollectionModel<ExerciseModel> getExercisesForTargetBodyParts(List<TargetBodyPart> targetBodyParts) {
         return exerciseModelAssembler.toCollectionModel(exerciseRepository
-                .findAllByTargetBodyPartIsInAndIsDeletedFalse(targetBodyParts));
+                .findAllByTargetBodyPartIsInAndApprovedTrueAndIsDeletedFalse(targetBodyParts));
     }
 
     public Exercise getExerciseEntity(Long id) {
@@ -162,13 +182,19 @@ public class ExerciseService {
         return imageUrlModelAssembler.toModel(imageUrl);
     }
 
+    private static Sort getNameSort(String orderBy) {
+        return orderBy.equalsIgnoreCase("asc") ?
+                Sort.by("name").ascending() :
+                Sort.by("name").descending();
+    }
+
     private Page<Exercise> getExercisePage(String name, TargetBodyPart target, Complexity complexity, MovementType movement, Pageable pageable) {
         if (name == null || name.isBlank()) {
             return getExercisePage(target, complexity, movement, pageable);
         }
 
         return exerciseRepository
-                .findAllByNameContainingIgnoreCaseAndIsDeletedFalse(pageable, name);
+                .findAllByNameContainingIgnoreCaseAndApprovedTrueAndIsDeletedFalse(pageable, name);
     }
 
     private Page<Exercise> getExercisePage(TargetBodyPart target, Complexity complexity, MovementType movement, Pageable pageable) {
@@ -181,7 +207,7 @@ public class ExerciseService {
         }
 
         return exerciseRepository
-                .findAllByTargetBodyPartAndComplexityAndMovementTypeAndIsDeletedFalse(
+                .findAllByTargetBodyPartAndComplexityAndMovementTypeAndApprovedTrueAndIsDeletedFalse(
                         pageable,
                         target,
                         complexity,
@@ -197,7 +223,7 @@ public class ExerciseService {
         }
 
         return exerciseRepository
-                .findAllByTargetBodyPartAndMovementTypeAndIsDeletedFalse(
+                .findAllByTargetBodyPartAndMovementTypeAndApprovedTrueAndIsDeletedFalse(
                         pageable,
                         target,
                         movement
@@ -212,7 +238,7 @@ public class ExerciseService {
         }
 
         return exerciseRepository
-                .findAllByTargetBodyPartAndComplexityAndIsDeletedFalse(
+                .findAllByTargetBodyPartAndComplexityAndApprovedTrueAndIsDeletedFalse(
                         pageable,
                         target,
                         complexity
@@ -227,7 +253,7 @@ public class ExerciseService {
         }
 
         return exerciseRepository
-                .findAllByComplexityAndMovementTypeAndIsDeletedFalse(
+                .findAllByComplexityAndMovementTypeAndApprovedTrueAndIsDeletedFalse(
                         pageable,
                         complexity,
                         movement
@@ -240,7 +266,7 @@ public class ExerciseService {
         }
 
         return exerciseRepository
-                .findAllByTargetBodyPartAndIsDeletedFalse(
+                .findAllByTargetBodyPartAndApprovedTrueAndIsDeletedFalse(
                         pageable,
                         target
                 );
@@ -252,7 +278,7 @@ public class ExerciseService {
         }
 
         return exerciseRepository
-                .findAllByComplexityAndIsDeletedFalse(
+                .findAllByComplexityAndApprovedTrueAndIsDeletedFalse(
                         pageable,
                         complexity
                 );
@@ -264,7 +290,7 @@ public class ExerciseService {
         }
 
         return exerciseRepository
-                .findAllByMovementTypeAndIsDeletedFalse(
+                .findAllByMovementTypeAndApprovedTrueAndIsDeletedFalse(
                         pageable,
                         movement
                 );
@@ -272,7 +298,7 @@ public class ExerciseService {
 
     private Page<Exercise> getExercisePage(Pageable pageable) {
         return exerciseRepository
-                .findAllByIsDeletedFalse(pageable);
+                .findAllByApprovedTrueAndIsDeletedFalse(pageable);
     }
 
 }

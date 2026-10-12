@@ -16,24 +16,28 @@ import java.util.List;
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     boolean existsExerciseByNameAndIsDeletedFalse(String name);
 
-    List<Exercise> findAllByTargetBodyPartIsInAndIsDeletedFalse(Collection<TargetBodyPart> targetBodyParts);
+    List<Exercise> findAllByTargetBodyPartIsInAndApprovedTrueAndIsDeletedFalse(Collection<TargetBodyPart> targetBodyParts);
 
-    Page<Exercise> findAllByTargetBodyPartAndMovementTypeAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, MovementType movement);
+    Page<Exercise> findAllByTargetBodyPartAndMovementTypeAndApprovedTrueAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, MovementType movement);
 
-    Page<Exercise> findAllByTargetBodyPartAndComplexityAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, Complexity complexity);
+    Page<Exercise> findAllByTargetBodyPartAndComplexityAndApprovedTrueAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, Complexity complexity);
 
-    Page<Exercise> findAllByComplexityAndMovementTypeAndIsDeletedFalse(Pageable pageable, Complexity complexity, MovementType movement);
+    Page<Exercise> findAllByComplexityAndMovementTypeAndApprovedTrueAndIsDeletedFalse(Pageable pageable, Complexity complexity, MovementType movement);
 
-    Page<Exercise> findAllByTargetBodyPartAndComplexityAndMovementTypeAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, Complexity complexity, MovementType movement);
+    Page<Exercise> findAllByTargetBodyPartAndComplexityAndMovementTypeAndApprovedTrueAndIsDeletedFalse(Pageable pageable, TargetBodyPart target, Complexity complexity, MovementType movement);
 
-    Page<Exercise> findAllByTargetBodyPartAndIsDeletedFalse(Pageable pageable, TargetBodyPart target);
+    Page<Exercise> findAllByTargetBodyPartAndApprovedTrueAndIsDeletedFalse(Pageable pageable, TargetBodyPart target);
 
-    Page<Exercise> findAllByComplexityAndIsDeletedFalse(Pageable pageable, Complexity complexity);
+    Page<Exercise> findAllByComplexityAndApprovedTrueAndIsDeletedFalse(Pageable pageable, Complexity complexity);
 
-    Page<Exercise> findAllByMovementTypeAndIsDeletedFalse(Pageable pageable, MovementType movement);
+    Page<Exercise> findAllByMovementTypeAndApprovedTrueAndIsDeletedFalse(Pageable pageable, MovementType movement);
 
-    Page<Exercise> findAllByIsDeletedFalse(Pageable pageable);
+    Page<Exercise> findAllByApprovedTrueAndIsDeletedFalse(Pageable pageable);
 
-    Page<Exercise> findAllByNameContainingIgnoreCaseAndIsDeletedFalse(Pageable pageable, String name);
+    Page<Exercise> findAllByNameContainingIgnoreCaseAndApprovedTrueAndIsDeletedFalse(Pageable pageable, String name);
+
+    Page<Exercise> findAllByApprovedFalseAndIsDeletedFalse(Pageable pageable);
+
+    long countByApprovedFalseAndIsDeletedFalse();
 }
 

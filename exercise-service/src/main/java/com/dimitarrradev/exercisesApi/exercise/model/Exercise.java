@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -45,6 +46,11 @@ public class Exercise {
     private LocalDateTime updatedAt;
     @Column(nullable = false)
     private Boolean isDeleted;
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean approved;
+    @Column(name = "added_by")
+    private String addedBy;
 
 }
 

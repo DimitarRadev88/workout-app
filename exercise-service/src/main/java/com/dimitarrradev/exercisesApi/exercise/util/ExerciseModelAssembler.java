@@ -17,7 +17,9 @@ public class ExerciseModelAssembler implements RepresentationModelAssembler<Exer
                 entity.getDescription(),
                 entity.getMovementType(),
                 entity.getTargetBodyPart(),
-                entity.getIsDeleted()
+                entity.getIsDeleted(),
+                entity.getApproved(),
+                entity.getAddedBy()
         );
 
         return model;

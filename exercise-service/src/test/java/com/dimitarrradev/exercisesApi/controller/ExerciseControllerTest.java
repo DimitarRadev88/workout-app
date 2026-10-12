@@ -63,6 +63,8 @@ public class ExerciseControllerTest {
 
     @Value("${sql.script.create.exercise}")
     private String createExercise;
+    @Value("${sql.script.create.exercise.for-review}")
+    private String createExerciseForReview;
     @Value("${sql.script.delete.exercise}")
     private String deleteExercise;
     @Value("${sql.script.create.image}")
@@ -121,7 +123,7 @@ public class ExerciseControllerTest {
 
     @Test
     void addExerciseRespondsWithStatusBadRequestWhenRequestBodyIsNotValid() throws Exception {
-        ExerciseAddModel addModel = new ExerciseAddModel("", "", null, null, null);
+        ExerciseAddModel addModel = new ExerciseAddModel("", "", null, null, null, null);
 
         mockMvc.perform(post("https://localhost:8082/api/exercises/add")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -146,7 +148,8 @@ public class ExerciseControllerTest {
                 exercise.getDescription(),
                 exercise.getTargetBodyPart(),
                 exercise.getComplexity(),
-                exercise.getMovementType()
+                exercise.getMovementType(),
+                "test-user"
         );
 
         mockMvc.perform(post("https://localhost:8082/api/exercises/add")
@@ -165,7 +168,8 @@ public class ExerciseControllerTest {
                 "this is a valid description",
                 TargetBodyPart.ABDUCTORS,
                 Complexity.HARD,
-                MovementType.ISOLATION
+                MovementType.ISOLATION,
+                "test-user"
         );
 
         mockMvc.perform(post("https://localhost:8082/api/exercises/add")
@@ -179,11 +183,13 @@ public class ExerciseControllerTest {
                 .andExpect(jsonPath("$.description", is(addModel.description())))
                 .andExpect(jsonPath("$.movementType", is(addModel.movement().toString())))
                 .andExpect(jsonPath("$.targetBodyPart", is(addModel.bodyPart().toString())))
-                .andExpect(jsonPath("$.targetBodyPart", is(addModel.bodyPart().toString())))
-                .andExpect(jsonPath("$._links", aMapWithSize(4)))
+                .andExpect(jsonPath("$.approved", is(Boolean.FALSE)))
+                .andExpect(jsonPath("$.addedBy", is(addModel.addedBy())))
+                .andExpect(jsonPath("$._links", aMapWithSize(5)))
                 .andExpect(jsonPath("$._links", hasKey("self")))
                 .andExpect(jsonPath("$._links", hasKey("update")))
                 .andExpect(jsonPath("$._links", hasKey("delete")))
+                .andExpect(jsonPath("$._links", hasKey("approve")))
                 .andExpect(jsonPath("$._links", hasKey("images")));
     }
 
@@ -269,7 +275,7 @@ public class ExerciseControllerTest {
 
         Pageable pageable = PageRequest.of(0, 2, sort);
 
-        Page<Exercise> allByIsDeletedFalse = exerciseRepository.findAllByIsDeletedFalse(pageable);
+        Page<Exercise> allByIsDeletedFalse = exerciseRepository.findAllByApprovedTrueAndIsDeletedFalse(pageable);
 
         assertEquals(3, allByIsDeletedFalse.getTotalPages());
         assertEquals(5, allByIsDeletedFalse.getTotalElements());
@@ -289,6 +295,69 @@ public class ExerciseControllerTest {
                 .andExpect(jsonPath("$._links", hasKey("self")))
                 .andExpect(jsonPath("$._links", hasKey("next")))
                 .andExpect(jsonPath("$._links", hasKey("last")));
+    }
+
+    @Test
+    void testSearchDoesNotReturnExercisesWaitingForReview() throws Exception {
+        jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
+
+        mockMvc.perform(get("https://localhost:8082/api/exercises/search"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.exerciseModelList", hasSize(1)))
+                .andExpect(jsonPath("$._embedded.exerciseModelList[0].name", is("test-exercise-1")));
+    }
+
+    @Test
+    void testGetExercisesForReviewReturnsOnlyExercisesWaitingForReview() throws Exception {
+        jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review-1", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
+        jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review-2", "test-exercise-description", "LEGS", "HARD", "COMPOUND", "test-user"));
+
+        mockMvc.perform(get("https://localhost:8082/api/exercises/for-review")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("orderBy", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$._embedded.exerciseModelList", hasSize(2)))
+                .andExpect(jsonPath("$._embedded.exerciseModelList[0].name", is("test-exercise-for-review-2")))
+                .andExpect(jsonPath("$._embedded.exerciseModelList[0].approved", is(Boolean.FALSE)))
+                .andExpect(jsonPath("$._embedded.exerciseModelList[0].addedBy", is("test-user")))
+                .andExpect(jsonPath("$._embedded.exerciseModelList[0]._links", hasKey("approve")))
+                .andExpect(jsonPath("$.page.totalElements", is(2)));
+    }
+
+    @Test
+    void testGetExercisesForReviewCountReturnsNumberOfExercisesWaitingForReview() throws Exception {
+        jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
+
+        mockMvc.perform(get("https://localhost:8082/api/exercises/for-review/count"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("1"));
+    }
+
+    @Test
+    void testApproveExerciseApprovesExerciseWaitingForReview() throws Exception {
+        jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
+
+        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}/approve", 2L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$.id", is(2)))
+                .andExpect(jsonPath("$.approved", is(Boolean.TRUE)))
+                .andExpect(jsonPath("$._links", not(hasKey("approve"))));
+
+        Optional<Exercise> optionalExercise = exerciseRepository.findById(2L);
+        assertTrue(optionalExercise.isPresent());
+        assertTrue(optionalExercise.get().getApproved());
+    }
+
+    @Test
+    void testApproveExerciseRespondsWithStatusNotFoundWhenExerciseDoesNotExist() throws Exception {
+        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}/approve", 0L))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.exception", is("ExerciseNotFoundException")))
+                .andExpect(jsonPath("$.message", is("Exercise not found")));
     }
 
     @Test

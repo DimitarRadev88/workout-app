@@ -12,6 +12,7 @@ public record ExerciseAddModel(
        @NotBlank String description,
        @NotNull TargetBodyPart bodyPart,
        @NotNull Complexity complexity,
-       @NotNull MovementType movement
+       @NotNull MovementType movement,
+       String addedBy
 ) {
 }
