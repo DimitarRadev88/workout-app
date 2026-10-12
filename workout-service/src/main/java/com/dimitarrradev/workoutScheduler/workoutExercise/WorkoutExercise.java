@@ -17,9 +17,8 @@ public class WorkoutExercise {
     @ManyToOne
     @JoinColumn(name = "workout_id")
     private Workout workout;
-//    @ManyToOne
-//    @JoinColumn(name = "exercise_id")
-//    private Exercise exercise;
+    @Column(name = "exercise_id", nullable = false)
+    private Long exerciseId;
     @Column(name = "min_reps", nullable = false)
     private Integer minReps;
     @Column(name = "max_reps", nullable = false)

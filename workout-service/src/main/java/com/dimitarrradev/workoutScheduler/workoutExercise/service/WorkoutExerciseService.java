@@ -20,21 +20,19 @@ public class WorkoutExerciseService {
 
     @Transactional
     public WorkoutExercise createWorkoutExercise(ExerciseWorkoutExerciseBindingModel exerciseWorkoutExerciseBindingModel, Workout workout) {
-//        WorkoutExercise workoutExercise = new WorkoutExercise(
-//                null,
-//                workout,
-//                exerciseService.getExercise(exerciseWorkoutExerciseBindingModel.exerciseId()),
-//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().minReps(),
-//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().maxReps(),
-//                0,
-//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().weight(),
-//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().rest(),
-//                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().sets()
-//        );
-//
-//        return workoutExerciseRepository.save(workoutExercise);
-        throw new IllegalStateException("TODO");
+        WorkoutExercise workoutExercise = new WorkoutExercise(
+                null,
+                workout,
+                exerciseService.getExerciseView(exerciseWorkoutExerciseBindingModel.exerciseId()).id(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().minReps(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().maxReps(),
+                0,
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().weight(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().rest(),
+                exerciseWorkoutExerciseBindingModel.workoutExerciseBindingModel().sets()
+        );
 
+        return workoutExerciseRepository.save(workoutExercise);
     }
 
     public void delete(long id, String username) {

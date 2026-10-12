@@ -1,7 +1,9 @@
 package com.dimitarrradev.workoutScheduler.workoutExercise.service;
 
+import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.errors.exception.WorkoutExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseWorkoutExerciseBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExerciseService;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseBindingModel;
 import com.dimitarrradev.workoutScheduler.web.binding.WorkoutExerciseEditBindingModel;
@@ -26,6 +28,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkoutExerciseServiceUnitTests {
+
+    private static final long EXERCISE_ID = 7L;
 
     @Mock
     private WorkoutExerciseRepository workoutExerciseRepository;
@@ -63,28 +67,43 @@ public class WorkoutExerciseServiceUnitTests {
 //                "user",
 //                randomComplexity());
 
-//        WorkoutExercise expected = new WorkoutExercise(
-//                null,
-//                workout,
-//                exercise,
-//                workoutExerciseBindingModel.minReps(),
-//                workoutExerciseBindingModel.maxReps(),
-//                0,
-//                workoutExerciseBindingModel.weight(),
-//                workoutExerciseBindingModel.rest(),
-//                workoutExerciseBindingModel.sets());
-//
-//        when(exerciseService.getExercise(exercise.getId()))
-//                .thenReturn(exercise);
+        WorkoutExercise expected = new WorkoutExercise(
+                null,
+                workout,
+                exerciseWorkoutExerciseBindingModel.exerciseId(),
+                workoutExerciseBindingModel.minReps(),
+                workoutExerciseBindingModel.maxReps(),
+                0,
+                workoutExerciseBindingModel.weight(),
+                workoutExerciseBindingModel.rest(),
+                workoutExerciseBindingModel.sets());
+
+        when(exerciseService.getExerciseView(exerciseWorkoutExerciseBindingModel.exerciseId()))
+                .thenReturn(new ExerciseViewModel(exerciseWorkoutExerciseBindingModel.exerciseId(), randomExerciseName(), null, null, null, null, true, null));
 
         workoutExerciseService.createWorkoutExercise(exerciseWorkoutExerciseBindingModel, workout);
 
-//        verify(
-//                workoutExerciseRepository,
-//                times(1)
-//        ).save(expected);
-        throw new IllegalStateException("TODO");
+        verify(
+                workoutExerciseRepository,
+                times(1)
+        ).save(expected);
+    }
 
+    @Test
+    void testCreateWorkoutExerciseThrowsWhenExerciseDoesNotExist() {
+        ExerciseWorkoutExerciseBindingModel exerciseWorkoutExerciseBindingModel = new ExerciseWorkoutExerciseBindingModel(
+                randomId(),
+                new WorkoutExerciseBindingModel(4, 10, 12, 60, 80.00)
+        );
+
+        when(exerciseService.getExerciseView(exerciseWorkoutExerciseBindingModel.exerciseId()))
+                .thenThrow(new ExerciseNotFoundException("Exercise not found"));
+
+        assertThrows(
+                ExerciseNotFoundException.class,
+                () -> workoutExerciseService.createWorkoutExercise(exerciseWorkoutExerciseBindingModel, new Workout())
+        );
+        verify(workoutExerciseRepository, never()).save(any());
     }
 
     @Test
@@ -143,7 +162,7 @@ public class WorkoutExerciseServiceUnitTests {
         WorkoutExercise workoutExercise = new WorkoutExercise(
                 id,
                 null,
-//                exercise,
+                EXERCISE_ID,
                 4,
                 6,
                 0,
@@ -163,7 +182,7 @@ public class WorkoutExerciseServiceUnitTests {
         WorkoutExercise expected = new WorkoutExercise(
                 workoutExercise.getId(),
                 null,
-//                exercise,
+                EXERCISE_ID,
                 bindingModel.minReps(),
                 bindingModel.maxReps(),
                 0,
@@ -203,7 +222,7 @@ public class WorkoutExerciseServiceUnitTests {
         WorkoutExercise workoutExercise = new WorkoutExercise(
                 id,
                 null,
-//                exercise,
+                EXERCISE_ID,
                 4,
                 6,
                 0,
@@ -223,7 +242,7 @@ public class WorkoutExerciseServiceUnitTests {
         WorkoutExercise expected = new WorkoutExercise(
                 workoutExercise.getId(),
                 null,
-//                exercise,
+                EXERCISE_ID,
                 bindingModel.minReps(),
                 bindingModel.minReps(),
                 0,
