@@ -161,7 +161,7 @@ public class ExerciseController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("{exerciseId}/imageUrls/delete/{id}")
     public String deleteImageUrl(@PathVariable long exerciseId, @PathVariable long id) {
-        exerciseService.deleteImageUrl(id);
+        exerciseService.deleteImageUrl(exerciseId, id);
         return "redirect:/exercises/edit/" + exerciseId;
     }
 

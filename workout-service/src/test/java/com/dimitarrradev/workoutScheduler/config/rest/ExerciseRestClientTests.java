@@ -4,7 +4,9 @@ import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExists
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseEditBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseFindViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseForReviewViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ImageUrlViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
@@ -210,6 +212,80 @@ class ExerciseRestClientTests {
         respond("GET", "/api/exercises/for-review/count", 200, "4");
 
         assertEquals(4L, exerciseRestClient.getExercisesForReviewCount().getBody());
+    }
+
+    @Test
+    void testSearchExercisesSendsFiltersAndReadsPagedModel() {
+        respond("GET", "/api/exercises/search", 200, """
+                {"_embedded":{"exerciseModelList":[%s]},
+                "page":{"size":5,"totalElements":1,"totalPages":1,"number":0}}""".formatted(EXERCISE_JSON));
+
+        Page<ExerciseFindViewModel> page = exerciseRestClient.searchExercises("push", TargetBodyPart.CHEST, null, null, 0, 5, "asc");
+
+        assertEquals("name=push&target=CHEST&complexity=ALL&movement=ALL&page=0&size=5&orderBy=asc", requests.getFirst().query());
+        assertEquals(List.of(new ExerciseFindViewModel(1L, "push-up", Complexity.EASY, MovementType.COMPOUND)), page.getContent());
+        assertEquals(1, page.getTotalElements());
+    }
+
+    @Test
+    void testGetExercisesSendsEachTargetBodyPart() {
+        respond("GET", "/api/exercises", 200, "{\"_embedded\":{\"exerciseModelList\":[%s]}}".formatted(EXERCISE_JSON));
+
+        List<ExerciseRestClient.ExerciseResponse> exercises = exerciseRestClient.getExercises(List.of(TargetBodyPart.CHEST, TargetBodyPart.LEGS));
+
+        assertEquals("target=CHEST&target=LEGS", requests.getFirst().query());
+        assertEquals(1, exercises.size());
+        assertEquals("push-up", exercises.getFirst().name());
+    }
+
+    @Test
+    void testGetExercisesWithoutTargetsSendsNoFilterAndReadsEmptyCollection() {
+        respond("GET", "/api/exercises", 200, "{}");
+
+        assertTrue(exerciseRestClient.getExercises(List.of()).isEmpty());
+        assertNull(requests.getFirst().query());
+    }
+
+    @Test
+    void testDeleteExerciseSendsDelete() {
+        respond("DELETE", "/api/exercises/1", 200, EXERCISE_JSON);
+
+        exerciseRestClient.deleteExercise(1L);
+
+        assertEquals("DELETE /api/exercises/1", requests.getFirst().method() + " " + requests.getFirst().path());
+    }
+
+    @Test
+    void testDeleteExerciseThrowsWhenExerciseDoesNotExist() {
+        respond("DELETE", "/api/exercises/0", 404, "{}");
+
+        assertThrows(ExerciseNotFoundException.class, () -> exerciseRestClient.deleteExercise(0L));
+    }
+
+    @Test
+    void testGetExerciseImagesReadsImageCollection() {
+        respond("GET", "/api/exercises/1/images", 200, """
+                {"_embedded":{"imageUrlModelList":[
+                {"id":11,"url":"https://images.example/one.png","exerciseId":1,"isDeleted":false,"_links":{}}]}}""");
+
+        assertEquals(
+                List.of(new ImageUrlViewModel(11L, "https://images.example/one.png")),
+                exerciseRestClient.getExerciseImages(1L)
+        );
+    }
+
+    @Test
+    void testGetExerciseImagesReadsEmptyCollection() {
+        respond("GET", "/api/exercises/1/images", 200, "{}");
+
+        assertTrue(exerciseRestClient.getExerciseImages(1L).isEmpty());
+    }
+
+    @Test
+    void testDeleteExerciseImageThrowsWhenImageDoesNotExist() {
+        respond("DELETE", "/api/exercises/1/images/12", 404, "{}");
+
+        assertThrows(ExerciseNotFoundException.class, () -> exerciseRestClient.deleteExerciseImage(1L, 12L));
     }
 
     private static void respond(String method, String path, int status, String body) {

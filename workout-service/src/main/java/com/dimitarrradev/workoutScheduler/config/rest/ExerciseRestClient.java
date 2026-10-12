@@ -4,8 +4,10 @@ import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExists
 import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseNotFoundException;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseEditBindingModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseFindViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseForReviewViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ImageUrlViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
@@ -13,6 +15,7 @@ import com.dimitarrradev.workoutScheduler.exercise.service.ExercisePageImpl;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
@@ -134,7 +137,7 @@ public class ExerciseRestClient {
     }
 
     public Page<ExerciseForReviewViewModel> getExercisesForReviewPage(int pageNumber, int pageSize, String sortDirection) {
-        ExercisesForReviewResponse response = restClient.get()
+        ExercisePageResponse<ExerciseForReviewViewModel> response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/for-review")
                         .queryParam("page", pageNumber)
@@ -142,17 +145,78 @@ public class ExerciseRestClient {
                         .queryParam("orderBy", sortDirection)
                         .build())
                 .retrieve()
-                .body(ExercisesForReviewResponse.class);
+                .body(new ParameterizedTypeReference<>() {});
 
-        List<ExerciseForReviewViewModel> content = response.embedded() == null ?
-                List.of() :
-                response.embedded().exerciseModelList();
+        return response.toPage();
+    }
 
-        return new ExercisePageImpl<>(
-                content,
-                PageRequest.of(response.page().number(), response.page().size()),
-                response.page().totalElements()
-        );
+    public Page<ExerciseFindViewModel> searchExercises(
+            String name,
+            TargetBodyPart target,
+            Complexity complexity,
+            MovementType movement,
+            int pageNumber,
+            int pageSize,
+            String sortDirection
+    ) {
+        ExercisePageResponse<ExerciseFindViewModel> response = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/search")
+                        .queryParam("name", name == null ? "" : name)
+                        .queryParam("target", target == null ? TargetBodyPart.ALL : target)
+                        .queryParam("complexity", complexity == null ? Complexity.ALL : complexity)
+                        .queryParam("movement", movement == null ? MovementType.ALL : movement)
+                        .queryParam("page", pageNumber)
+                        .queryParam("size", pageSize)
+                        .queryParam("orderBy", sortDirection)
+                        .build())
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        return response.toPage();
+    }
+
+    public List<ExerciseResponse> getExercises(List<TargetBodyPart> targets) {
+        ExerciseCollectionResponse<ExerciseResponse> response = restClient.get()
+                .uri(uriBuilder -> targets.isEmpty() ?
+                        uriBuilder.build() :
+                        uriBuilder.queryParam("target", targets.toArray()).build())
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        return response.exerciseModels();
+    }
+
+    public void deleteExercise(Long id) {
+        restClient.delete()
+                .uri("/{id}", id)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    throw new ExerciseNotFoundException("Exercise with id " + id + " not found");
+                })
+                .toBodilessEntity();
+    }
+
+    public List<ImageUrlViewModel> getExerciseImages(Long id) {
+        ImageCollectionResponse response = restClient.get()
+                .uri("/{id}/images", id)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, res) -> {
+                    throw new ExerciseNotFoundException("Exercise with id " + id + " not found");
+                })
+                .body(ImageCollectionResponse.class);
+
+        return response.imageUrls();
+    }
+
+    public void deleteExerciseImage(Long exerciseId, Long imageId) {
+        restClient.delete()
+                .uri("/{id}/images/{imageId}", exerciseId, imageId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    throw new ExerciseNotFoundException("Image with id " + imageId + " not found for exercise with id " + exerciseId);
+                })
+                .toBodilessEntity();
     }
 
     private ExerciseResponse getExerciseResponse(Long id) {
@@ -211,14 +275,34 @@ public class ExerciseRestClient {
     private record ImageUrlsAddRequest(List<String> urls) {
     }
 
-    private record ExercisesForReviewResponse(
-            @JsonProperty("_embedded") Embedded embedded,
-            PageMetadata page
-    ) {
-        private record Embedded(List<ExerciseForReviewViewModel> exerciseModelList) {
+    private record Embedded<T>(List<T> exerciseModelList) {
+    }
+
+    private record ExerciseCollectionResponse<T>(@JsonProperty("_embedded") Embedded<T> embedded) {
+        List<T> exerciseModels() {
+            return embedded == null ? List.of() : embedded.exerciseModelList();
+        }
+    }
+
+    private record ExercisePageResponse<T>(@JsonProperty("_embedded") Embedded<T> embedded, PageMetadata page) {
+        Page<T> toPage() {
+            return new ExercisePageImpl<>(
+                    embedded == null ? List.of() : embedded.exerciseModelList(),
+                    PageRequest.of(page.number(), page.size()),
+                    page.totalElements()
+            );
         }
 
         private record PageMetadata(int size, long totalElements, int totalPages, int number) {
+        }
+    }
+
+    private record ImageCollectionResponse(@JsonProperty("_embedded") ImagesEmbedded embedded) {
+        List<ImageUrlViewModel> imageUrls() {
+            return embedded == null ? List.of() : embedded.imageUrlModelList();
+        }
+
+        private record ImagesEmbedded(List<ImageUrlViewModel> imageUrlModelList) {
         }
     }
 
