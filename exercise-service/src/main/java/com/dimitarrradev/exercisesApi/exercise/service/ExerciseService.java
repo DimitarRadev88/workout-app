@@ -129,6 +129,11 @@ public class ExerciseService {
                 .findAllByTargetBodyPartIsInAndApprovedTrueAndIsDeletedFalse(targetBodyParts));
     }
 
+    public CollectionModel<ExerciseModel> getApprovedExercises() {
+        return exerciseModelAssembler.toCollectionModel(exerciseRepository
+                .findAllByApprovedTrueAndIsDeletedFalse(Sort.by("name").ascending()));
+    }
+
     public Exercise getExerciseEntity(Long id) {
         return exerciseRepository
                 .findById(id)

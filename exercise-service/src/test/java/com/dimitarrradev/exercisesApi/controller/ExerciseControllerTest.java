@@ -300,6 +300,32 @@ public class ExerciseControllerTest {
     }
 
     @Test
+    void testGetExercisesReturnsApprovedExercises() throws Exception {
+        jdbc.execute(String.format(createExercise, "test-exercise-2", "test-exercise-description", "LEGS", "HARD", "COMPOUND"));
+        jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
+
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$._embedded.exerciseModelList", hasSize(2)))
+                .andExpect(jsonPath("$._embedded.exerciseModelList[0].name", is("test-exercise-1")))
+                .andExpect(jsonPath("$._embedded.exerciseModelList[1].name", is("test-exercise-2")));
+    }
+
+    @Test
+    void testGetExercisesFiltersByTargetBodyParts() throws Exception {
+        jdbc.execute(String.format(createExercise, "test-exercise-2", "test-exercise-description", "LEGS", "HARD", "COMPOUND"));
+        jdbc.execute(String.format(createExercise, "test-exercise-3", "test-exercise-description", "CHEST", "HARD", "COMPOUND"));
+        jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "LEGS", "EASY", "ISOLATION", "test-user"));
+
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises")
+                        .param("target", "ABS", "LEGS"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.exerciseModelList", hasSize(2)))
+                .andExpect(jsonPath("$._embedded.exerciseModelList[*].name", containsInAnyOrder("test-exercise-1", "test-exercise-2")));
+    }
+
+    @Test
     void testSearchDoesNotReturnExercisesWaitingForReview() throws Exception {
         jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
 

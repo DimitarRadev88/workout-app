@@ -307,6 +307,18 @@ public class ExerciseServiceUnitTests {
     }
 
     @Test
+    void testGetApprovedExercisesReturnsApprovedExercisesOrderedByName() {
+        List<Exercise> exerciseList = generateExerciseList(3);
+
+        when(exerciseRepository.findAllByApprovedTrueAndIsDeletedFalse(Sort.by("name").ascending()))
+                .thenReturn(exerciseList);
+
+        CollectionModel<ExerciseModel> expected = CollectionModel.of(mapToExerciseModelList(exerciseList));
+
+        assertEquals(expected, exerciseService.getApprovedExercises());
+    }
+
+    @Test
     void testSearchExercisesByFilterReturnsCorrectCollectionModelOfExerciseModelWithExerciseName() {
         List<Exercise> exerciseList = generateExerciseList(12).stream()
                 .filter(exercise -> exercise.getName().contains("1"))

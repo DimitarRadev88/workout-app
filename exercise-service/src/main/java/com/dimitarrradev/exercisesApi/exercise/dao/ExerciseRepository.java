@@ -6,6 +6,7 @@ import com.dimitarrradev.exercisesApi.exercise.enums.TargetBodyPart;
 import com.dimitarrradev.exercisesApi.exercise.model.Exercise;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -33,6 +34,8 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     Page<Exercise> findAllByMovementTypeAndApprovedTrueAndIsDeletedFalse(Pageable pageable, MovementType movement);
 
     Page<Exercise> findAllByApprovedTrueAndIsDeletedFalse(Pageable pageable);
+
+    List<Exercise> findAllByApprovedTrueAndIsDeletedFalse(Sort sort);
 
     Page<Exercise> findAllByNameContainingIgnoreCaseAndApprovedTrueAndIsDeletedFalse(Pageable pageable, String name);
 

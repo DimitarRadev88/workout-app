@@ -17,12 +17,23 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/exercises")
 @RequiredArgsConstructor
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
+
+    @GetMapping
+    public CollectionModel<ExerciseModel> getExercises(@RequestParam(required = false) List<TargetBodyPart> target) {
+        if (target == null || target.isEmpty()) {
+            return exerciseService.getApprovedExercises();
+        }
+
+        return exerciseService.getExercisesForTargetBodyParts(target);
+    }
 
     @GetMapping("/{id}")
     public ExerciseModel getExercise(@PathVariable Long id) {
