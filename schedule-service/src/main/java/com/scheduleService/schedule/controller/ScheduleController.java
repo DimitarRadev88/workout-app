@@ -29,12 +29,12 @@ public class ScheduleController {
         scheduleService.createSchedule(scheduleAddModel);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping(value = "/{userId}", params = "date")
     ScheduleModel getSchedule(@PathVariable Long userId, @RequestParam LocalDate date) {
         return scheduleService.getSchedule(userId, date);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping(value = "/{userId}", params = "!date")
     CollectionModel<ScheduleModel> getAllSchedules(@PathVariable Long userId) {
         return scheduleService.getAll(userId);
     }
