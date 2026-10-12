@@ -8,8 +8,8 @@ import java.util.List;
 
 public class ExercisePageImpl<T> extends PageImpl<T> {
 
-    public ExercisePageImpl(List<T> content, Pageable pageable, long total) {
-        super(content, pageable, total);
+    public ExercisePageImpl(List<T> content, Pageable pageable, long totalElements) {
+        super(content, pageable, totalElements);
     }
 
     public ExercisePageImpl(List<T> content) {
