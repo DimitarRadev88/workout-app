@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.dimitarrradev</groupId>
-        <artifactId>workout-scheduler-microservices</artifactId>
+        <artifactId>workout-scheduler-app</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>workout-scheduler-app</artifactId>
-    <name>workout-scheduler-app</name>
+    <artifactId>workout-service</artifactId>
+    <name>workout-service</name>
     <description>Workout Scheduler web app</description>
 
     <dependencies>
