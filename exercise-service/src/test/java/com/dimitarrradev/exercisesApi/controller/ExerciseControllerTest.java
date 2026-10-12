@@ -61,6 +61,8 @@ public class ExerciseControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Value("${server.port}")
+    private String serverPort;
     @Value("${sql.script.create.exercise}")
     private String createExercise;
     @Value("${sql.script.create.exercise.for-review}")
@@ -94,7 +96,7 @@ public class ExerciseControllerTest {
 
         Exercise exercise = byId.get();
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/{id}", exercise.getId()))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/{id}", exercise.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.name", is(exercise.getName())))
@@ -114,7 +116,7 @@ public class ExerciseControllerTest {
 
         assertTrue(byId.isEmpty());
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/{id}", 0L))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/{id}", 0L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.exception", is("ExerciseNotFoundException")))
@@ -125,7 +127,7 @@ public class ExerciseControllerTest {
     void addExerciseRespondsWithStatusBadRequestWhenRequestBodyIsNotValid() throws Exception {
         ExerciseAddModel addModel = new ExerciseAddModel("", "", null, null, null, null);
 
-        mockMvc.perform(post("https://localhost:8082/api/exercises/add")
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/exercises/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addModel)))
                 .andExpect(status().isBadRequest())
@@ -152,7 +154,7 @@ public class ExerciseControllerTest {
                 "test-user"
         );
 
-        mockMvc.perform(post("https://localhost:8082/api/exercises/add")
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/exercises/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addModel)))
                 .andExpect(status().isConflict())
@@ -172,7 +174,7 @@ public class ExerciseControllerTest {
                 "test-user"
         );
 
-        mockMvc.perform(post("https://localhost:8082/api/exercises/add")
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/exercises/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addModel)))
                 .andExpect(status().isOk())
@@ -197,7 +199,7 @@ public class ExerciseControllerTest {
     void testEditExerciseRespondsWithStatusBadRequestWhenModelIsNotValid() throws Exception {
         ExerciseEditModel editModel = new ExerciseEditModel(null, null, null, null, null);
 
-        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}", 1L)
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/exercises/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(editModel)))
                 .andExpect(jsonPath("$.exception", is("InvalidRequestBodyException")))
@@ -221,7 +223,7 @@ public class ExerciseControllerTest {
                 MovementType.ISOLATION
         );
 
-        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}", exercise.getId())
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/exercises/{id}", exercise.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(editModel)))
                 .andExpect(status().isOk())
@@ -254,7 +256,7 @@ public class ExerciseControllerTest {
                 MovementType.ISOLATION
         );
 
-        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}", 0L)
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/exercises/{id}", 0L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(editModel)))
                 .andExpect(status().isNotFound())
@@ -282,7 +284,7 @@ public class ExerciseControllerTest {
         assertEquals(2, allByIsDeletedFalse.getSize());
         assertEquals(0, allByIsDeletedFalse.getNumber());
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/search").param("size", "2"))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/search").param("size", "2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$._embedded.exerciseModelList", hasSize(2)))
@@ -301,7 +303,7 @@ public class ExerciseControllerTest {
     void testSearchDoesNotReturnExercisesWaitingForReview() throws Exception {
         jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/search"))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/search"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.exerciseModelList", hasSize(1)))
                 .andExpect(jsonPath("$._embedded.exerciseModelList[0].name", is("test-exercise-1")));
@@ -312,7 +314,7 @@ public class ExerciseControllerTest {
         jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review-1", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
         jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review-2", "test-exercise-description", "LEGS", "HARD", "COMPOUND", "test-user"));
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/for-review")
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/for-review")
                         .param("page", "0")
                         .param("size", "10")
                         .param("orderBy", "desc"))
@@ -330,7 +332,7 @@ public class ExerciseControllerTest {
     void testGetExercisesForReviewCountReturnsNumberOfExercisesWaitingForReview() throws Exception {
         jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/for-review/count"))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/for-review/count"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
     }
@@ -339,7 +341,7 @@ public class ExerciseControllerTest {
     void testApproveExerciseApprovesExerciseWaitingForReview() throws Exception {
         jdbc.execute(String.format(createExerciseForReview, "test-exercise-for-review", "test-exercise-description", "ABS", "EASY", "ISOLATION", "test-user"));
 
-        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}/approve", 2L))
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/exercises/{id}/approve", 2L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.id", is(2)))
@@ -353,7 +355,7 @@ public class ExerciseControllerTest {
 
     @Test
     void testApproveExerciseRespondsWithStatusNotFoundWhenExerciseDoesNotExist() throws Exception {
-        mockMvc.perform(patch("https://localhost:8082/api/exercises/{id}/approve", 0L))
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/exercises/{id}/approve", 0L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.exception", is("ExerciseNotFoundException")))
@@ -366,7 +368,7 @@ public class ExerciseControllerTest {
 
         assertTrue(empty.isEmpty(), "Exercise should not exist");
 
-        mockMvc.perform(delete("https://localhost:8082/api/exercises/{id}", 0L))
+        mockMvc.perform(delete("https://localhost:" + serverPort + "/api/exercises/{id}", 0L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.exception", is("ExerciseNotFoundException")))
@@ -381,7 +383,7 @@ public class ExerciseControllerTest {
 
         Exercise exercise = optionalExercise.get();
 
-        mockMvc.perform(delete("https://localhost:8082/api/exercises/{id}", exercise.getId()))
+        mockMvc.perform(delete("https://localhost:" + serverPort + "/api/exercises/{id}", exercise.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.id", is(exercise.getId().intValue())))
@@ -411,7 +413,7 @@ public class ExerciseControllerTest {
 
         assertTrue(empty.isEmpty(), "Exercise should not exist");
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/{id}/images", 0L))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/{id}/images", 0L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.exception", is("ExerciseNotFoundException")))
@@ -429,7 +431,7 @@ public class ExerciseControllerTest {
 
         Exercise exercise = optionalExercise.get();
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/{id}/images", exercise.getId()))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/{id}/images", exercise.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$._embedded.imageUrlModelList", hasSize(3)));
@@ -441,7 +443,7 @@ public class ExerciseControllerTest {
 
         assertTrue(empty.isEmpty(), "Exercise should not exist");
 
-        mockMvc.perform(get("https://localhost:8082/api/exercises/{id}/images/{imageId}", 0L, 1L))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/exercises/{id}/images/{imageId}", 0L, 1L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.exception", is("ImageNotFoundException")))
@@ -454,7 +456,7 @@ public class ExerciseControllerTest {
 
         assertTrue(empty.isEmpty(), "Exercise should not exist");
 
-        mockMvc.perform(post("https://localhost:8082/api/exercises/{id}/images", 0L)
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/exercises/{id}/images", 0L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ImageUrlsAddModel(Collections.emptyList()))))
                 .andExpect(status().isNotFound())
@@ -473,7 +475,7 @@ public class ExerciseControllerTest {
 
         assertEquals(1, imageUrlRepository.count());
 
-        mockMvc.perform(post("https://localhost:8082/api/exercises/{id}/images", exercise.getId())
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/exercises/{id}/images", exercise.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ImageUrlsAddModel(List.of("some-url", "another-url")))))
                 .andExpect(status().isOk())
@@ -489,7 +491,7 @@ public class ExerciseControllerTest {
 
         assertTrue(empty.isEmpty(), "Exercise should not exist");
 
-        mockMvc.perform(delete("https://localhost:8082/api/exercises/{id}/images/{image_id}", 0L, 1L))
+        mockMvc.perform(delete("https://localhost:" + serverPort + "/api/exercises/{id}/images/{image_id}", 0L, 1L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.exception", is("ImageNotFoundException")))
@@ -508,7 +510,7 @@ public class ExerciseControllerTest {
 
         ImageUrl imageUrl = optionalImageUrl.get();
 
-        mockMvc.perform(delete("https://localhost:8082/api/exercises/{id}/images/{image_id}", 1L, 1L))
+        mockMvc.perform(delete("https://localhost:" + serverPort + "/api/exercises/{id}/images/{image_id}", 1L, 1L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.id", is(imageUrl.getId().intValue())))

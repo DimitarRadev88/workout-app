@@ -67,6 +67,8 @@ public class UserControllerTests {
     @Mock
     private UserService userServiceMock;
 
+    @Value("${server.port}")
+    private String serverPort;
     @Value("${sql.script.create.user}")
     private String createUser;
     @Value("${sql.script.delete.user}")
@@ -124,14 +126,14 @@ public class UserControllerTests {
 
         User savedUser = byId.get();
 
-        mockMvc.perform(get("https://localhost:8083/api/users/{id}", savedUser.getId()))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/users/{id}", savedUser.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_HAL_PLUS_JSON))
                 .andExpect(jsonPath("$.id", is(savedUser.getId().intValue())))
                 .andExpect(jsonPath("$.email", is(savedUser.getEmail())))
-                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:8083/api/users/%d", savedUser.getId()))))
-                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:8083/api/users/%d", savedUser.getId()))))
-                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:8083/api/users/%d/roles", savedUser.getId()))));
+                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d", savedUser.getId()))))
+                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d", savedUser.getId()))))
+                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d/roles", savedUser.getId()))));
     }
 
     @Test
@@ -140,7 +142,7 @@ public class UserControllerTests {
 
         assertFalse(byId.isPresent());
 
-        mockMvc.perform(get("/api/users/{id}", 0))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/users/{id}", 0))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.exception", is("UserNotFoundException")))
@@ -163,7 +165,7 @@ public class UserControllerTests {
         assertFalse(userRepository.existsUserByUsername(userAddModel.username()));
         assertFalse(userRepository.existsUserByEmail(userAddModel.email()));
 
-        mockMvc.perform(post("/api/users/create")
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/users/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userAddModel))
                 )
@@ -212,7 +214,7 @@ public class UserControllerTests {
                 null
         );
 
-        mockMvc.perform(post("/api/users/create")
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/users/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userAddModel))
                 )
@@ -233,7 +235,7 @@ public class UserControllerTests {
 
         User user = byId.get();
 
-        mockMvc.perform(get("/api/users/{id}/roles", user.getId()))
+        mockMvc.perform(get("https://localhost:" + serverPort + "/api/users/{id}/roles", user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_HAL_PLUS_JSON))
                 .andExpect(jsonPath("$._embedded.roleModelList", hasSize(user.getRoles().size())))
@@ -257,7 +259,7 @@ public class UserControllerTests {
                 "gym"
         );
 
-        mockMvc.perform(patch("https://localhost:8083/api/users/{id}", user.getId())
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/users/{id}", user.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(editModel)))
                 .andExpect(content().contentType(APPLICATION_HAL_PLUS_JSON))
@@ -270,9 +272,9 @@ public class UserControllerTests {
                 .andExpect(jsonPath("$.gym", is(editModel.gym())))
                 .andExpect(jsonPath("$.email", is(user.getEmail())))
                 .andExpect(jsonPath("$.updatedAt", notNullValue()))
-                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:8083/api/users/%d", user.getId()))))
-                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:8083/api/users/%d", user.getId()))))
-                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:8083/api/users/%d/roles", user.getId()))));
+                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d", user.getId()))))
+                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d", user.getId()))))
+                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d/roles", user.getId()))));
     }
 
     @Test
@@ -285,7 +287,7 @@ public class UserControllerTests {
                 "gym"
         );
 
-        mockMvc.perform(patch("/api/users/{id}", 0)
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/users/{id}", 0)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(editModel))
                 )
@@ -304,7 +306,7 @@ public class UserControllerTests {
 
         User user = byId.get();
 
-        mockMvc.perform(post("https://localhost:8083/api/users/create-password-reset-token")
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/users/create-password-reset-token")
                 .param("email", user.getEmail()))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -338,7 +340,7 @@ public class UserControllerTests {
                 passwordResetToken.getToken()
         );
 
-        mockMvc.perform(patch("https://localhost:8083/api/users/change-password")
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/users/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changeModel)))
                 .andExpect(status().isOk())
@@ -347,9 +349,9 @@ public class UserControllerTests {
                 .andExpect(jsonPath("$.username", is(user.getUsername())))
                 .andExpect(jsonPath("$.email", is(user.getEmail())))
                 .andExpect(jsonPath("$.updatedAt", notNullValue()))
-                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:8083/api/users/%d", user.getId()))))
-                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:8083/api/users/%d", user.getId()))))
-                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:8083/api/users/%d/roles", user.getId()))));
+                .andExpect(jsonPath("$._links.self.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d", user.getId()))))
+                .andExpect(jsonPath("$._links.update.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d", user.getId()))))
+                .andExpect(jsonPath("$._links.roles.href", is(String.format("https://localhost:" + serverPort + "/api/users/%d/roles", user.getId()))));
 
         Optional<User> optionalUser = userRepository.findById(user.getId());
         assertTrue(optionalUser.isPresent());
@@ -368,7 +370,7 @@ public class UserControllerTests {
         );
 
 
-        mockMvc.perform(patch("https://localhost:8083/api/users/change-password")
+        mockMvc.perform(patch("https://localhost:" + serverPort + "/api/users/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changeModel))
                 )
