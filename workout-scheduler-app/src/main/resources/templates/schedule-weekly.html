@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Today\'s schedule')}"></head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4" th:text="${#dates.createNowForTimeZone(#locale.getDefault())}">Schedule
+                    Date</h3>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="text-primary m-0 fw-bold">Daily schedule</h6>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col me-2">
+                                    <h6 class="mb-0"><strong>Cardio</strong></h6><span class="text-xs">8:00AM</span>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-1"><label class="form-check-label" for="formCheck-1"></label></div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col me-2">
+                                    <h6 class="mb-0"><strong>Work</strong></h6><span class="text-xs">9:00AM</span>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-2"><label class="form-check-label" for="formCheck-2"></label></div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col me-2">
+                                    <h6 class="mb-0"><strong>Strength Training</strong></h6><span class="text-xs">19:30 AM</span>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-3"><label class="form-check-label" for="formCheck-3"></label></div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</div>
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script src="/js/theme.js"></script>
+</body>
+
+</html>

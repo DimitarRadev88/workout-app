@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Edit Exercise')}"></head>
+
+
+<body id="page-top">
+<div id="wrapper">
+    <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4" th:text="${exerciseEdit.name}">Exercise Name</h3>
+                <div class="row mb-3">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow mb-3">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Exercise Information</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <form th:action="@{/exercises/edit/{id}(id=*{id})}" th:object="${exerciseEdit}"
+                                              th:method="patch">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <label th:unless="${#fields.hasErrors('name')}" class="form-label" for="exercise_name">
+                                                            <strong>Name</strong>
+                                                        </label>
+                                                        <label th:if="${#fields.hasErrors('name')}" class="form-label" for="exercise_name">
+                                                            <strong th:text="${#fields.errors('name').getFirst()}">Name</strong>
+                                                        </label>
+                                                        <input class="form-control" type="text" th:field="*{name}" name="exercise_name" id="exercise_name">
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <label th:unless="${#fields.hasErrors('description')}" class="form-label" for="description">
+                                                                <strong>Description</strong>
+                                                            </label>
+                                                            <label th:if="${#fields.hasErrors('description')}" class="form-label" for="description">
+                                                                <strong th:text="${#fields.errors('description').getFirst()}">Description</strong>
+                                                            </label>
+                                                            <textarea class="form-control" th:field="*{description}" id="description" name="description"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <label th:unless="${#fields.hasErrors('addImageUrls')}" class="form-label" for="addImageUrls">
+                                                                <strong>Image URLs</strong>
+                                                            </label>
+                                                            <label th:if="${#fields.hasErrors('addImageUrls')}" class="form-label" for="addImageUrls">
+                                                                <strong th:text="${#fields.errors('addImageUrls').getFirst()}">Image URLs</strong>
+                                                            </label>
+                                                            <textarea class="form-control" th:field="*{addImageUrls}"
+                                                                      id="addImageUrls" name="addImageUrls"
+                                                                      placeholder="You can add several urls split by new line">
+                                                            </textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <input hidden type="text" name="approved" id="approved" th:value="*{approved}" th:field="*{approved}">
+
+                                                <div class="mb-3">
+                                                    <button class="btn btn-primary btn-sm" type="submit">Save Settings</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 fw-bold">ImageUrls</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <div th:each="imageUrlObj : ${imageUrls}" class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <form class="d-flex justify-content-between"
+                                                              th:action="@{/exercises/{exerciseId}/imageUrls/delete/{id}(exerciseId=${exerciseEdit.id}, id=${imageUrlObj.id})}"
+                                                              th:method="delete">
+                                                            <img width="80" height="80" th:src="${imageUrlObj.url()}" th:alt="${exerciseEdit.name()}">
+                                                            <button class="btn btn-danger m-4" type="submit">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-1">
+                    <div class="row">
+                        <div class="col">
+                            <div th:unless="${exerciseEdit.approved}" class="row">
+                                <div class="col">
+                                    <div class="mb-3">
+                                        <form th:action="@{/exercises/approve/{id}(id=${id})}" th:method="@{PATCH}">
+                                            <button class="btn btn-success text-white" type="submit">Approve
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="mb-3">
+                                        <a th:if="${exerciseEdit.approved}" class="btn btn-primary" th:href="@{/exercises/view/{id}(id=${id})}">Back</a>
+                                        <a th:unless="${exerciseEdit.approved}" class="btn btn-primary" th:href="@{/exercises/for-review}">Back</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="bg-white sticky-footer">
+            <div class="container my-auto">
+                <div class="text-center my-auto copyright"><span>Copyright © Workout Tracker 2025</span></div>
+            </div>
+
+        </footer>
+        <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+</div>
+</body>
+
+</html>

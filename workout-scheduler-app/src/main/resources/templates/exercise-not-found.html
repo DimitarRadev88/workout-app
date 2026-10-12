@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head th:replace="~{fragments/header :: header (pageTitle = ${error})}"></head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+            <section class="py-4 py-xl-5">
+                <div>
+                    <p class="text-lg-center text-bg-danger" th:text="${error}"></p>
+                </div>
+            </section>
+        </div>
+        <footer class="bg-white sticky-footer">
+            <div class="container my-auto">
+                <div class="text-center my-auto copyright"><span>Copyright © Workout Tracker 2025</span></div>
+            </div>
+        </footer>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</div>
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/actions.js"></script>
+</body>
+
+</html>

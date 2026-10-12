@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Edit Workout')}"></head>
+
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+                <div class="container">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Workouts</h3>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mb-2">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold" th:text="${'Edit Workout For ' + #temporals.format(workoutDate, 'dd-MM-yyyy HH:mm')}" id="workout_date">Edit Workout For Date</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <form th:action="@{/workouts/edit/{id}(id=${workoutId})}" th:object="${workout}" th:method="@{PATCH}">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" >
+                                                                <strong class="text-danger" th:if="${#fields.hasErrors('workoutType')}" th:text="${#fields.errors('workoutType').getFirst()}">Type</strong>
+                                                                <strong th:unless="${#fields.hasErrors('workoutType')}">Type</strong>
+                                                            </label>
+                                                            <div class="form-check">
+                                                                <div id="select_complexity"
+                                                                     th:each="type : ${T(com.dimitarrradev.workoutScheduler.workout.enums.WorkoutType).values()}">
+                                                                    <input id="complexity" class="form-check-input"
+                                                                           th:value="${type}" th:field="*{workoutType}"
+                                                                           type="radio"/>
+                                                                    <label class="form-check-label" for="complexity"
+                                                                           th:text="${type.getName()}">Easy</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label class="col-form-label">
+                                                            <strong class="text-danger" th:if="${#fields.hasErrors('targetBodyParts')}" th:text="${#fields.errors('targetBodyParts').getFirst()}">Target</strong>
+                                                            <strong th:unless="${#fields.hasErrors('targetBodyParts')}">Target</strong>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <div th:each="i : ${#numbers.sequence(0, targets.length / 2 - 1, 1)}" class="form-check">
+                                                                <div id="select_target_1">
+                                                                    <input id="target_1" class="form-check-input"
+                                                                           th:value="${targets[i]}" th:field="*{targetBodyParts}"
+                                                                           type="checkbox"/>
+                                                                    <label class="form-check-label" for="target_1"
+                                                                           th:text="${targets[i].getName()}">Easy</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <div th:each="i : ${#numbers.sequence(targets.length / 2, targets.length - 1, 1)}" class="form-check">
+                                                                <div id="select_target_2">
+                                                                    <input id="target_2" class="form-check-input"
+                                                                           th:value="${targets[i]}" th:field="*{targetBodyParts}"
+                                                                           type="checkbox"/>
+                                                                    <label class="form-check-label" for="target_2"
+                                                                           th:text="${targets[i].getName()}">Easy</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Add Exercise</p></div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col col-xxl-12">
+                                                <form th:action="@{/workouts/edit/{id}/addExercise(id=${workoutId})}" th:object="${exerciseWorkoutExerciseBindingModel}" method="post">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <div class="mb-3">
+                                                                <label class="form-label" for="exercises">
+                                                                    <strong th:unless="${#fields.hasErrors('exerciseId')}">Exercise</strong><span class="text-danger" th:if="*{exerciseId == null}">*</span>
+                                                                    <strong th:if="${#fields.hasErrors('exerciseId')}" th:text="${#fields.errors('exerciseId').getFirst()}">Exercises</strong>
+                                                                </label>
+                                                                <select class="form-select" id="exercises" th:field="*{exerciseId}">
+                                                                    <option selected th:value="${null}">Select exercise</option>
+                                                                    <option th:each="ex : ${exercises}" th:value='${ex.id}' th:text="${ex.name()}">Bench Press</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <div class="mb-3">
+                                                                <label class="form-label" for="sets"><strong>Sets</strong><span class="text-danger" th:if="*{workoutExerciseBindingModel.sets == null}">*</span></label>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.sets}" id="sets" min="1" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">
+                                                                    <strong class="text-danger" th:if="*{workoutExerciseBindingModel.minReps > workoutExerciseBindingModel.maxReps}">Min reps must be less or equal to Max reps</strong>
+                                                                    <strong th:unless="*{workoutExerciseBindingModel.minReps != null && workoutExerciseBindingModel.maxReps != null && workoutExerciseBindingModel.minReps > workoutExerciseBindingModel.maxReps}">Reps</strong>
+                                                                    <span class="text-danger" th:if="*{workoutExerciseBindingModel.minReps == null || workoutExerciseBindingModel.maxReps == null}">*</span>
+                                                                </label>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.minReps}" placeholder="Min reps" id="min_reps" min="1" required>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.maxReps}" placeholder="Max reps" id="max_reps" min="1" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <div class="mb-3">
+                                                                <label class="form-label" for="rest"><strong>Rest</strong><span class="text-danger" th:if="*{workoutExerciseBindingModel.rest == null}">*</span></label>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.rest}" id="rest" min="15" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="mb-3">
+                                                                <label class="form-label" for="weight"><strong>Weight</strong><span class="text-danger" th:if="*{workoutExerciseBindingModel.weight == null}">*</span></label>
+                                                                <input class="form-control" type="number" th:field="*{workoutExerciseBindingModel.weight}" id="weight" step=".25" min="0.5" required >
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col col-xxl-12">
+                                                            <div class="mb-3">
+                                                                <button class="btn btn-primary btn-sm" type="submit">Add Exercise</button>
+                                                            </div>
+                                                            <div class="mb-3"></div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="col col-xxl-12">
+                                        <div class="mb-3"></div>
+                                            <table class="table w-100 text-center" id="dataTable" style="table-layout: fixed;">
+                                                <thead>
+                                                <tr>
+                                                    <th>Exercise</th>
+                                                    <th>Sets</th>
+                                                    <th>Min reps</th>
+                                                    <th>Max reps</th>
+                                                    <th>Weight</th>
+                                                    <th>Rest</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr th:each="exercise : ${workoutExercises}">
+                                                    <form th:action="@{/workouts/{workoutId}/editExercise/{exerciseId}(workoutId=${workoutId}, exerciseId=${exercise.id})}" th:method="@{PATCH}">
+                                                        <td th:text="${exercise.exerciseName}">Bench Press</td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="1" required name="sets" th:value="${exercise.sets}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="1" required name="minReps" th:value="${exercise.minReps}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="1" required name="maxReps" th:value="${exercise.maxReps}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="0.5" step="0.25" required name="weight" th:value="${exercise.weight}"></td>
+                                                        <td><input class="form-control form-control-sm" type="number" min="15" required name="rest" th:value="${exercise.rest}"></td>
+                                                        <td><button class="btn btn-primary btn-sm" type="submit">Edit</button></td>
+                                                    </form>
+                                                    <td>
+                                                        <form th:action="@{/workouts/edit/{workoutId}/deleteExercise/{exerciseId}(workoutId=${workoutId}, exerciseId=${exercise.id})}" th:method="@{DELETE}">
+                                                            <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
+</body>
+
+</html>

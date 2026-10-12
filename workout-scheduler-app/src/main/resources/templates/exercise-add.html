@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header (pageTitle = 'Add Exercise')}"></head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav th:replace="~{fragments/navbar :: sideNavbar}"></nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav th:replace="~{fragments/navbar :: topNavbar}"></nav>
+                <div class="container">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Exercises</h3>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mb-2">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col col-xxl-12">
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <p class="text-primary m-0 fw-bold">Add Exercise</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <form th:action="@{/exercises/add}" th:object="${exerciseAdd}" method="post">
+                                            <div class="row">
+                                                <div>
+                                                    <p class="text-bg-danger fw-bold d-flex justify-content-between" th:if="${error}" id="error">
+                                                        <span th:text="${error}"></span>
+                                                        <button class="btn btn-sm btn-danger" onclick="hideError()">X</button>
+                                                    </p>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <div th:unless="${#fields.hasErrors('complexity')}" class="form-label"><strong>Complexity</strong></div>
+                                                        <div class="form-label text-danger" th:if="${#fields.hasErrors('complexity')}" ><strong th:text="${#fields.errors('complexity').getFirst()}">Complexity</strong></div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label" for="complexity_1">Easy</label>
+                                                            <input id="complexity_1" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).EASY}" th:field="*{complexity}" type="radio" />
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label" for="complexity_2">Medium</label>
+                                                            <input id="complexity_2" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).MEDIUM}" th:field="*{complexity}" type="radio" />
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label" for="complexity_3">Hard</label>
+                                                            <input id="complexity_3" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.Complexity).HARD}" th:field="*{complexity}" type="radio" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <div th:unless="${#fields.hasErrors('movementType')}" class="form-label"><strong>Movement Type</strong></div>
+                                                        <div class="form-label text-danger" th:if="${#fields.hasErrors('movementType')}" ><strong th:text="${#fields.errors('movementType').getFirst()}">Movement Type</strong></div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label" for="movement_type_1">Compound</label>
+                                                            <input id="movement_type_1" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.MovementType).COMPOUND}" th:field="*{movementType}" type="radio" />
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label" for="movement_type_2">Isolation</label>
+                                                            <input id="movement_type_2" class="form-check-input" th:value="${T(com.dimitarrradev.workoutScheduler.exercise.enums.MovementType).ISOLATION}" th:field="*{movementType}" type="radio" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <label th:unless="${#fields.hasErrors('bodyPart')}" class="form-label" for="bodyPart"><strong>Target Body Part</strong></label>
+                                                        <label th:if="${#fields.hasErrors('bodyPart')}" class="form-label text-danger" for="bodyPart"><strong th:text="${#fields.errors('bodyPart').getFirst()}">Target Body Part</strong></label>
+                                                        <select class="form-select" th:field="*{bodyPart}" id="bodyPart" name="bodyPart">
+                                                                <option selected hidden th:value="${null}">Select</option>
+                                                                <option th:each="bodyPart : ${T(com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart).values()}"
+                                                                        th:value="${bodyPart}" th:text="${#strings.capitalize(#strings.toLowerCase(bodyPart.name()))}">Chest</option>
+                                                        </select></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3">
+                                                        <label th:unless="${#fields.hasErrors('exerciseName')}" class="form-label" for="exerciseName"><strong>Exercise Name</strong></label>
+                                                        <label th:if="${#fields.hasErrors('exerciseName')}" class="form-label text-danger" for="exerciseName"><strong th:text="${#fields.errors('exerciseName').getFirst()}">Exercise Name</strong></label>
+                                                        <input class="form-control" th:value="*{exerciseName}" type="text" id="exerciseName" placeholder="Bench Press" name="exerciseName"></div>
+                                                </div>
+                                                <div class="col" hidden disabled>
+                                                    <input class="form-control" th:value="${#authentication.getName()}" th:field="*{addedBy}" type="text" id="username" placeholder="Bench, Barbell" name="username">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col col-xxl-12">
+                                                    <div class="mb-3">
+                                                        <label th:unless="${#fields.hasErrors('description')}" class="form-label" for="description"><strong>Execution Description</strong></label>
+                                                        <label th:if="${#fields.hasErrors('description')}" class="form-label text-danger" for="description"><strong th:text="${#fields.errors('description').getFirst()}">Execution Description</strong></label>
+                                                        <textarea id="description" th:value="*{description}" class="form-control" name="description" style="height: 10rem;"></textarea></div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <button class="btn btn-primary btn-sm" type="submit">Add Exercise</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/actions.js"></script>
+</body>
+
+</html>

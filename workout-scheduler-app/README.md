@@ -1,0 +1,16 @@
+﻿# workout-scheduler-app
+
+Workout Scheduler App
+
+A web application designed to help users plan, organize, and track their fitness routines. The Workout Scheduler allows you to create a personalized workout schedule, save your favorite exercises, and monitor your progress over time. This tool aims to simplify the process of maintaining a consistent and effective workout regimen.
+Features
+
+    Intuitive Calendar View: Easily schedule workouts on a clear, interactive calendar.
+
+    Customizable Routines: Create and save your own workout routines with specific exercises, sets, and reps.
+
+    Progress Tracking: Log completed workouts and monitor your fitness journey.
+
+    Mobile-Friendly Design: Access and manage your schedule seamlessly on any device.
+
+Project Link: https://github.com/DimitarRadev88/workout-scheduler-app
