@@ -21,6 +21,7 @@
         <module>user-service</module>
         <module>workout-service</module>
         <module>eureka-discovery-service</module>
+        <module>api-gateway</module>
     </modules>
 
     <properties>
