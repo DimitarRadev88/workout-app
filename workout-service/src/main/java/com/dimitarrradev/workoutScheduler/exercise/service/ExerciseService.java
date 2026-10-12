@@ -1,7 +1,6 @@
 package com.dimitarrradev.workoutScheduler.exercise.service;
 
 import com.dimitarrradev.workoutScheduler.config.rest.ExerciseRestClient;
-import com.dimitarrradev.workoutScheduler.errors.exception.ExerciseAlreadyExistsException;
 import com.dimitarrradev.workoutScheduler.exercise.dto.PageInformation;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseAddBindingModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseEditBindingModel;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -32,15 +30,11 @@ public class ExerciseService {
     }
 
     public String addExerciseForReview(ExerciseAddBindingModel exerciseAdd) {
-        ResponseEntity<String> entity = restClient.addExercise(exerciseAdd);
+        ExerciseRestClient.ExerciseResponse added = restClient.addExercise(exerciseAdd);
 
-        if (entity.getStatusCode().equals(HttpStatus.CONFLICT)) {
-            throw new ExerciseAlreadyExistsException(entity.getBody());
-        }
+        log.info("Exercise added for review: {}", added.id());
 
-        log.info("Exercise added for review: {}", entity.getHeaders().getLocation());
-
-        return entity.getBody();
+        return "Exercise " + added.name() + " was sent for review";
     }
 
     public long getExercisesForReviewCount() {
@@ -53,13 +47,7 @@ public class ExerciseService {
     }
 
     public void approveExercise(Long id) {
-//        exerciseRepository.findById(id).map(exercise -> {
-//            exercise.setApproved(true);
-//            exerciseRepository.save(exercise);
-//            return exercise;
-//        }).orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
-        throw new IllegalStateException("TODO");
-
+        restClient.approveExercise(id);
     }
 
     public void deleteExercise(Long id) {
