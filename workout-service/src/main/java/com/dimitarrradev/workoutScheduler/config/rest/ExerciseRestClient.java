@@ -7,6 +7,7 @@ import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseForReviewVie
 import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.service.ExercisePageImpl;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +25,7 @@ public class ExerciseRestClient {
 
     private final RestClient restClient;
 
-    public ExerciseRestClient(RestClient.Builder builder, @Value("${exercises.api.url}") String apiUrl) {
+    public ExerciseRestClient(@LoadBalanced RestClient.Builder builder, @Value("${exercises.api.url}") String apiUrl) {
         this.restClient = builder
                 .baseUrl(apiUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString("user:password".getBytes()))
