@@ -169,7 +169,7 @@ public class ExerciseController {
     @GetMapping("/for-review")
     public String getExercisesForReview(
             Model model,
-            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
