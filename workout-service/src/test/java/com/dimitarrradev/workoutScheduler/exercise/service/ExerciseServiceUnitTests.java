@@ -6,6 +6,7 @@ import com.dimitarrradev.workoutScheduler.exercise.dto.binding.ExerciseFindBindi
 import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseFindViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseNameAndIdViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.dto.view.ExerciseViewModel;
+import com.dimitarrradev.workoutScheduler.exercise.dto.view.ImageUrlViewModel;
 import com.dimitarrradev.workoutScheduler.exercise.enums.Complexity;
 import com.dimitarrradev.workoutScheduler.exercise.enums.MovementType;
 import com.dimitarrradev.workoutScheduler.exercise.enums.TargetBodyPart;
@@ -76,6 +77,20 @@ class ExerciseServiceUnitTests {
 
         assertEquals(Map.of(1L, "push-up", 2L, "Unknown exercise"), names);
         verify(restClient, times(1)).getExercise(1L);
+    }
+
+    @Test
+    void testGetExerciseViewIncludesImages() {
+        when(restClient.getExercise(1L))
+                .thenReturn(ResponseEntity.ok(new ExerciseViewModel(1L, "push-up", "EASY", "COMPOUND", "description", "user", true, null)));
+        when(restClient.getExerciseImages(1L))
+                .thenReturn(List.of(new ImageUrlViewModel(11L, "https://images.example/push-up.png")));
+
+        assertEquals(
+                new ExerciseViewModel(1L, "push-up", "EASY", "COMPOUND", "description", "user", true,
+                        List.of(new ImageUrlViewModel(11L, "https://images.example/push-up.png"))),
+                exerciseService.getExerciseView(1L)
+        );
     }
 
     @Test

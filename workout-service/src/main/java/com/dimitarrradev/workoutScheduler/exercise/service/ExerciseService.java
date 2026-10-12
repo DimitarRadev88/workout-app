@@ -66,9 +66,18 @@ public class ExerciseService {
     }
 
     public ExerciseViewModel getExerciseView(Long id) {
-        ResponseEntity<ExerciseViewModel> responseEntity = restClient.getExercise(id);
+        ExerciseViewModel exercise = restClient.getExercise(id).getBody();
 
-        return responseEntity.getBody();
+        return new ExerciseViewModel(
+                exercise.id(),
+                exercise.name(),
+                exercise.complexity(),
+                exercise.movementType(),
+                exercise.description(),
+                exercise.addedBy(),
+                exercise.approved(),
+                restClient.getExerciseImages(id)
+        );
     }
 
 
@@ -127,7 +136,7 @@ public class ExerciseService {
 
     private String getExerciseName(Long id) {
         try {
-            return getExerciseView(id).name();
+            return restClient.getExercise(id).getBody().name();
         } catch (ExerciseNotFoundException e) {
             log.warn("Exercise {} not found in exercise-service", id);
             return "Unknown exercise";
