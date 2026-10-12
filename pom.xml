@@ -9,16 +9,17 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.dimitarrradev</groupId>
-    <artifactId>workout-scheduler-app</artifactId>
+    <artifactId>workout-scheduler-microservices</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>workout-scheduler-app</name>
+    <name>workout-scheduler-microservices</name>
     <description>Workout Scheduler microservices</description>
 
     <modules>
         <module>exercise-service</module>
         <module>schedule-service</module>
         <module>user-service</module>
+        <module>workout-scheduler-app</module>
     </modules>
 
     <properties>
