@@ -14,6 +14,17 @@ import java.util.List;
 @RestControllerAdvice
 public class UserServiceExceptionHandler {
 
+    @ExceptionHandler(exception = InvalidCredentialsException.class)
+    public ResponseEntity<ExceptionModel> handleInvalidCredentials(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        new ExceptionModel(
+                                exception.getClass().getSimpleName(),
+                                exception.getMessage())
+                );
+    }
+
     @ExceptionHandler(exception = UserNotFoundException.class)
     public ResponseEntity<ExceptionModel> handleUserNotFound(Exception exception) {
         return ResponseEntity

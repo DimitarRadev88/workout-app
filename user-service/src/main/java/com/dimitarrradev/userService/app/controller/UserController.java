@@ -2,15 +2,19 @@ package com.dimitarrradev.userService.app.controller;
 
 import com.dimitarrradev.userService.app.controller.binding.UserAddModel;
 import com.dimitarrradev.userService.app.controller.binding.UserEditModel;
+import com.dimitarrradev.userService.app.controller.binding.UserLoginModel;
 import com.dimitarrradev.userService.app.controller.binding.UserPasswordChangeModel;
 import com.dimitarrradev.userService.app.error.exception.InvalidRequestBodyException;
 import com.dimitarrradev.userService.app.role.RoleModel;
 import com.dimitarrradev.userService.app.role.service.RoleService;
+import com.dimitarrradev.userService.app.security.JwtService;
+import com.dimitarrradev.userService.app.security.LoginResult;
 import com.dimitarrradev.userService.app.user.UserModel;
 import com.dimitarrradev.userService.app.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +30,7 @@ public class UserController {
 
     private final UserService userService;
     private final RoleService roleService;
+    private final JwtService jwtService;
 
     @PostMapping("/create")
     public ResponseEntity<UserModel> createUser(
@@ -41,6 +46,23 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(user);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserModel> login(
+            @Valid @RequestBody UserLoginModel userLoginModel,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            throw new InvalidRequestBodyException(bindingResult);
+        }
+
+        LoginResult loginResult = userService.login(userLoginModel);
+
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.SET_COOKIE, jwtService.createCookie(loginResult.token()).toString())
+                .body(loginResult.user());
     }
 
     @GetMapping("/{id}")

@@ -2,14 +2,18 @@ package com.dimitarrradev.userService.app.user.service;
 
 import com.dimitarrradev.userService.app.controller.binding.UserAddModel;
 import com.dimitarrradev.userService.app.controller.binding.UserEditModel;
+import com.dimitarrradev.userService.app.controller.binding.UserLoginModel;
 import com.dimitarrradev.userService.app.controller.binding.UserPasswordChangeModel;
 import com.dimitarrradev.userService.app.error.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.userService.app.error.exception.InvalidCredentialsException;
 import com.dimitarrradev.userService.app.error.exception.InvalidResetTokenException;
 import com.dimitarrradev.userService.app.error.exception.UserNotFoundException;
 import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.userService.app.role.Role;
 import com.dimitarrradev.userService.app.role.dao.RoleRepository;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
+import com.dimitarrradev.userService.app.security.JwtService;
+import com.dimitarrradev.userService.app.security.LoginResult;
 import com.dimitarrradev.userService.app.user.PasswordResetToken;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.UserModel;
@@ -38,6 +42,7 @@ public class UserService {
     private final UserModelAssembler assembler;
     private final FromModelMapper fromModelMapper;
     private final RoleRepository roleRepository;
+    private final JwtService jwtService;
 
     public UserModel createUser(UserAddModel userAddModel) {
         if (this.userRepository.existsUserByUsername(userAddModel.username())) {
@@ -56,6 +61,15 @@ public class UserService {
         user.setBmi(calculateBMI(user));
 
         return this.assembler.toModel(this.userRepository.save(user));
+    }
+
+    public LoginResult login(UserLoginModel loginModel) {
+        User user = this.userRepository
+                .findByUsername(loginModel.username())
+                .filter(found -> this.passwordEncoder.matches(loginModel.password(), found.getPassword()))
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password!"));
+
+        return new LoginResult(this.assembler.toModel(user), this.jwtService.issueToken(user));
     }
 
     public UserModel getUser(Long id) {

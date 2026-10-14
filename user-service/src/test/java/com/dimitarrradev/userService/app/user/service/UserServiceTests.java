@@ -2,14 +2,18 @@ package com.dimitarrradev.userService.app.user.service;
 
 import com.dimitarrradev.userService.app.controller.binding.UserAddModel;
 import com.dimitarrradev.userService.app.controller.binding.UserEditModel;
+import com.dimitarrradev.userService.app.controller.binding.UserLoginModel;
 import com.dimitarrradev.userService.app.controller.binding.UserPasswordChangeModel;
 import com.dimitarrradev.userService.app.error.exception.EmailAlreadyExistsException;
+import com.dimitarrradev.userService.app.error.exception.InvalidCredentialsException;
 import com.dimitarrradev.userService.app.error.exception.InvalidResetTokenException;
 import com.dimitarrradev.userService.app.error.exception.UserNotFoundException;
 import com.dimitarrradev.userService.app.error.exception.UsernameAlreadyExistsException;
 import com.dimitarrradev.userService.app.role.Role;
 import com.dimitarrradev.userService.app.role.dao.RoleRepository;
 import com.dimitarrradev.userService.app.role.enums.RoleType;
+import com.dimitarrradev.userService.app.security.JwtService;
+import com.dimitarrradev.userService.app.security.LoginResult;
 import com.dimitarrradev.userService.app.user.PasswordResetToken;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.UserModel;
@@ -48,6 +52,8 @@ public class UserServiceTests {
     private FromModelMapper fromModelMapper;
     @Mock
     private RoleRepository roleRepository;
+    @Mock
+    private JwtService jwtService;
 
     private UserAddModel userAdd;
     private UserEditModel userEdit;
@@ -121,6 +127,44 @@ public class UserServiceTests {
                 this.savedUser.getCreatedAt(),
                 this.savedUser.getUpdatedAt()
         );
+    }
+
+    @Test
+    void testLoginReturnsUserModelAndTokenWhenCredentialsMatch() {
+        when(userRepository.findByUsername(savedUser.getUsername()))
+                .thenReturn(Optional.of(savedUser));
+        when(passwordEncoder.matches(userAdd.password(), savedUser.getPassword()))
+                .thenReturn(true);
+        when(assembler.toModel(savedUser))
+                .thenReturn(userModel);
+        when(jwtService.issueToken(savedUser))
+                .thenReturn("signed-token");
+
+        LoginResult result = userService.login(new UserLoginModel(savedUser.getUsername(), userAdd.password()));
+
+        assertEquals(new LoginResult(userModel, "signed-token"), result);
+    }
+
+    @Test
+    void testLoginThrowsWhenPasswordDoesNotMatch() {
+        when(userRepository.findByUsername(savedUser.getUsername()))
+                .thenReturn(Optional.of(savedUser));
+        when(passwordEncoder.matches("wrong-password", savedUser.getPassword()))
+                .thenReturn(false);
+
+        assertThrows(InvalidCredentialsException.class,
+                () -> userService.login(new UserLoginModel(savedUser.getUsername(), "wrong-password")));
+        verify(jwtService, never()).issueToken(any());
+    }
+
+    @Test
+    void testLoginThrowsWhenUsernameDoesNotExist() {
+        when(userRepository.findByUsername("missing-user"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(InvalidCredentialsException.class,
+                () -> userService.login(new UserLoginModel("missing-user", userAdd.password())));
+        verify(jwtService, never()).issueToken(any());
     }
 
     @Test

@@ -2,9 +2,11 @@ package com.dimitarrradev.userService.app.controller;
 
 import com.dimitarrradev.userService.app.controller.binding.UserAddModel;
 import com.dimitarrradev.userService.app.controller.binding.UserEditModel;
+import com.dimitarrradev.userService.app.controller.binding.UserLoginModel;
 import com.dimitarrradev.userService.app.controller.binding.UserPasswordChangeModel;
 import com.dimitarrradev.userService.app.role.dao.RoleRepository;
 import com.dimitarrradev.userService.app.role.service.RoleService;
+import com.dimitarrradev.userService.app.security.JwtService;
 import com.dimitarrradev.userService.app.user.PasswordResetToken;
 import com.dimitarrradev.userService.app.user.User;
 import com.dimitarrradev.userService.app.user.dao.PasswordResetTokenRepository;
@@ -14,6 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,16 +28,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -67,6 +75,8 @@ public class UserControllerTests {
     @Mock
     private UserService userServiceMock;
 
+    @Value("${token.secret}")
+    private String tokenSecret;
     @Value("${server.port}")
     private String serverPort;
     @Value("${sql.script.create.user}")
@@ -106,6 +116,61 @@ public class UserControllerTests {
         jdbc.execute("ALTER TABLE users ALTER COLUMN ID RESTART WITH 1");
         jdbc.execute(deleteRole);
         jdbc.execute("ALTER TABLE roles ALTER COLUMN ID RESTART WITH 1");
+    }
+
+    @Test
+    void testLoginSetsHttpOnlyJwtCookieSignedForTheUser() throws Exception {
+        jdbc.update("UPDATE users SET password = ? WHERE username = 'new-user'", passwordEncoder.encode("Login-Pass1!"));
+        User user = userRepository.findByUsername("new-user").orElseThrow();
+
+        String setCookie = mockMvc.perform(post("https://localhost:" + serverPort + "/api/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserLoginModel("new-user", "Login-Pass1!"))))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_HAL_PLUS_JSON))
+                .andExpect(jsonPath("$.username", is("new-user")))
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, allOf(
+                        startsWith(JwtService.COOKIE_NAME + "="),
+                        containsString("Path=/"),
+                        containsString("Max-Age=3600"),
+                        containsString("HttpOnly"),
+                        containsString("SameSite=Lax"))))
+                .andReturn()
+                .getResponse()
+                .getHeader(HttpHeaders.SET_COOKIE);
+
+        String token = setCookie.substring((JwtService.COOKIE_NAME + "=").length(), setCookie.indexOf(';'));
+        Claims claims = Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(tokenSecret.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        assertEquals(user.getId().toString(), claims.getSubject());
+        assertEquals("new-user", claims.get("username", String.class));
+    }
+
+    @Test
+    void testLoginRespondsWithUnauthorizedWhenPasswordIsWrong() throws Exception {
+        jdbc.update("UPDATE users SET password = ? WHERE username = 'new-user'", passwordEncoder.encode("Login-Pass1!"));
+
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserLoginModel("new-user", "wrong-password"))))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE))
+                .andExpect(jsonPath("$.exception", is("InvalidCredentialsException")))
+                .andExpect(jsonPath("$.message", is("Invalid username or password!")));
+    }
+
+    @Test
+    void testLoginRespondsWithBadRequestWhenFieldsAreBlank() throws Exception {
+        mockMvc.perform(post("https://localhost:" + serverPort + "/api/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserLoginModel("", ""))))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE))
+                .andExpect(jsonPath("$.fields", hasSize(2)));
     }
 
     @Test

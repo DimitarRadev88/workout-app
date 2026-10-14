@@ -49,7 +49,7 @@ Each service owns its database. workout-service reads exercises from exercise-se
 
 ## Configuration
 
-exercise-service, user-service and schedule-service read their settings from environment variables. Each module has a `secrets.env` file for local development; `*.env` files are git-ignored, so create them yourself:
+exercise-service, user-service, schedule-service and api-gateway read their settings from environment variables. Each of these modules has a `secrets.env` file for local development; `*.env` files are git-ignored, so create them yourself:
 
 ```properties
 # exercise-service/secrets.env  (user-service: 8083 / workout-scheduler-users-db, schedule-service: 8084 / schedules-db)
@@ -59,9 +59,24 @@ DB_PASSWORD=<mysql password>
 PORT=8082
 ```
 
+user-service and api-gateway also need the JWT signing secret, and it must be **the same value in both** — user-service signs the login token with it and the gateway verifies it:
+
+```properties
+# user-service/secrets.env (in addition to the DB_* and PORT lines above)
+TOKEN_SECRET=<random secret, at least 64 bytes>
+
+# api-gateway/secrets.env
+TOKEN_SECRET=<the same secret>
+```
+
+Generate one with `openssl rand -base64 64`. user-service refuses to start with a secret shorter than 64 bytes (HS512 needs a 512-bit key).
+
 | Variable | Used by | Default |
 |---|---|---|
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | exercise-, user-, schedule-service | – (required) |
+| `TOKEN_SECRET` | user-service, api-gateway | – (required, ≥ 64 bytes, same in both) |
+| `TOKEN_EXPIRATION_TIME` | user-service | `3600` (seconds the login token and cookie last) |
+| `TOKEN_COOKIE_SECURE` | user-service | `false` — set `true` behind HTTPS so the cookie is only sent over TLS |
 | `PORT` | exercise-, user-, schedule-service; api-gateway; eureka | api-gateway `8080`, eureka `8761` |
 | `EUREKA_URL` | all Eureka clients | `http://localhost:8761/eureka` |
 
@@ -91,7 +106,7 @@ java -jar eureka-discovery-service/target/eureka-discovery-service-0.0.1-SNAPSHO
 (cd user-service     && env $(grep -v '^#' secrets.env | xargs) java -jar target/user-service-0.0.1-SNAPSHOT.jar)
 (cd schedule-service && env $(grep -v '^#' secrets.env | xargs) java -jar target/schedule-service-0.0.1-SNAPSHOT.jar)
 java -jar workout-service/target/workout-service-0.0.1-SNAPSHOT.jar
-java -jar api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar
+(cd api-gateway      && env $(grep -v '^#' secrets.env | xargs) java -jar target/api-gateway-0.0.1-SNAPSHOT.jar)
 ```
 
 Don't `source` the `secrets.env` files in a shell: the `&` characters in `DB_URL` break it. The `env $(...)` form above passes them through unchanged. In IntelliJ, a run configuration with the variables (or an EnvFile plugin) works too.
@@ -104,13 +119,30 @@ Then open:
 
 ## API gateway
 
-| Path | Routed to |
-|---|---|
-| `/api/exercises/**` | `lb://ExercisesService` |
-| `/api/users/**` | `lb://UsersService` |
-| `/api/schedules/**` | `lb://ScheduleService` |
+| Route | Path | Routed to | Login required |
+|---|---|---|---|
+| `exercise-service` | `/api/exercises/**` | `lb://ExercisesService` | yes |
+| `user-service-public` | `/api/users/login`, `/create`, `/create-password-reset-token`, `/change-password` | `lb://UsersService` | no |
+| `user-service` | every other `/api/users/**` | `lb://UsersService` | yes |
+| `schedule-service` | `/api/schedules/**` | `lb://ScheduleService` | yes |
 
-Routes are configured in `api-gateway/src/main/resources/application.properties` under `spring.cloud.gateway.server.webflux.routes`.
+Routes are configured in `api-gateway/src/main/resources/application.properties` under `spring.cloud.gateway.server.webflux.routes`. The first matching route wins, so `user-service-public` is listed before `user-service`.
+
+### Authentication
+
+1. `POST /api/users/login` with `{"username": "...", "password": "..."}`. user-service checks the BCrypt password hash and answers with the user and a `JWT` cookie: `HttpOnly`, `SameSite=Lax`, `Path=/`, lasting `TOKEN_EXPIRATION_TIME`. The token is signed with HS512 and carries the user id (`sub`), `username` and `roles`.
+2. The browser (or `curl -c/-b`) sends the cookie back on later requests.
+3. On routes marked "Login required", the gateway's `JwtAuthentication` filter verifies the cookie's signature and expiry with `TOKEN_SECRET`. A missing, tampered or expired token gets `401` from the gateway and never reaches the service.
+
+```bash
+curl -c cookies.txt -H 'Content-Type: application/json' \
+     -d '{"username":"someone","password":"S3cret@pass"}' http://localhost:8080/api/users/login
+curl -b cookies.txt http://localhost:8080/api/exercises      # 200 — without -b: 401
+```
+
+A wrong username or password both return `401` with the same message, so the API doesn't reveal which usernames exist.
+
+The check lives only in the gateway: calling a service directly on its own port skips it, so the service ports shouldn't be reachable from outside.
 
 HATEOAS links returned through the gateway point at the gateway, not at the service. That needs two settings working together:
 
@@ -141,6 +173,7 @@ All responses are HAL JSON (`application/hal+json`).
 | Method | Path | Description |
 |---|---|---|
 | POST | `/create` | Create a user |
+| POST | `/login` | Log in; sets the `JWT` cookie (see [Authentication](#authentication)) |
 | GET | `/{id}`, `/{id}/roles` | User details and roles |
 | PATCH | `/{id}` | Update profile |
 | POST | `/create-password-reset-token` | Start a password reset (`?email=`) |
@@ -167,3 +200,5 @@ All responses are HAL JSON (`application/hal+json`).
 - schedule-service expects at most one schedule per user per day; `GET /api/schedules/{userId}?date=` returns 500 when there are several.
 - The workout form requires a weight of at least 0.5, so bodyweight exercises can't be logged with zero weight.
 - The dashboard, profile progress bars and weekly schedule show placeholder content.
+- Only the gateway checks the JWT; the services themselves accept requests without one, so anything that can reach their ports directly bypasses the login.
+- On an empty user database `POST /api/users/create` returns 500: the USER role isn't created automatically. Insert the `USER` and `ADMIN` rows into `roles` first.
